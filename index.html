@@ -4,4192 +4,2217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>D2D QUEST - Sales RPG</title>
+<title>Sales Fighter 1942</title>
 
 <style>
-
 *{
     box-sizing:border-box;
-    image-rendering:pixelated;
+    user-select:none;
 }
 
 html,body{
     margin:0;
+    padding:0;
     width:100%;
     height:100%;
-    background:#10151c;
-    font-family:"Courier New",monospace;
     overflow:hidden;
-}
-
-body{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-#gameWrap{
-    width:min(1150px,100vw);
-    aspect-ratio:16/9;
-    position:relative;
-    background:#111;
-    box-shadow:
-        0 0 0 6px #303640,
-        0 20px 70px #000;
+    background:#020611;
+    font-family:Arial,Helvetica,sans-serif;
 }
 
 canvas{
-    width:100%;
-    height:100%;
     display:block;
+    width:100vw;
+    height:100vh;
+    cursor:crosshair;
 }
 
-
-/* =========================================================
-   SPEECH BUBBLE
-========================================================= */
-
-#bubble{
-    position:absolute;
-    left:50%;
-    transform:translateX(-50%);
-    bottom:18px;
-
-    width:min(92%,850px);
-
-    background:#fff8df;
-    color:#20242b;
-
-    border:5px solid #20242b;
-
-    padding:14px 18px;
-
-    box-shadow:
-        6px 6px 0 #000;
-
-    display:none;
-
-    z-index:20;
-}
-
-#bubble:after{
-    content:"";
-    position:absolute;
-    bottom:-18px;
-    left:48px;
-
-    width:18px;
-    height:18px;
-
-    background:#fff8df;
-
-    border-right:5px solid #20242b;
-    border-bottom:5px solid #20242b;
-
-    transform:rotate(45deg);
-}
-
-#bubbleName{
-    font-size:12px;
-    color:#9b3e45;
-    margin-bottom:7px;
-}
-
-#bubbleText{
-    font-size:15px;
-    line-height:1.35;
-}
-
-#bubbleTimer{
-    margin-top:8px;
-    height:5px;
-    background:#252a31;
-}
-
-#bubbleTimerFill{
-    height:100%;
+#hud{
+    position:fixed;
+    top:0;
+    left:0;
     width:100%;
-    background:#61a85b;
-}
-
-
-/* =========================================================
-   BATTLE UI
-========================================================= */
-
-#battleUI{
-    position:absolute;
-    inset:0;
-    display:none;
-    z-index:10;
-}
-
-#battleTop{
-    position:absolute;
-    top:10px;
-    left:10px;
-    right:10px;
-
+    padding:10px 15px;
     display:flex;
     justify-content:space-between;
+    align-items:flex-start;
+    pointer-events:none;
+    color:white;
+    z-index:5;
+    text-shadow:0 2px 4px #000;
 }
 
-.status{
-    width:215px;
-
-    background:#fff8df;
-    border:4px solid #20242b;
-
-    padding:7px;
-
-    box-shadow:4px 4px 0 #000;
+.panel{
+    background:rgba(0,10,25,.72);
+    border:1px solid rgba(100,200,255,.35);
+    border-radius:10px;
+    padding:8px 12px;
+    backdrop-filter:blur(5px);
 }
 
-.statusTitle{
+#stats{
+    line-height:1.5;
+    font-size:14px;
+}
+
+#weapon{
+    text-align:right;
+    font-size:14px;
+}
+
+#powerText{
+    color:#58eaff;
     font-weight:bold;
-    font-size:12px;
+    font-size:18px;
 }
 
-.hpText{
-    font-size:10px;
-    margin-top:4px;
+#bossBar{
+    position:fixed;
+    top:82px;
+    left:50%;
+    transform:translateX(-50%);
+    width:min(600px,75vw);
+    display:none;
+    z-index:6;
 }
 
-.hpBar{
-    height:11px;
-    margin-top:3px;
-
-    background:#252a31;
-    border:2px solid #20242b;
+#bossName{
+    color:#ff5b5b;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+    margin-bottom:5px;
+    text-shadow:0 0 10px red;
 }
 
-.hpFill{
+.bar{
+    height:18px;
+    background:#180606;
+    border:2px solid #ff4444;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+#bossHp{
     height:100%;
+    width:100%;
+    background:linear-gradient(90deg,#ff1010,#ff9900);
+    transition:width .1s;
 }
 
-#battleBottom{
-    position:absolute;
-    left:18px;
-    right:18px;
-    bottom:18px;
-
-    background:#20242bdd;
-
-    border:4px solid #11151b;
-
-    padding:9px;
+#message{
+    position:fixed;
+    left:50%;
+    top:43%;
+    transform:translate(-50%,-50%);
+    color:white;
+    font-weight:bold;
+    font-size:30px;
+    text-align:center;
+    text-shadow:
+        0 0 5px #000,
+        0 0 15px #00c8ff;
+    pointer-events:none;
+    z-index:20;
+    opacity:0;
 }
 
-#battleMessage{
-    color:#fff;
-    font-size:12px;
-    min-height:25px;
-    margin-bottom:8px;
+#startScreen,
+#gameOver{
+    position:fixed;
+    inset:0;
+    background:
+        radial-gradient(circle at center,rgba(0,80,140,.25),rgba(0,0,0,.94)),
+        #020611;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    z-index:50;
+    color:white;
+    text-align:center;
 }
 
-.categoryButtons{
-    display:grid;
-    grid-template-columns:repeat(5,1fr);
-    gap:6px;
+.menu{
+    width:min(600px,90vw);
+    padding:35px;
+    border-radius:20px;
+    border:1px solid rgba(100,220,255,.4);
+    background:rgba(2,12,30,.88);
+    box-shadow:0 0 50px rgba(0,150,255,.18);
 }
 
-.actionGrid{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:6px;
-    margin-top:7px;
+h1{
+    margin:0 0 10px;
+    font-size:48px;
+    color:#62e9ff;
+    text-shadow:0 0 20px #00bfff;
+}
+
+.subtitle{
+    color:#aaa;
+    margin-bottom:25px;
 }
 
 button{
-    font-family:inherit;
+    border:0;
+    border-radius:12px;
+    padding:14px 30px;
+    font-size:18px;
     font-weight:bold;
-    font-size:11px;
-
-    background:#fff3ce;
-    color:#20242b;
-
-    border:3px solid #303640;
-
-    padding:9px;
-
+    color:white;
+    background:linear-gradient(135deg,#0077ff,#00c8ff);
     cursor:pointer;
-
-    box-shadow:3px 3px 0 #000;
+    box-shadow:0 0 20px rgba(0,190,255,.35);
 }
 
 button:hover{
-    background:#d8efb3;
-    transform:translate(-1px,-1px);
+    transform:scale(1.05);
 }
 
-button:active{
-    transform:translate(2px,2px);
-    box-shadow:1px 1px 0 #000;
+.instructions{
+    text-align:left;
+    line-height:1.7;
+    color:#cbd8e8;
+    margin:20px 0;
 }
 
-button:disabled{
-    opacity:.4;
-    cursor:not-allowed;
+.red{
+    color:#ff6262;
 }
 
-.small{
-    font-size:9px;
+.green{
+    color:#5dff9b;
 }
 
-#battleInfo{
-    position:absolute;
-    top:80px;
+.blue{
+    color:#55ddff;
+}
+
+.gold{
+    color:#ffd84d;
+}
+
+.hidden{
+    display:none!important;
+}
+
+#mobileHint{
+    position:fixed;
+    bottom:12px;
     left:50%;
     transform:translateX(-50%);
-
-    background:#20242bdd;
-    color:#fff;
-
-    border:3px solid #11151b;
-
-    padding:6px 10px;
-
-    font-size:9px;
-
-    z-index:15;
+    color:#8faac0;
+    font-size:12px;
+    z-index:4;
+    pointer-events:none;
 }
-
-#escapeButton{
-    position:absolute;
-    top:10px;
-    left:50%;
-    transform:translateX(-50%);
-
-    display:none;
-
-    background:#d78b78;
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media(max-width:700px){
-
-    #battleTop{
-        transform:scale(.75);
-        transform-origin:top center;
-    }
-
-    #battleBottom{
-        left:5px;
-        right:5px;
-        bottom:5px;
-    }
-
-    button{
-        font-size:8px;
-        padding:6px;
-    }
-
-    .categoryButtons{
-        grid-template-columns:repeat(5,1fr);
-    }
-
-    .actionGrid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
-    #bubbleText{
-        font-size:11px;
-    }
-}
-
 </style>
 </head>
 
-
 <body>
 
-<div id="gameWrap">
+<canvas id="game"></canvas>
 
-<canvas id="game"
-        width="480"
-        height="270">
-</canvas>
+<div id="hud">
 
-
-<!-- ======================================================
-     BATTLE UI
-====================================================== -->
-
-<div id="battleUI">
-
-    <div id="battleTop">
-
-        <div class="status">
-
-            <div class="statusTitle">
-                🧑‍💼 ΠΩΛΗΤΗΣ
-            </div>
-
-            <div class="hpText"
-                 id="playerHPText">
-            </div>
-
-            <div class="hpBar">
-                <div id="playerHPFill"
-                     class="hpFill"
-                     style="background:#61a85b">
-                </div>
-            </div>
-
-        </div>
-
-
-        <div class="status">
-
-            <div class="statusTitle"
-                 id="customerName">
-            </div>
-
-            <div class="hpText"
-                 id="customerHPText">
-            </div>
-
-            <div class="hpBar">
-
-                <div id="customerHPFill"
-                     class="hpFill"
-                     style="background:#ba5d57">
-                </div>
-
-            </div>
-
-        </div>
-
+    <div class="panel" id="stats">
+        <div>💰 Πωλήσεις: <span id="score">0</span></div>
+        <div>☠️ Kills: <span id="kills">0</span></div>
+        <div>🔥 Combo: <span id="combo">0</span></div>
+        <div>🌊 Wave: <span id="wave">1</span></div>
     </div>
 
-
-    <div id="battleInfo">
-    </div>
-
-
-    <button id="escapeButton"
-            onclick="attemptEscape()">
-        🚪 ΑΦΗΣΕ ΜΕ ΝΑ ΦΥΓΩ
-    </button>
-
-
-    <div id="battleBottom">
-
-        <div id="battleMessage">
-        </div>
-
-
-        <div class="categoryButtons">
-
-            <button onclick="setCategory('attack')">
-                ⚔️ ATTACK
-            </button>
-
-            <button onclick="setCategory('spells')">
-                ✨ SPELLS
-            </button>
-
-            <button onclick="setCategory('items')">
-                🎁 ITEMS
-            </button>
-
-            <button onclick="setCategory('products')">
-                📦 PRODUCTS
-            </button>
-
-            <button onclick="setCategory('skills')">
-                🧠 SKILLS
-            </button>
-
-        </div>
-
-
-        <div id="actionGrid"
-             class="actionGrid">
-        </div>
-
+    <div class="panel" id="weapon">
+        <div>📡 Σύνδεση</div>
+        <div id="powerText">500 Mbps</div>
+        <div>DMG: <span id="damage">17.9</span></div>
     </div>
 
 </div>
 
-
-<!-- ======================================================
-     SPEECH BUBBLE
-====================================================== -->
-
-<div id="bubble">
-
-    <div id="bubbleName">
+<div id="bossBar">
+    <div id="bossName">👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ — ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ</div>
+    <div class="bar">
+        <div id="bossHp"></div>
     </div>
+</div>
 
-    <div id="bubbleText">
-    </div>
+<div id="message"></div>
 
-    <div id="bubbleTimer">
-        <div id="bubbleTimerFill">
+<div id="mobileHint">
+    🖱️ Κούνα το mouse για να κινήσεις το μαχητικό • Κλικ/Space για πυρ
+</div>
+
+<div id="startScreen">
+    <div class="menu">
+
+        <h1>SALES FIGHTER</h1>
+
+        <div class="subtitle">
+            1942: HORECA EDITION
         </div>
+
+        <div class="instructions">
+            ✈️ Είσαι ο <b>πωλητής-μαχητικό</b>.<br>
+            👽 Κατάστρεψε τους εξωγήινους πελάτες.<br>
+            🎁 Μάζεψε τα <span class="blue">Mbps / Gbps bonuses</span> πριν χαθούν.<br>
+            💥 Όσο ανεβαίνει η σύνδεση, ανεβαίνει και το damage.<br>
+            👹 Πρόσεχε το <span class="red">Boss</span> — έχει τεράστιο HP και ρίχνει αντιρρήσεις.<br>
+            🗣️ «Δεν ενδιαφέρομαι», «Είναι ακριβό», «Έχω ήδη πάροχο»...<br>
+            🔥 Απόφυγε τις φωτιές και συνέχισε την πώληση!
+        </div>
+
+        <button id="startBtn">▶ ΕΝΑΡΞΗ ΠΩΛΗΣΕΩΝ</button>
+
     </div>
-
 </div>
 
-</div>
+<div id="gameOver" class="hidden">
+    <div class="menu">
 
+        <h1>GAME OVER</h1>
+
+        <p id="finalReason"></p>
+
+        <p>
+            💰 Τελικές πωλήσεις:
+            <b id="finalScore">0</b>
+        </p>
+
+        <p>
+            ☠️ Kills:
+            <b id="finalKills">0</b>
+        </p>
+
+        <button id="restartBtn">🔄 ΞΑΝΑ</button>
+
+    </div>
+</div>
 
 <script>
 
-/* =========================================================
-   D2D QUEST
-   FULL SALES RPG
-========================================================= */
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+let W = 0;
+let H = 0;
+
+function resize(){
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+}
+
+window.addEventListener("resize",resize);
+resize();
 
 
-const canvas =
-    document.getElementById("game");
+// ============================================================
+// GAME STATE
+// ============================================================
 
-const ctx =
-    canvas.getContext("2d");
+let running = false;
 
-ctx.imageSmoothingEnabled = false;
+let score = 0;
+let kills = 0;
+let combo = 0;
+let wave = 1;
 
-const W = 480;
-const H = 270;
+let frame = 0;
 
-let state = "world";
+let damage = 17.9;
+let powerLevel = 0;
 
-let lastTime = 0;
+let bossActive = false;
+let boss = null;
 
-let encounter = null;
+let bullets = [];
+let enemies = [];
+let enemyBullets = [];
+let particles = [];
+let powerups = [];
+let floatingTexts = [];
+let stars = [];
 
-let bubbleTimeout = null;
+let keys = {};
 
+let mouseX = W/2;
+let mouseY = H-130;
 
-/* =========================================================
-   KEYS
-========================================================= */
+let shootHeld = false;
 
-const keys = {};
+let spawnTimer = 0;
+let bossTimer = 0;
 
-window.addEventListener(
-    "keydown",
-    e => {
-
-        keys[e.key.toLowerCase()] = true;
-
-        if(e.key === " "){
-            e.preventDefault();
-
-            if(state === "world")
-                interact();
-        }
-
-        if(e.key === "Escape"){
-
-            if(state === "battle")
-                attemptEscape();
-
-        }
-
-    }
-);
+let shake = 0;
 
 
-window.addEventListener(
-    "keyup",
-    e => {
-
-        keys[e.key.toLowerCase()] = false;
-
-    }
-);
-
-
-/* =========================================================
-   PLAYER
-========================================================= */
+// ============================================================
+// PLAYER
+// ============================================================
 
 const player = {
-
-    x:235,
-    y:185,
-
-    speed:82,
-
-    hp:100,
-    maxHp:100,
-
-    xp:0,
-    level:1,
-
-    money:100,
-
-    teamLeaderUses:2,
-    supervisorUses:1,
-
-    inventory:{
-
-        extender:2,
-        fixed3:2,
-        install:2,
-        month:1,
-        discount:2
-
-    },
-
-    stats:{
-
-        sales:0,
-        products:0,
-        days:1
-
-    }
-
+    x:W/2,
+    y:H-130,
+    w:48,
+    h:70,
+    speed:8,
+    fireCooldown:0,
+    alive:true
 };
 
 
-/* =========================================================
-   CUSTOMERS
-========================================================= */
+// ============================================================
+// POWER LEVELS
+// ============================================================
 
-const npcs = [
-
+const powers = [
     {
-        x:105,
-        y:125,
-
-        name:"Μαρία",
-        job:"Οικογένεια",
-
-        type:"quality",
-
-        hp:90,
-        maxHp:90,
-
-        trust:42,
-        interest:35,
-
-        color:"#c86d87",
-
-        internet:true,
-        fixed:false,
-
-        done:false
-    },
-
-    {
-        x:315,
-        y:145,
-
-        name:"Γιώργος",
-        job:"Περαστικός",
-
-        type:"price",
-
-        hp:82,
-        maxHp:82,
-
-        trust:28,
-        interest:45,
-
-        color:"#5a80a8",
-
-        internet:true,
-        fixed:false,
-
-        done:false
-    },
-
-    {
-        x:392,
-        y:215,
-
-        name:"Νίκος",
-        job:"Ιδιοκτήτης",
-
-        type:"loyal",
-
-        hp:120,
-        maxHp:120,
-
-        trust:20,
-        interest:22,
-
-        color:"#ad7a50",
-
-        internet:true,
-        fixed:true,
-
-        done:false
-    }
-
-];
-
-
-/* =========================================================
-   BUILDINGS
-========================================================= */
-
-const buildings = [
-
-    {
-        x:22,
-        y:45,
-        w:105,
-        h:68,
-        name:"CAFE"
-    },
-
-    {
-        x:150,
-        y:32,
-        w:105,
-        h:78,
-        name:"ΣΠΙΤΙ"
-    },
-
-    {
-        x:288,
-        y:42,
-        w:87,
-        h:68,
-        name:"ΜΑΓΑΖΙ"
-    },
-
-    {
-        x:395,
-        y:48,
-        w:62,
-        h:62,
-        name:"ΣΠΙΤΙ"
-    }
-
-];
-
-
-/* =========================================================
-   PRODUCTS
-========================================================= */
-
-const internetProducts = [
-
-    {
-        id:"500",
         name:"500 Mbps",
-        price:25,
-        damage:16,
-        type:"price"
+        damage:17.9,
+        color:"#42e8ff"
     },
-
     {
-        id:"1000",
         name:"1000 Mbps",
-        price:35,
-        damage:20,
-        type:"value"
+        damage:19.9,
+        color:"#fff15a"
     },
-
     {
-        id:"2500",
         name:"2.5 Gbps",
-        price:50,
-        damage:28,
-        type:"premium"
+        damage:52.9,
+        color:"#ff62ff"
+    }
+];
+
+
+// ============================================================
+// STARS
+// ============================================================
+
+function createStars(){
+
+    stars=[];
+
+    for(let i=0;i<180;i++){
+
+        stars.push({
+            x:Math.random()*W,
+            y:Math.random()*H,
+            speed:1+Math.random()*5,
+            size:Math.random()*2
+        });
+
+    }
+}
+
+createStars();
+
+
+// ============================================================
+// START
+// ============================================================
+
+function startGame(){
+
+    running=true;
+
+    score=0;
+    kills=0;
+    combo=0;
+    wave=1;
+
+    powerLevel=0;
+    damage=powers[0].damage;
+
+    bullets=[];
+    enemies=[];
+    enemyBullets=[];
+    particles=[];
+    powerups=[];
+    floatingTexts=[];
+
+    boss=null;
+    bossActive=false;
+
+    player.x=W/2;
+    player.y=H-130;
+    player.alive=true;
+
+    spawnTimer=0;
+    bossTimer=0;
+
+    document.getElementById("startScreen").classList.add("hidden");
+    document.getElementById("gameOver").classList.add("hidden");
+
+    updateHUD();
+
+    requestAnimationFrame(gameLoop);
+}
+
+
+// ============================================================
+// INPUT
+// ============================================================
+
+window.addEventListener("keydown",e=>{
+
+    keys[e.key.toLowerCase()]=true;
+
+    if(e.code==="Space"){
+        shootHeld=true;
+        e.preventDefault();
     }
 
-];
+});
 
+window.addEventListener("keyup",e=>{
 
-const fixedProducts = [
+    keys[e.key.toLowerCase()]=false;
 
-    {
-        id:"fixed",
-        name:"Basic Fixed",
-        price:4,
-        damage:18
-    },
-
-    {
-        id:"intl",
-        name:"International Plus",
-        price:10,
-        damage:25
+    if(e.code==="Space"){
+        shootHeld=false;
     }
 
-];
+});
+
+canvas.addEventListener("mousemove",e=>{
+
+    mouseX=e.clientX;
+    mouseY=e.clientY;
+
+});
+
+canvas.addEventListener("mousedown",()=>{
+    shootHeld=true;
+});
+
+window.addEventListener("mouseup",()=>{
+    shootHeld=false;
+});
 
 
-/* =========================================================
-   ATTACKS
-========================================================= */
+// Touch
 
-const attacks = [
+canvas.addEventListener("touchmove",e=>{
 
-    {
-        name:"💰 Έχουμε τη χαμηλότερη τιμή!",
-        damage:20,
-        type:"price"
-    },
+    const t=e.touches[0];
 
-    {
-        name:"🏷️ Μπορώ να σας κάνω καλύτερη προσφορά!",
-        damage:18,
-        type:"price"
-    },
+    mouseX=t.clientX;
+    mouseY=t.clientY;
 
-    {
-        name:"💶 Θα πληρώνετε λιγότερα κάθε μήνα!",
-        damage:22,
-        type:"price"
-    },
+    e.preventDefault();
 
-    {
-        name:"⚡ Έχουμε προσφορά σήμερα!",
-        damage:25,
-        type:"urgency"
-    },
+},{passive:false});
 
-    {
-        name:"⭐ Θα έχετε καλύτερη ποιότητα!",
-        damage:19,
-        type:"quality"
-    },
+canvas.addEventListener("touchstart",e=>{
 
-    {
-        name:"🚀 Πάμε στα 2.5 Gbps!",
-        damage:27,
-        type:"value"
-    },
+    const t=e.touches[0];
 
-    {
-        name:"📈 Τα 1000 Mbps είναι το sweet spot!",
-        damage:23,
-        type:"value"
-    },
+    mouseX=t.clientX;
+    mouseY=t.clientY;
 
-    {
-        name:"🤝 Θα σας κάνω μια ειδική τιμή.",
-        damage:18,
-        type:"relationship"
-    },
+    shootHeld=true;
 
-    {
-        name:"🎯 Αυτό το πακέτο σας ταιριάζει.",
-        damage:21,
-        type:"relationship"
-    },
+    e.preventDefault();
 
-    {
-        name:"🔥 Δεν θα βρείτε εύκολα τέτοια προσφορά!",
-        damage:24,
-        type:"urgency"
-    },
+},{passive:false});
 
-    {
-        name:"💎 Είναι premium λύση για το σπίτι.",
-        damage:20,
-        type:"quality"
-    },
+canvas.addEventListener("touchend",()=>{
+    shootHeld=false;
+});
 
-    {
-        name:"📡 Με αυτή την ταχύτητα ξεχνάτε τα κολλήματα.",
-        damage:22,
-        type:"quality"
+
+// ============================================================
+// PLAYER MOVEMENT
+// ============================================================
+
+function movePlayer(){
+
+    const keyboard =
+        keys["arrowleft"] ||
+        keys["a"] ||
+        keys["arrowright"] ||
+        keys["d"] ||
+        keys["arrowup"] ||
+        keys["w"] ||
+        keys["arrowdown"] ||
+        keys["s"];
+
+    if(keyboard){
+
+        if(keys["arrowleft"] || keys["a"])
+            player.x-=player.speed;
+
+        if(keys["arrowright"] || keys["d"])
+            player.x+=player.speed;
+
+        if(keys["arrowup"] || keys["w"])
+            player.y-=player.speed;
+
+        if(keys["arrowdown"] || keys["s"])
+            player.y+=player.speed;
+
+    }else{
+
+        // smooth mouse following
+
+        player.x += (mouseX-player.x)*0.16;
+        player.y += (mouseY-player.y)*0.16;
+
     }
 
-];
-
-
-/* =========================================================
-   SPELLS / PERSUASION
-========================================================= */
-
-const spells = [
-
-    {
-        name:"🗣️ Ας δούμε πρώτα τι χρειάζεστε.",
-        damage:8,
-        trust:15,
-        interest:20
-    },
-
-    {
-        name:"❓ Τι σας ενοχλεί περισσότερο στο σημερινό σας Internet;",
-        damage:6,
-        trust:20,
-        interest:25
-    },
-
-    {
-        name:"🧠 Πληρώνετε πολλά για αυτά που παίρνετε;",
-        damage:14,
-        trust:8,
-        interest:20
-    },
-
-    {
-        name:"📊 Να σας δείξω τη διαφορά στην τιμή;",
-        damage:16,
-        trust:10,
-        interest:18
-    },
-
-    {
-        name:"🤝 Δεν θέλω να σας πουλήσω κάτι που δεν χρειάζεστε.",
-        damage:9,
-        trust:25,
-        interest:20
-    },
-
-    {
-        name:"🎯 Θα σας προτείνω μόνο αυτό που σας ταιριάζει.",
-        damage:12,
-        trust:22,
-        interest:18
-    },
-
-    {
-        name:"👨‍👩‍👧 Πόσα άτομα χρησιμοποιούν το Internet;",
-        damage:7,
-        trust:15,
-        interest:22
-    },
-
-    {
-        name:"🎮 Έχετε gaming ή πολλές συσκευές στο σπίτι;",
-        damage:12,
-        trust:12,
-        interest:27
-    },
-
-    {
-        name:"📺 Βλέπετε πολλές streaming υπηρεσίες;",
-        damage:11,
-        trust:12,
-        interest:23
-    },
-
-    {
-        name:"💼 Το Internet είναι σημαντικό για τη δουλειά σας;",
-        damage:13,
-        trust:16,
-        interest:24
-    },
-
-    {
-        name:"🔎 Τι θα θέλατε να βελτιώσετε;",
-        damage:5,
-        trust:23,
-        interest:28
-    },
-
-    {
-        name:"😊 Αν σας βρω καλύτερη λύση, θα το εξετάζατε;",
-        damage:14,
-        trust:17,
-        interest:24
-    },
-
-    {
-        name:"📦 Μπορούμε να το κάνουμε πιο ολοκληρωμένο πακέτο.",
-        damage:17,
-        trust:8,
-        interest:20
-    },
-
-    {
-        name:"💡 Έχετε σκεφτεί να βάλετε και σταθερή;",
-        damage:10,
-        trust:10,
-        interest:25
-    }
-
-];
-
-
-/* =========================================================
-   SKILLS
-========================================================= */
-
-const skills = [
-
-    {
-        id:"read",
-        name:"🔍 Read Customer"
-    },
-
-    {
-        id:"confidence",
-        name:"💪 Confidence"
-    },
-
-    {
-        id:"combo",
-        name:"🧩 Combo"
-    },
-
-    {
-        id:"close",
-        name:"🎯 Close"
-    }
-
-];
-
-
-/* =========================================================
-   CUSTOMER DIALOGUE DATABASE
-========================================================= */
-
-const customerDialogue = {
-
-    price:[
-
-        "Έχω ήδη πολύ καλή τιμή.",
-
-        "Πόσο θα πληρώνω;", 
-
-        "Δεν θέλω να πληρώνω παραπάνω.",
-
-        "Στο Internet βρίσκω φθηνότερα.",
-
-        "Η τιμή είναι το βασικό για μένα.",
-
-        "Έχω υπαλληλικό πακέτο.",
-
-        "Μου έχουν κάνει ήδη προσφορά.",
-
-        "Δεν με ενδιαφέρει να πληρώνω για πράγματα που δεν χρειάζομαι.",
-
-        "Αν είναι ακριβότερο, δεν το συζητάμε.",
-
-        "Πόσα ευρώ θα γλιτώσω;", 
-
-        "Δεν βλέπω γιατί να αλλάξω.",
-
-        "Θέλω το πιο οικονομικό.",
-
-        "Δεν με πείθει αυτό.",
-
-        "Τι έξτρα χρέωση έχει;",
-
-        "Έχω συμβόλαιο σε πολύ καλή τιμή."
-
-    ],
-
-    quality:[
-
-        "Θέλω καλή ποιότητα, όχι απλώς φθηνή τιμή.",
-
-        "Με νοιάζει να μην έχω διακοπές.",
-
-        "Έχω αρκετές συσκευές στο σπίτι.",
-
-        "Τα παιδιά κάνουν συνέχεια streaming.",
-
-        "Έχω gaming PC.",
-
-        "Δεν θέλω να κολλάει το Internet.",
-
-        "Τι ταχύτητα πραγματικά χρειάζομαι;", 
-
-        "Έχω δουλειά από το σπίτι.",
-
-        "Πρέπει να είναι αξιόπιστο.",
-
-        "Δεν με ενδιαφέρει μόνο η τιμή.",
-
-        "Τι διαφορά έχει το 1000 από το 500;", 
-
-        "Γιατί να πάω στα 2.5 Gbps;", 
-
-        "Θέλω να είμαι καλυμμένος για τα επόμενα χρόνια.",
-
-        "Έχω πολλές συσκευές ταυτόχρονα.",
-
-        "Θέλω κάτι πραγματικά γρήγορο."
-
-    ],
-
-    loyal:[
-
-        "Εγώ έχω ήδη εταιρεία.",
-
-        "Είμαι ευχαριστημένος όπως είμαι.",
-
-        "Δεν θέλω να αλλάξω.",
-
-        "Έχω συνηθίσει τον πάροχό μου.",
-
-        "Δεν έχω κάποιο πρόβλημα αυτή τη στιγμή.",
-
-        "Γιατί να μπω στη διαδικασία;", 
-
-        "Έχω ήδη σταθερή.",
-
-        "Έχω ήδη καλό πακέτο.",
-
-        "Δεν θέλω αλλαγές.",
-
-        "Ο προηγούμενος πωλητής μου είχε πει το ίδιο.",
-
-        "Θα πρέπει να μου δώσεις πολύ καλό λόγο.",
-
-        "Δεν εμπιστεύομαι εύκολα προσφορές.",
-
-        "Πόσο καιρό υπάρχει η εταιρεία σας;", 
-
-        "Τι γίνεται αν έχω πρόβλημα;", 
-
-        "Δεν θέλω εκπλήξεις στον λογαριασμό."
-
-    ]
-
-};
-
-
-/* =========================================================
-   CUSTOMER AI RESPONSES
-========================================================= */
-
-const aiActions = [
-
-    "counter",
-    "defend",
-    "heal",
-    "escape",
-    "question"
-];
-
-
-/* =========================================================
-   DRAW HELPERS
-========================================================= */
-
-function rect(x,y,w,h,color){
-
-    ctx.fillStyle=color;
-
-    ctx.fillRect(
-        Math.round(x),
-        Math.round(y),
-        w,
-        h
-    );
+    player.x=Math.max(30,Math.min(W-30,player.x));
+    player.y=Math.max(70,Math.min(H-45,player.y));
 
 }
 
 
-function text(t,x,y,size=8,color="#fff",align="left"){
+// ============================================================
+// SHOOT
+// ============================================================
 
-    ctx.font=
-        `bold ${size}px monospace`;
+function shoot(){
 
-    ctx.fillStyle=color;
+    if(player.fireCooldown>0) return;
 
-    ctx.textAlign=align;
+    player.fireCooldown=7;
 
-    ctx.fillText(t,x,y);
+    if(powerLevel===2){
 
-}
+        // Triple laser
 
-
-/* =========================================================
-   CHARACTER
-========================================================= */
-
-function drawCharacter(
-    x,
-    y,
-    shirt,
-    skin,
-    label,
-    hero=false
-){
-
-    rect(
-        x-8,
-        y+9,
-        16,
-        4,
-        "#0005"
-    );
-
-
-    rect(
-        x-6,
-        y+5,
-        4,
-        8,
-        "#303642"
-    );
-
-    rect(
-        x+2,
-        y+5,
-        4,
-        8,
-        "#303642"
-    );
-
-
-    rect(
-        x-8,
-        y-4,
-        16,
-        12,
-        shirt
-    );
-
-
-    rect(
-        x-11,
-        y-3,
-        3,
-        9,
-        shirt
-    );
-
-    rect(
-        x+8,
-        y-3,
-        3,
-        9,
-        shirt
-    );
-
-
-    rect(
-        x-6,
-        y-15,
-        12,
-        12,
-        skin
-    );
-
-
-    rect(
-        x-7,
-        y-17,
-        14,
-        5,
-        hero
-            ? "#4d3026"
-            : "#302824"
-    );
-
-
-    text(
-        label,
-        x,
-        y-20,
-        6,
-        "#20242b",
-        "center"
-    );
-
-}
-
-
-/* =========================================================
-   WORLD
-========================================================= */
-
-function drawWorld(){
-
-    rect(
-        0,
-        0,
-        W,
-        H,
-        "#8fc5d7"
-    );
-
-
-    for(
-        let x=0;
-        x<W;
-        x+=24
-    ){
-
-        const h=
-            10+
-            ((x*17)%25);
-
-        rect(
-            x,
-            66-h,
-            20,
-            h,
-            "#7399a5"
+        bullets.push(
+            {
+                x:player.x-12,
+                y:player.y-35,
+                vx:-0.5,
+                vy:-12,
+                damage:damage
+            },
+            {
+                x:player.x,
+                y:player.y-38,
+                vx:0,
+                vy:-14,
+                damage:damage
+            },
+            {
+                x:player.x+12,
+                y:player.y-35,
+                vx:0.5,
+                vy:-12,
+                damage:damage
+            }
         );
 
-    }
+    }else{
 
-
-    rect(
-        0,
-        65,
-        W,
-        H-65,
-        "#88aa60"
-    );
-
-
-    rect(
-        0,
-        130,
-        W,
-        65,
-        "#777b78"
-    );
-
-
-    rect(
-        0,
-        198,
-        W,
-        42,
-        "#777b78"
-    );
-
-
-    rect(
-        0,
-        122,
-        W,
-        7,
-        "#d7cba5"
-    );
-
-
-    rect(
-        0,
-        195,
-        W,
-        7,
-        "#d7cba5"
-    );
-
-
-    rect(
-        130,
-        65,
-        25,
-        205,
-        "#777b78"
-    );
-
-
-    rect(
-        370,
-        65,
-        25,
-        205,
-        "#777b78"
-    );
-
-
-    for(
-        let x=0;
-        x<W;
-        x+=35
-    ){
-
-        rect(
-            x+5,
-            159,
-            18,
-            3,
-            "#b8b5a0"
-        );
+        bullets.push({
+            x:player.x,
+            y:player.y-35,
+            vx:0,
+            vy:-13,
+            damage:damage
+        });
 
     }
 
-
-    buildings.forEach(
-        (b,i)=>{
-
-            rect(
-                b.x+4,
-                b.y+5,
-                b.w,
-                b.h,
-                "#4a5159"
-            );
+}
 
 
-            const colors=[
+// ============================================================
+// ENEMIES
+// ============================================================
 
-                "#d4a35d",
-                "#c88972",
-                "#c6c9b8",
-                "#d8b878"
+function spawnEnemy(){
 
-            ];
+    const types=[
+        "alien",
+        "alien",
+        "fast",
+        "tank"
+    ];
+
+    const type=types[Math.floor(Math.random()*types.length)];
+
+    let enemy={
+
+        x:40+Math.random()*(W-80),
+        y:-70,
+        w:42,
+        h:52,
+
+        type:type,
+
+        hp:20,
+        maxHp:20,
+
+        speed:2+Math.random()*1.7,
+
+        shootTimer:60+Math.random()*150,
+
+        angle:0
+
+    };
+
+    if(type==="fast"){
+
+        enemy.hp=14;
+        enemy.maxHp=14;
+        enemy.speed=4+Math.random()*2;
+
+    }
+
+    if(type==="tank"){
+
+        enemy.hp=70;
+        enemy.maxHp=70;
+        enemy.speed=1.4;
+
+    }
+
+    enemies.push(enemy);
+
+}
 
 
-            rect(
-                b.x,
-                b.y,
-                b.w,
-                b.h,
-                colors[i]
-            );
+// ============================================================
+// BOSS
+// ============================================================
+
+function spawnBoss(){
+
+    bossActive=true;
+
+    boss={
+
+        x:W/2,
+        y:-150,
+
+        w:170,
+        h:130,
+
+        hp:5000 + wave*1000,
+        maxHp:5000 + wave*1000,
+
+        vx:2,
+
+        fireTimer:100,
+
+        curseTimer:160,
+
+        entrance:true
+
+    };
+
+    document.getElementById("bossBar").style.display="block";
+
+    showMessage(
+        "👹 BOSS!\n" +
+        "ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ",
+        "#ff4d4d"
+    );
+
+}
 
 
-            rect(
-                b.x-3,
-                b.y-4,
-                b.w+6,
-                6,
-                "#594b43"
-            );
+// ============================================================
+// BOSS ATTACKS
+// ============================================================
+
+const objections=[
+
+    "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ",
+
+    "ΕΧΩ ΗΔΗ ΠΑΡΟΧΟ",
+
+    "ΕΙΝΑΙ ΑΚΡΙΒΟ",
+
+    "ΔΕΝ ΘΕΛΩ ΣΥΜΒΟΛΑΙΟ",
+
+    "ΘΑ ΤΟ ΣΚΕΦΤΩ",
+
+    "ΔΕΝ ΕΙΝΑΙ Η ΚΑΤΑΛΛΗΛΗ ΣΤΙΓΜΗ",
+
+    "ΜΙΛΗΣΕ ΜΕ ΤΟΝ ΥΠΕΥΘΥΝΟ",
+
+    "ΣΤΕΙΛΕ ΜΟΥ ΠΡΟΣΦΟΡΑ"
+
+];
 
 
-            for(
-                let yy=b.y+18;
-                yy<b.y+b.h-12;
-                yy+=16
+function bossAttack(){
+
+    if(!boss) return;
+
+    // Fireball spread
+
+    const count=7;
+
+    for(let i=0;i<count;i++){
+
+        const angle =
+            Math.PI/2 +
+            (i-(count-1)/2)*0.16;
+
+        enemyBullets.push({
+
+            x:boss.x,
+            y:boss.y+55,
+
+            vx:Math.cos(angle)*4,
+            vy:Math.sin(angle)*4,
+
+            r:10,
+
+            fire:true
+
+        });
+
+    }
+
+}
+
+
+function bossCurse(){
+
+    if(!boss) return;
+
+    const text=
+        objections[Math.floor(Math.random()*objections.length)];
+
+    floatingTexts.push({
+
+        x:boss.x+(Math.random()*120-60),
+        y:boss.y+70,
+
+        text:text,
+
+        life:150,
+
+        color:"#ff7070",
+
+        size:17
+
+    });
+
+}
+
+
+// ============================================================
+// BULLET UPDATE
+// ============================================================
+
+function updateBullets(){
+
+    for(let i=bullets.length-1;i>=0;i--){
+
+        const b=bullets[i];
+
+        b.x+=b.vx;
+        b.y+=b.vy;
+
+        if(b.y<-50){
+
+            bullets.splice(i,1);
+            continue;
+
+        }
+
+        // Boss collision
+
+        if(bossActive && boss){
+
+            if(
+
+                b.x>boss.x-boss.w/2 &&
+                b.x<boss.x+boss.w/2 &&
+                b.y>boss.y-boss.h/2 &&
+                b.y<boss.y+boss.h/2
+
             ){
 
-                for(
-                    let xx=b.x+8;
-                    xx<b.x+b.w-10;
-                    xx+=17
-                ){
+                boss.hp-=b.damage;
 
-                    rect(
-                        xx,
-                        yy,
-                        9,
-                        7,
-                        "#537b82"
-                    );
+                createHitParticles(b.x,b.y,"#ffdc48");
+
+                bullets.splice(i,1);
+
+                shake=3;
+
+                if(boss.hp<=0){
+
+                    destroyBoss();
 
                 }
 
+                continue;
+
             }
 
-
-            rect(
-                b.x+b.w/2-7,
-                b.y+b.h-19,
-                14,
-                19,
-                "#60483b"
-            );
+        }
 
 
-            text(
-                b.name,
-                b.x+b.w/2,
-                b.y+10,
-                7,
-                "#292d32",
-                "center"
-            );
+        // Enemy collision
+
+        for(let j=enemies.length-1;j>=0;j--){
+
+            const e=enemies[j];
+
+            if(
+
+                b.x>e.x-e.w/2 &&
+                b.x<e.x+e.w/2 &&
+                b.y>e.y-e.h/2 &&
+                b.y<e.y+e.h/2
+
+            ){
+
+                e.hp-=b.damage;
+
+                createHitParticles(b.x,b.y,"#6cf");
+
+                bullets.splice(i,1);
+
+                if(e.hp<=0){
+
+                    destroyEnemy(j);
+
+                }
+
+                break;
+
+            }
 
         }
-    );
 
-
-    const trees=[
-
-        [15,95],
-        [62,210],
-        [180,105],
-        [280,220],
-        [450,120],
-        [425,235]
-
-    ];
-
-
-    trees.forEach(
-        ([x,y])=>{
-
-            rect(
-                x-3,
-                y+5,
-                6,
-                15,
-                "#6e533b"
-            );
-
-            rect(
-                x-11,
-                y-5,
-                22,
-                14,
-                "#4d794b"
-            );
-
-            rect(
-                x-7,
-                y-12,
-                15,
-                12,
-                "#5b8950"
-            );
-
-        }
-    );
-
-
-    npcs.forEach(
-        n=>{
-
-            drawCharacter(
-                n.x,
-                n.y,
-                n.done
-                    ? "#777"
-                    : n.color,
-                "#e1b18a",
-                n.name
-            );
-
-        }
-    );
-
-
-    drawCharacter(
-        player.x,
-        player.y,
-        "#304f86",
-        "#e2b38a",
-        "ΠΩΛΗΤΗΣ",
-        true
-    );
-
-
-    rect(
-        7,
-        7,
-        195,
-        34,
-        "#20242bdd"
-    );
-
-
-    text(
-        "D2D QUEST",
-        13,
-        19,
-        10,
-        "#f4d377"
-    );
-
-
-    text(
-        `LV ${player.level}   €${player.money}   XP ${player.xp}/100`,
-        13,
-        32,
-        8
-    );
+    }
 
 }
 
 
-/* =========================================================
-   BATTLE SCENE
-========================================================= */
+// ============================================================
+// ENEMY DESTRUCTION
+// ============================================================
 
-function drawBattleScene(){
+function destroyEnemy(index){
 
-    rect(
-        0,
-        0,
-        W,
-        H,
-        "#b6d7d4"
-    );
+    const e=enemies[index];
 
+    enemies.splice(index,1);
 
-    /* sky */
+    kills++;
 
-    rect(
-        0,
-        0,
-        W,
-        125,
-        "#b9dce0"
-    );
+    combo++;
 
+    score+=100 + combo*10;
 
-    /* buildings */
+    createExplosion(e.x,e.y);
 
-    rect(
-        20,
-        42,
-        120,
-        82,
-        "#d0ad83"
-    );
+    // Power-up chance
 
-    rect(
-        350,
-        35,
-        105,
-        89,
-        "#c69b76"
-    );
+    if(combo>=4 && Math.random()<0.28){
+
+        spawnPowerup(e.x,e.y);
+
+    }
+
+    // Every 12 kills increase wave
+
+    if(kills%12===0){
+
+        wave++;
+
+    }
+
+    updateHUD();
+
+}
 
 
-    /* windows */
+// ============================================================
+// BOSS DESTRUCTION
+// ============================================================
 
-    for(
-        let x=30;
-        x<130;
-        x+=25
-    ){
+function destroyBoss(){
 
-        rect(
-            x,
-            58,
-            15,
-            14,
-            "#668e99"
+    if(!boss) return;
+
+    const bx=boss.x;
+    const by=boss.y;
+
+    for(let i=0;i<40;i++){
+
+        createExplosion(
+            bx+(Math.random()*180-90),
+            by+(Math.random()*130-65)
         );
 
     }
 
+    score+=5000;
 
-    for(
-        let x=360;
-        x<440;
-        x+=25
-    ){
+    boss=null;
+    bossActive=false;
 
-        rect(
-            x,
-            52,
-            15,
-            14,
-            "#668e99"
+    document.getElementById("bossBar").style.display="none";
+
+    showMessage(
+        "💰 DEAL CLOSED!\n+5000 SALES",
+        "#5dff9b"
+    );
+
+    wave++;
+
+    updateHUD();
+
+}
+
+
+// ============================================================
+// POWERUPS
+// ============================================================
+
+function spawnPowerup(x,y){
+
+    let nextLevel=Math.min(powerLevel+1,2);
+
+    powerups.push({
+
+        x:x,
+        y:y,
+
+        r:22,
+
+        level:nextLevel,
+
+        vy:1.8,
+
+        life:500,
+
+        rotation:0
+
+    });
+
+}
+
+
+function collectPowerup(p){
+
+    powerLevel=p.level;
+
+    damage=powers[powerLevel].damage;
+
+    score+=250;
+
+    combo+=2;
+
+    showMessage(
+
+        "📡 " + powers[powerLevel].name +
+        "\nDMG " + powers[powerLevel].damage,
+
+        powers[powerLevel].color
+
+    );
+
+    updateHUD();
+
+}
+
+
+// ============================================================
+// POWERUP UPDATE
+// ============================================================
+
+function updatePowerups(){
+
+    for(let i=powerups.length-1;i>=0;i--){
+
+        const p=powerups[i];
+
+        p.y+=p.vy;
+        p.life--;
+        p.rotation+=0.08;
+
+        if(
+
+            Math.hypot(
+                p.x-player.x,
+                p.y-player.y
+            ) < 45
+
+        ){
+
+            collectPowerup(p);
+
+            powerups.splice(i,1);
+
+            continue;
+
+        }
+
+        if(p.y>H+50 || p.life<=0){
+
+            powerups.splice(i,1);
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// ENEMY UPDATE
+// ============================================================
+
+function updateEnemies(){
+
+    for(let i=enemies.length-1;i>=0;i--){
+
+        const e=enemies[i];
+
+        e.y+=e.speed;
+
+        e.angle+=0.04;
+
+        e.shootTimer--;
+
+        if(e.shootTimer<=0){
+
+            e.shootTimer=100+Math.random()*180;
+
+            const dx=player.x-e.x;
+            const dy=player.y-e.y;
+
+            const len=Math.hypot(dx,dy)||1;
+
+            enemyBullets.push({
+
+                x:e.x,
+                y:e.y+20,
+
+                vx:dx/len*3,
+                vy:dy/len*3,
+
+                r:6
+
+            });
+
+        }
+
+
+        if(e.y>H+70){
+
+            enemies.splice(i,1);
+
+            combo=0;
+
+            continue;
+
+        }
+
+
+        // Collision with player
+
+        if(
+
+            Math.hypot(
+                e.x-player.x,
+                e.y-player.y
+            ) < 42
+
+        ){
+
+            playerHit();
+
+            enemies.splice(i,1);
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// ENEMY BULLETS
+// ============================================================
+
+function updateEnemyBullets(){
+
+    for(let i=enemyBullets.length-1;i>=0;i--){
+
+        const b=enemyBullets[i];
+
+        b.x+=b.vx;
+        b.y+=b.vy;
+
+        if(
+
+            b.x<-50 ||
+            b.x>W+50 ||
+            b.y<-50 ||
+            b.y>H+50
+
+        ){
+
+            enemyBullets.splice(i,1);
+
+            continue;
+
+        }
+
+        if(
+
+            Math.hypot(
+                b.x-player.x,
+                b.y-player.y
+            ) < 30
+
+        ){
+
+            enemyBullets.splice(i,1);
+
+            playerHit();
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// PLAYER HIT
+// ============================================================
+
+function playerHit(){
+
+    shake=15;
+
+    createExplosion(player.x,player.y);
+
+    combo=0;
+
+    powerLevel=0;
+    damage=powers[0].damage;
+
+    updateHUD();
+
+    // Give temporary grace
+
+    player.x=W/2;
+    player.y=H-120;
+
+    score=Math.max(0,score-100);
+
+    // Not instant death:
+    // 3 strikes system
+
+    player.strikes=(player.strikes||0)+1;
+
+    if(player.strikes>=3){
+
+        endGame("Το μαχητικό σου καταστράφηκε!");
+
+    }else{
+
+        showMessage(
+
+            "💥 ΑΝΤΙΡΡΗΣΗ!\n" +
+            "Χτύπημα " + player.strikes + "/3",
+
+            "#ff5050"
+
         );
 
     }
 
-
-    /* floor */
-
-    rect(
-        0,
-        125,
-        W,
-        145,
-        "#82a764"
-    );
+}
 
 
-    /* battle platforms */
+// ============================================================
+// SPAWN LOGIC
+// ============================================================
 
-    rect(
-        55,
-        183,
-        135,
-        18,
-        "#56754d"
-    );
+function spawnLogic(){
 
-    rect(
-        300,
-        95,
-        130,
-        18,
-        "#56754d"
-    );
+    if(bossActive) return;
 
+    spawnTimer--;
 
-    rect(
-        75,
-        201,
-        100,
-        7,
-        "#435b3e"
-    );
+    if(spawnTimer<=0){
 
-    rect(
-        320,
-        113,
-        90,
-        7,
-        "#435b3e"
-    );
-
-
-    if(!encounter)
-        return;
-
-
-    const npc =
-        encounter.npc;
-
-
-    drawCharacter(
-        125,
-        190,
-        "#304f86",
-        "#e2b38a",
-        "ΠΩΛΗΤΗΣ",
-        true
-    );
-
-
-    drawCharacter(
-        365,
-        105,
-        npc.color,
-        "#e1b18a",
-        npc.name
-    );
-
-
-    /* speech marker */
-
-    if(
-        encounter.turn === "enemy"
-    ){
-
-        rect(
-            350,
-            77,
-            30,
+        spawnTimer=Math.max(
             18,
-            "#fff8df"
+            55-wave*2
         );
 
-        text(
-            "...",
-            365,
-            90,
-            9,
-            "#20242b",
-            "center"
-        );
+        spawnEnemy();
+
+        if(Math.random()<0.18+wave*0.01){
+
+            spawnEnemy();
+
+        }
 
     }
 
-}
+    // Boss every 30 kills
 
+    if(
 
-/* =========================================================
-   NEAREST NPC
-========================================================= */
+        kills>0 &&
+        kills%30===0 &&
+        !bossActive &&
+        bossTimer<=0
 
-function nearestNPC(){
-
-    let nearest=null;
-    let distance=Infinity;
-
-
-    for(
-        const n of npcs
     ){
 
-        const d=
-            Math.hypot(
-                n.x-player.x,
-                n.y-player.y
-            );
+        bossTimer=120;
+
+        spawnBoss();
+
+    }
+
+    if(bossTimer>0){
+
+        bossTimer--;
+
+    }
+
+}
 
 
-        if(d<distance){
+// ============================================================
+// BOSS UPDATE
+// ============================================================
 
-            distance=d;
-            nearest=n;
+function updateBoss(){
+
+    if(!boss) return;
+
+    if(boss.entrance){
+
+        boss.y+=2;
+
+        if(boss.y>=130){
+
+            boss.entrance=false;
 
         }
 
-    }
-
-
-    if(distance<30)
-        return nearest;
-
-
-    return null;
-
-}
-
-
-/* =========================================================
-   INTERACTION
-========================================================= */
-
-function interact(){
-
-    const npc=
-        nearestNPC();
-
-
-    if(!npc){
-
-        showBubble(
-            "SYSTEM",
-            "Πλησίασε έναν πελάτη και πάτησε SPACE.",
-            3000
-        );
-
         return;
 
     }
 
-
-    if(npc.done){
-
-        showBubble(
-            npc.name,
-            "Τα λέμε αργότερα!",
-            2500
-        );
-
-        return;
-
-    }
-
-
-    startBattle(npc);
-
-}
-
-
-/* =========================================================
-   START BATTLE
-========================================================= */
-
-function startBattle(npc){
-
-    encounter={
-
-        npc:npc,
-
-        playerHP:player.hp,
-
-        customerHP:npc.hp,
-
-        customerMaxHP:npc.maxHp,
-
-        trust:npc.trust,
-
-        interest:npc.interest,
-
-        turn:"player",
-
-        category:"attack",
-
-        confidence:false,
-
-        combo:false,
-
-        revealed:false,
-
-        selectedInternet:null,
-
-        selectedFixed:false,
-
-        selectedInternational:false,
-
-        saleValue:0,
-
-        escapeChance:0,
-
-        customerMood:0,
-
-        log:"Ο πελάτης περιμένει να ακούσει την πρότασή σου."
-
-    };
-
-
-    state="battle";
-
-
-    document.getElementById(
-        "battleUI"
-    ).style.display="block";
-
-
-    renderBattle();
-
-
-    showBubble(
-        npc.name,
-        randomCustomerLine(npc.type),
-        3000
-    );
-
-}
-
-
-/* =========================================================
-   RANDOM CUSTOMER LINE
-========================================================= */
-
-function randomCustomerLine(type){
-
-    const list=
-        customerDialogue[type] ||
-        customerDialogue.price;
-
-
-    return list[
-        Math.floor(
-            Math.random()*list.length
-        )
-    ];
-
-}
-
-
-/* =========================================================
-   TYPE NAME
-========================================================= */
-
-function typeName(type){
-
-    if(type==="price")
-        return "PRICE HUNTER";
-
-    if(type==="quality")
-        return "QUALITY SEEKER";
-
-    if(type==="loyal")
-        return "LOYAL CUSTOMER";
-
-    return type;
-
-}
-
-
-/* =========================================================
-   BATTLE CATEGORY
-========================================================= */
-
-function setCategory(category){
-
-    if(!encounter)
-        return;
-
-
-    encounter.category=
-        category;
-
-
-    renderBattle();
-
-}
-
-
-/* =========================================================
-   RENDER BATTLE
-========================================================= */
-
-function renderBattle(){
-
-    if(!encounter)
-        return;
-
-
-    const e=encounter;
-    const n=e.npc;
-
-
-    document.getElementById(
-        "customerName"
-    ).textContent=
-        `👤 ${n.name}`;
-
-
-    document.getElementById(
-        "playerHPText"
-    ).textContent=
-        `HP ${Math.round(e.playerHP)}/${player.maxHp}`;
-
-
-    document.getElementById(
-        "customerHPText"
-    ).textContent=
-        `HP ${Math.round(e.customerHP)}/${e.customerMaxHP}`;
-
-
-    document.getElementById(
-        "playerHPFill"
-    ).style.width=
-        `${Math.max(0,e.playerHP/player.maxHp*100)}%`;
-
-
-    document.getElementById(
-        "customerHPFill"
-    ).style.width=
-        `${Math.max(0,e.customerHP/e.customerMaxHP*100)}%`;
-
-
-    document.getElementById(
-        "battleInfo"
-    ).textContent=
-        `${typeName(n.type)} · Trust ${Math.round(e.trust)} · Interest ${Math.round(e.interest)}`;
-
-
-    document.getElementById(
-        "battleMessage"
-    ).textContent=
-        e.log;
-
-
-    const grid=
-        document.getElementById(
-            "actionGrid"
-        );
-
-
-    grid.innerHTML="";
-
-
-    if(e.category==="attack"){
-
-        attacks.forEach(
-            (a,i)=>{
-
-                const b=
-                    document.createElement(
-                        "button"
-                    );
-
-
-                b.innerHTML=
-                    `${a.name}<br>
-                    <span class="small">
-                    Damage ${a.damage}
-                    </span>`;
-
-
-                b.disabled=
-                    e.turn!=="player";
-
-
-                b.onclick=
-                    ()=>useAttack(i);
-
-
-                grid.appendChild(b);
-
-            }
-        );
-
-    }
-
-
-    if(e.category==="spells"){
-
-        spells.forEach(
-            (s,i)=>{
-
-                const b=
-                    document.createElement(
-                        "button"
-                    );
-
-
-                b.innerHTML=
-                    `${s.name}<br>
-                    <span class="small">
-                    Damage ${s.damage}
-                    · Trust +${s.trust}
-                    </span>`;
-
-
-                b.disabled=
-                    e.turn!=="player";
-
-
-                b.onclick=
-                    ()=>useSpell(i);
-
-
-                grid.appendChild(b);
-
-            }
-        );
-
-    }
-
-
-    if(e.category==="items"){
-
-        const items=[
-
-            {
-                id:"extender",
-                name:"🎁 Δώρο Extender",
-                damage:28
-            },
-
-            {
-                id:"fixed3",
-                name:"📦 Θα σας δώσω 3 πάγια",
-                damage:35
-            },
-
-            {
-                id:"install",
-                name:"🔧 Δωρεάν εγκατάσταση",
-                damage:24
-            },
-
-            {
-                id:"month",
-                name:"🎁 Δωρεάν μήνας",
-                damage:30
-            },
-
-            {
-                id:"discount",
-                name:"💳 Extra έκπτωση",
-                damage:26
-            }
-
-        ];
-
-
-        items.forEach(
-            item=>{
-
-                const b=
-                    document.createElement(
-                        "button"
-                    );
-
-
-                b.innerHTML=
-                    `${item.name}<br>
-                    <span class="small">
-                    x${player.inventory[item.id]}
-                    · Damage ${item.damage}
-                    </span>`;
-
-
-                b.disabled=
-                    player.inventory[item.id]<=0 ||
-                    e.turn!=="player";
-
-
-                b.onclick=
-                    ()=>useRealItem(item.id);
-
-
-                grid.appendChild(b);
-
-            }
-        );
-
-    }
-
-
-    if(e.category==="products"){
-
-        internetProducts.forEach(
-            p=>{
-
-                const b=
-                    document.createElement(
-                        "button"
-                    );
-
-
-                b.innerHTML=
-                    `📡 ${p.name}<br>
-                    <span class="small">
-                    €${p.price}
-                    · Damage ${p.damage}
-                    </span>`;
-
-
-                b.disabled=
-                    e.turn!=="player";
-
-
-                b.onclick=
-                    ()=>chooseInternet(p.id);
-
-
-                grid.appendChild(b);
-
-            }
-        );
-
-
-        const fixed=
-            document.createElement(
-                "button"
-            );
-
-
-        fixed.innerHTML=
-            `☎️ Basic Fixed<br>
-            <span class="small">
-            +€4 · requires Internet
-            </span>`;
-
-
-        fixed.disabled=
-            e.turn!=="player";
-
-
-        fixed.onclick=
-            chooseFixed;
-
-
-        grid.appendChild(fixed);
-
-
-        const intl=
-            document.createElement(
-                "button"
-            );
-
-
-        intl.innerHTML=
-            `🌍 International Plus<br>
-            <span class="small">
-            +€10 · requires Basic Fixed
-            </span>`;
-
-
-        intl.disabled=
-            e.turn!=="player";
-
-
-        intl.onclick=
-            chooseInternational;
-
-
-        grid.appendChild(intl);
-
-    }
-
-
-    if(e.category==="skills"){
-
-        skills.forEach(
-            skill=>{
-
-                const b=
-                    document.createElement(
-                        "button"
-                    );
-
-
-                b.innerHTML=
-                    skill.name;
-
-
-                b.disabled=
-                    e.turn!=="player";
-
-
-                b.onclick=
-                    ()=>useSkill(skill.id);
-
-
-                grid.appendChild(b);
-
-            }
-        );
-
-
-        const leader=
-            document.createElement(
-                "button"
-            );
-
-
-        leader.innerHTML=
-            `👔 TEAM LEADER<br>
-            <span class="small">
-            ${player.teamLeaderUses} uses
-            </span>`;
-
-
-        leader.disabled=
-            e.turn!=="player" ||
-            player.teamLeaderUses<=0;
-
-
-        leader.onclick=
-            callTeamLeader;
-
-
-        grid.appendChild(leader);
-
-
-        const supervisor=
-            document.createElement(
-                "button"
-            );
-
-
-        supervisor.innerHTML=
-            `🕴️ SUPERVISOR<br>
-            <span class="small">
-            ${player.supervisorUses} uses
-            </span>`;
-
-
-        supervisor.disabled=
-            e.turn!=="player" ||
-            player.supervisorUses<=0;
-
-
-        supervisor.onclick=
-            callSupervisor;
-
-
-        grid.appendChild(supervisor);
-
-    }
-
-}
-
-
-/* =========================================================
-   SHOW BUBBLE
-========================================================= */
-
-function showBubble(
-    name,
-    message,
-    duration=3000,
-    callback=null
-){
-
-    clearTimeout(
-        bubbleTimeout
-    );
-
-
-    const bubble=
-        document.getElementById(
-            "bubble"
-        );
-
-
-    document.getElementById(
-        "bubbleName"
-    ).textContent=
-        name;
-
-
-    document.getElementById(
-        "bubbleText"
-    ).textContent=
-        message;
-
-
-    const fill=
-        document.getElementById(
-            "bubbleTimerFill"
-        );
-
-
-    fill.style.transition="none";
-    fill.style.width="100%";
-
-
-    bubble.style.display="block";
-
-
-    requestAnimationFrame(
-        ()=>{
-
-            fill.style.transition=
-                `width ${duration}ms linear`;
-
-            fill.style.width="0%";
-
-        }
-    );
-
-
-    bubbleTimeout=
-        setTimeout(
-            ()=>{
-
-                bubble.style.display=
-                    "none";
-
-
-                if(callback)
-                    callback();
-
-            },
-            duration
-        );
-
-}
-
-
-/* =========================================================
-   PLAYER ATTACK
-========================================================= */
-
-function useAttack(index){
+    boss.x+=boss.vx;
 
     if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    const attack=
-        attacks[index];
-
-
-    let damage=
-        attack.damage+
-        Math.floor(
-            Math.random()*7
-        );
-
-
-    damage+=
-        typeBonus(
-            encounter.npc.type,
-            attack.type
-        );
-
-
-    if(encounter.confidence){
-
-        damage=
-            Math.floor(
-                damage*1.5
-            );
-
-        encounter.confidence=false;
-
-    }
-
-
-    if(encounter.combo){
-
-        damage+=15;
-
-        encounter.combo=false;
-
-    }
-
-
-    damage=Math.max(
-        3,
-        damage
-    );
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-damage
-        );
-
-
-    encounter.log=
-        `⚔️ ${attack.name} → -${damage} HP`;
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        attack.name,
-        3000,
-        ()=>{
-
-            if(
-                encounter &&
-                encounter.customerHP<=0
-            ){
-
-                winBattle();
-
-            }
-            else if(encounter){
-
-                customerAI();
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   TYPE BONUS
-========================================================= */
-
-function typeBonus(
-    type,
-    attackType
-){
-
-    let bonus=0;
-
-
-    if(
-        type==="price" &&
-        attackType==="price"
-    )
-        bonus+=10;
-
-
-    if(
-        type==="quality" &&
-        attackType==="quality"
-    )
-        bonus+=12;
-
-
-    if(
-        type==="loyal" &&
-        attackType==="relationship"
-    )
-        bonus+=12;
-
-
-    if(
-        type==="loyal" &&
-        attackType==="urgency"
-    )
-        bonus-=8;
-
-
-    if(
-        type==="quality" &&
-        attackType==="price"
-    )
-        bonus-=5;
-
-
-    return bonus;
-
-}
-
-
-/* =========================================================
-   SPELL
-========================================================= */
-
-function useSpell(index){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    const spell=
-        spells[index];
-
-
-    let damage=
-        spell.damage+
-        Math.floor(
-            Math.random()*6
-        );
-
-
-    if(encounter.confidence){
-
-        damage=
-            Math.floor(
-                damage*1.5
-            );
-
-        encounter.confidence=false;
-
-    }
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-damage
-        );
-
-
-    encounter.trust=
-        Math.min(
-            100,
-            encounter.trust+
-            spell.trust
-        );
-
-
-    encounter.interest=
-        Math.min(
-            100,
-            encounter.interest+
-            spell.interest
-        );
-
-
-    encounter.log=
-        `✨ ${spell.name}`;
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        spell.name,
-        3000,
-        ()=>{
-
-            if(
-                encounter &&
-                encounter.customerHP<=0
-            ){
-
-                winBattle();
-
-            }
-            else if(encounter){
-
-                customerAI();
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   ITEMS
-========================================================= */
-
-function useRealItem(id){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    if(
-        !player.inventory[id] ||
-        player.inventory[id]<=0
-    )
-        return;
-
-
-    player.inventory[id]--;
-
-
-    const itemData={
-
-        extender:{
-            name:"🎁 Δώρο Extender",
-            damage:28,
-            trust:5
-        },
-
-        fixed3:{
-            name:"📦 Θα σας δώσω 3 πάγια",
-            damage:35,
-            trust:10
-        },
-
-        install:{
-            name:"🔧 Δωρεάν εγκατάσταση",
-            damage:24,
-            trust:12
-        },
-
-        month:{
-            name:"🎁 Δωρεάν μήνας",
-            damage:30,
-            trust:8
-        },
-
-        discount:{
-            name:"💳 Extra έκπτωση",
-            damage:26,
-            trust:-2
-        }
-
-    };
-
-
-    const item=
-        itemData[id];
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-item.damage
-        );
-
-
-    encounter.trust=
-        Math.min(
-            100,
-            encounter.trust+
-            item.trust
-        );
-
-
-    encounter.log=
-        `${item.name} → -${item.damage} HP`;
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        item.name,
-        3000,
-        ()=>{
-
-            if(
-                encounter.customerHP<=0
-            ){
-
-                winBattle();
-
-            }
-            else{
-
-                customerAI();
-
-            }
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   INTERNET PRODUCT
-========================================================= */
-
-function chooseInternet(id){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    const p=
-        internetProducts.find(
-            x=>x.id===id
-        );
-
-
-    encounter.selectedInternet=id;
-
-
-    encounter.saleValue+=p.price;
-
-
-    let damage=
-        p.damage+
-        Math.floor(
-            Math.random()*6
-        );
-
-
-    if(
-        encounter.npc.type==="price" &&
-        id==="2500"
-    )
-        damage-=10;
-
-
-    if(
-        encounter.npc.type==="quality" &&
-        id==="2500"
-    )
-        damage+=8;
-
-
-    damage=Math.max(
-        3,
-        damage
-    );
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-damage
-        );
-
-
-    encounter.log=
-        `📡 Πρόταση ${p.name} → -${damage} HP`;
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        `«Θα σας πρότεινα ${p.name}.»`,
-        3000,
-        ()=>{
-
-            if(
-                encounter.customerHP<=0
-            )
-                winBattle();
-            else
-                customerAI();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   BASIC FIXED
-========================================================= */
-
-function chooseFixed(){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    if(!encounter.selectedInternet){
-
-        encounter.log=
-            "❌ Πρέπει πρώτα να πουλήσεις Internet.";
-
-        renderBattle();
-
-        showBubble(
-            "SYSTEM",
-            "Το Basic Fixed προϋποθέτει ενεργό Internet.",
-            3000
-        );
-
-        return;
-
-    }
-
-
-    if(encounter.selectedFixed){
-
-        showBubble(
-            "SYSTEM",
-            "Το Basic Fixed έχει ήδη προστεθεί.",
-            2500
-        );
-
-        return;
-
-    }
-
-
-    encounter.selectedFixed=true;
-
-    encounter.saleValue+=4;
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-18
-        );
-
-
-    encounter.log=
-        "☎️ Basic Fixed +€4";
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        "«Μπορούμε να προσθέσουμε και Basic Fixed μόνο +4€.»",
-        3000,
-        ()=>{
-
-            if(
-                encounter.customerHP<=0
-            )
-                winBattle();
-            else
-                customerAI();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   INTERNATIONAL
-========================================================= */
-
-function chooseInternational(){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    if(!encounter.selectedFixed){
-
-        encounter.log=
-            "❌ Το International απαιτεί Basic Fixed.";
-
-        renderBattle();
-
-
-        showBubble(
-            "SYSTEM",
-            "Πρέπει πρώτα να πουλήσεις Basic Fixed.",
-            3000
-        );
-
-
-        return;
-
-    }
-
-
-    if(encounter.selectedInternational){
-
-        showBubble(
-            "SYSTEM",
-            "Το International έχει ήδη προστεθεί.",
-            2500
-        );
-
-        return;
-
-    }
-
-
-    encounter.selectedInternational=true;
-
-    encounter.saleValue+=10;
-
-
-    encounter.customerHP=
-        Math.max(
-            0,
-            encounter.customerHP-25
-        );
-
-
-    encounter.log=
-        "🌍 International Plus +€10";
-
-
-    renderBattle();
-
-
-    showBubble(
-        "ΠΩΛΗΤΗΣ",
-        "«Αν χρειάζεστε διεθνείς κλήσεις, υπάρχει και International Plus +10€.»",
-        3000,
-        ()=>{
-
-            if(
-                encounter.customerHP<=0
-            )
-                winBattle();
-            else
-                customerAI();
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   SKILLS
-========================================================= */
-
-function useSkill(id){
-
-    if(
-        !encounter ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    if(id==="read"){
-
-        encounter.revealed=true;
-
-
-        let message=
-            `🔍 ${typeName(encounter.npc.type)}. `;
-
-
-        if(
-            encounter.npc.type==="price"
-        )
-            message+=
-                "Αδυναμία: ΤΙΜΗ.";
-
-
-        if(
-            encounter.npc.type==="quality"
-        )
-            message+=
-                "Αδυναμία: ΠΟΙΟΤΗΤΑ.";
-
-
-        if(
-            encounter.npc.type==="loyal"
-        )
-            message+=
-                "Αδυναμία: ΕΜΠΙΣΤΟΣΥΝΗ.";
-
-
-        encounter.log=message;
-
-
-        renderBattle();
-
-
-        showBubble(
-            "SYSTEM",
-            message,
-            3000,
-            ()=>customerAI()
-        );
-
-    }
-
-
-    if(id==="confidence"){
-
-        encounter.confidence=true;
-
-        encounter.log=
-            "💪 Το επόμενο attack κάνει +50% damage.";
-
-
-        renderBattle();
-
-
-        showBubble(
-            "ΠΩΛΗΤΗΣ",
-            "«Είμαι σίγουρος ότι έχουμε τη σωστή λύση για εσάς.»",
-            3000,
-            ()=>customerAI()
-        );
-
-    }
-
-
-    if(id==="combo"){
-
-        encounter.combo=true;
-
-        encounter.log=
-            "🧩 Το επόμενο attack παίρνει +15 damage.";
-
-
-        renderBattle();
-
-
-        showBubble(
-            "ΠΩΛΗΤΗΣ",
-            "«Ας το δούμε συνολικά...»",
-            3000,
-            ()=>customerAI()
-        );
-
-    }
-
-
-    if(id==="close"){
-
-        if(
-            encounter.customerHP <=
-            encounter.customerMaxHP*.25
-        ){
-
-            showBubble(
-                "ΠΩΛΗΤΗΣ",
-                "«Να το προχωρήσουμε;»",
-                3000,
-                ()=>winBattle()
-            );
-
-        }
-        else{
-
-            encounter.log=
-                "🎯 Ο πελάτης δεν είναι ακόμα έτοιμος.";
-
-            renderBattle();
-
-
-            showBubble(
-                "ΠΩΛΗΤΗΣ",
-                "«Να το προχωρήσουμε;»",
-                3000,
-                ()=>customerAI()
-            );
-
-        }
-
-    }
-
-}
-
-
-/* =========================================================
-   TEAM LEADER
-========================================================= */
-
-function callTeamLeader(){
-
-    if(
-        player.teamLeaderUses<=0 ||
-        encounter.turn!=="player"
-    )
-        return;
-
-
-    player.teamLeaderUses--;
-
-
-    let advice;
-
-
-    if(
-        encounter.npc.type==="price"
+        boss.x<boss.w/2+20 ||
+        boss.x>W-boss.w/2-20
     ){
 
-        advice=
-            "👔 TEAM LEADER: «Price Hunter. Μίλα πρώτα για τιμή. Δοκίμασε 500 Mbps και μετά κάνε upsell.»";
+        boss.vx*=-1;
 
     }
 
-    else if(
-        encounter.npc.type==="quality"
-    ){
+    boss.fireTimer--;
 
-        advice=
-            "👔 TEAM LEADER: «Quality Seeker. Ρώτα για συσκευές, gaming και streaming. Μετά πρότεινε 1000 Mbps ή 2.5 Gbps.»";
+    boss.curseTimer--;
 
-    }
+    if(boss.fireTimer<=0){
 
-    else{
+        boss.fireTimer=80;
 
-        advice=
-            "👔 TEAM LEADER: «Loyal Customer. Μην πιέσεις. Χτίσε εμπιστοσύνη και βρες πρόβλημα πριν μιλήσεις για τιμή.»";
+        bossAttack();
 
     }
 
+    if(boss.curseTimer<=0){
 
-    encounter.log=advice;
+        boss.curseTimer=120;
 
+        bossCurse();
 
-    renderBattle();
-
-
-    showBubble(
-        "TEAM LEADER",
-        advice,
-        3000,
-        ()=>{
-
-            encounter.turn="player";
-
-            renderBattle();
-
-        }
-    );
+    }
 
 }
 
 
-/* =========================================================
-   SUPERVISOR
-========================================================= */
+// ============================================================
+// PARTICLES
+// ============================================================
 
-function callSupervisor(){
+function createHitParticles(x,y,color){
 
-    if(
-        player.supervisorUses<=0 ||
-        encounter.turn!=="player"
-    )
-        return;
+    for(let i=0;i<5;i++){
+
+        particles.push({
+
+            x:x,
+            y:y,
+
+            vx:(Math.random()-.5)*5,
+            vy:(Math.random()-.5)*5,
+
+            life:25,
+
+            color:color,
+
+            size:2+Math.random()*3
+
+        });
+
+    }
+
+}
 
 
-    player.supervisorUses--;
+function createExplosion(x,y){
+
+    for(let i=0;i<22;i++){
+
+        const a=Math.random()*Math.PI*2;
+        const s=1+Math.random()*7;
+
+        particles.push({
+
+            x:x,
+            y:y,
+
+            vx:Math.cos(a)*s,
+            vy:Math.sin(a)*s,
+
+            life:35+Math.random()*35,
+
+            color:
+                Math.random()<.5
+                ? "#ff9d00"
+                : "#ffef62",
+
+            size:2+Math.random()*5
+
+        });
+
+    }
+
+}
 
 
-    const damage=32;
+// ============================================================
+// PARTICLE UPDATE
+// ============================================================
+
+function updateParticles(){
+
+    for(let i=particles.length-1;i>=0;i--){
+
+        const p=particles[i];
+
+        p.x+=p.vx;
+        p.y+=p.vy;
+
+        p.vx*=.98;
+        p.vy*=.98;
+
+        p.life--;
+
+        if(p.life<=0){
+
+            particles.splice(i,1);
+
+        }
+
+    }
+
+}
 
 
-    encounter.customerHP=
-        Math.max(
+// ============================================================
+// FLOATING TEXT
+// ============================================================
+
+function updateFloatingTexts(){
+
+    for(let i=floatingTexts.length-1;i>=0;i--){
+
+        const t=floatingTexts[i];
+
+        t.y-=0.35;
+        t.life--;
+
+        if(t.life<=0){
+
+            floatingTexts.splice(i,1);
+
+        }
+
+    }
+
+}
+
+
+// ============================================================
+// HUD
+// ============================================================
+
+function updateHUD(){
+
+    document.getElementById("score").textContent=score;
+    document.getElementById("kills").textContent=kills;
+    document.getElementById("combo").textContent=combo;
+    document.getElementById("wave").textContent=wave;
+
+    document.getElementById("powerText").textContent=
+        powers[powerLevel].name;
+
+    document.getElementById("powerText").style.color=
+        powers[powerLevel].color;
+
+    document.getElementById("damage").textContent=
+        damage.toFixed(1);
+
+    if(boss){
+
+        const hp=Math.max(
             0,
-            encounter.customerHP-damage
+            boss.hp/boss.maxHp*100
         );
 
+        document.getElementById("bossHp").style.width=
+            hp+"%";
 
-    encounter.trust=
-        Math.min(
-            100,
-            encounter.trust+12
-        );
+    }
 
-
-    encounter.log=
-        "🕴️ Supervisor intervention.";
+}
 
 
-    renderBattle();
+// ============================================================
+// MESSAGE
+// ============================================================
+
+let messageTimer=0;
+
+function showMessage(text,color="#fff"){
+
+    const el=document.getElementById("message");
+
+    el.innerHTML=text.replace(/\n/g,"<br>");
+
+    el.style.color=color;
+    el.style.opacity="1";
+
+    messageTimer=100;
+
+}
 
 
-    showBubble(
-        "SUPERVISOR",
-        "«Ας κάνουμε κάτι καλύτερο για εσάς. Θα το δούμε μαζί.»",
-        3000,
-        ()=>{
+// ============================================================
+// BACKGROUND
+// ============================================================
 
-            if(
-                encounter.customerHP<=0
-            )
-                winBattle();
-            else
-                customerAI();
+function drawBackground(){
 
-        }
+    ctx.fillStyle="#020611";
+    ctx.fillRect(0,0,W,H);
+
+    // Nebula
+
+    const grd=ctx.createRadialGradient(
+        W*.5,H*.4,20,
+        W*.5,H*.4,H*.8
     );
 
-}
+    grd.addColorStop(0,"rgba(0,80,150,.18)");
+    grd.addColorStop(1,"rgba(0,0,0,0)");
 
+    ctx.fillStyle=grd;
+    ctx.fillRect(0,0,W,H);
 
-/* =========================================================
-   CUSTOMER AI
-========================================================= */
 
-function customerAI(){
+    // Stars
 
-    if(!encounter)
-        return;
+    for(const s of stars){
 
+        s.y+=s.speed;
 
-    encounter.turn="enemy";
+        if(s.y>H){
 
-
-    renderBattle();
-
-
-    setTimeout(
-        ()=>{
-
-            if(!encounter)
-                return;
-
-
-            const npc=
-                encounter.npc;
-
-
-            /*
-             * LOCAL AI
-             *
-             * Decision based on:
-             * HP
-             * Trust
-             * Interest
-             * Customer type
-             */
-
-
-            let action;
-
-
-            const hpRatio=
-                encounter.customerHP/
-                encounter.customerMaxHP;
-
-
-            const trust=
-                encounter.trust;
-
-
-            const interest=
-                encounter.interest;
-
-
-            if(
-                hpRatio<.30 &&
-                interest>65
-            ){
-
-                action="counter";
-
-            }
-
-            else if(
-                hpRatio<.35
-            ){
-
-                action="heal";
-
-            }
-
-            else if(
-                trust<25 &&
-                Math.random()<.35
-            ){
-
-                action="escape";
-
-            }
-
-            else if(
-                interest>70 &&
-                Math.random()<.35
-            ){
-
-                action="question";
-
-            }
-
-            else{
-
-                action=
-                    aiChooseByType(
-                        npc.type
-                    );
-
-            }
-
-
-            executeCustomerAI(
-                action
-            );
-
-        },
-        700
-    );
-
-}
-
-
-/* =========================================================
-   AI DECISION BY TYPE
-========================================================= */
-
-function aiChooseByType(type){
-
-    const r=
-        Math.random();
-
-
-    if(type==="price"){
-
-        if(r<.45)
-            return "counter";
-
-        if(r<.70)
-            return "question";
-
-        if(r<.85)
-            return "defend";
-
-        return "heal";
-
-    }
-
-
-    if(type==="quality"){
-
-        if(r<.40)
-            return "question";
-
-        if(r<.65)
-            return "counter";
-
-        if(r<.85)
-            return "defend";
-
-        return "heal";
-
-    }
-
-
-    if(type==="loyal"){
-
-        if(r<.35)
-            return "defend";
-
-        if(r<.65)
-            return "question";
-
-        if(r<.82)
-            return "counter";
-
-        return "escape";
-
-    }
-
-
-    return "defend";
-
-}
-
-
-/* =========================================================
-   EXECUTE CUSTOMER AI
-========================================================= */
-
-function executeCustomerAI(action){
-
-    if(!encounter)
-        return;
-
-
-    const npc=
-        encounter.npc;
-
-
-    let message=
-        randomCustomerLine(
-            npc.type
-        );
-
-
-    let damage=0;
-
-    let heal=0;
-
-
-    if(action==="counter"){
-
-        damage=
-            9+
-            Math.floor(
-                Math.random()*9
-            );
-
-
-        if(
-            npc.type==="price"
-        )
-            damage+=4;
-
-
-        if(
-            npc.type==="loyal"
-        )
-            damage+=3;
-
-
-        message=
-            customerCounterLine(
-                npc.type
-            );
-
-    }
-
-
-    if(action==="defend"){
-
-        heal=
-            7+
-            Math.floor(
-                Math.random()*7
-            );
-
-
-        message=
-            customerDefenseLine(
-                npc.type
-            );
-
-    }
-
-
-    if(action==="heal"){
-
-        heal=
-            12+
-            Math.floor(
-                Math.random()*8
-            );
-
-
-        message=
-            customerHealLine(
-                npc.type
-            );
-
-    }
-
-
-    if(action==="question"){
-
-        encounter.interest=
-            Math.min(
-                100,
-                encounter.interest+6
-            );
-
-
-        encounter.trust=
-            Math.min(
-                100,
-                encounter.trust+3
-            );
-
-
-        message=
-            customerQuestionLine(
-                npc.type
-            );
-
-    }
-
-
-    if(action==="escape"){
-
-        encounter.escapeChance+=15;
-
-
-        message=
-            "🚪 «Εντάξει, ευχαριστώ πολύ. Πρέπει να φύγω.»";
-
-
-        if(
-            Math.random()<
-            .35+
-            encounter.escapeChance/100
-        ){
-
-            encounter.turn="lost";
-
-            encounter.log=
-                "🚪 Ο πελάτης έφυγε!";
-
-
-            renderBattle();
-
-
-            showBubble(
-                npc.name,
-                message,
-                3000,
-                ()=>loseBattle()
-            );
-
-
-            return;
+            s.y=0;
+            s.x=Math.random()*W;
 
         }
 
-    }
+        ctx.globalAlpha=.3+s.speed/8;
 
+        ctx.fillStyle="#fff";
 
-    encounter.customerHP=
-        Math.min(
-            encounter.customerMaxHP,
-            encounter.customerHP+heal
+        ctx.fillRect(
+            s.x,
+            s.y,
+            s.size,
+            s.size*2
         );
 
+    }
 
-    encounter.playerHP=
-        Math.max(
+    ctx.globalAlpha=1;
+
+}
+
+
+// ============================================================
+// DRAW PLAYER
+// ============================================================
+
+function drawPlayer(){
+
+    ctx.save();
+
+    ctx.translate(player.x,player.y);
+
+    // Engine
+
+    ctx.shadowBlur=20;
+    ctx.shadowColor="#00d9ff";
+
+    ctx.fillStyle="#00bfff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-9,25);
+    ctx.lineTo(0,45+Math.random()*8);
+    ctx.lineTo(9,25);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    // Wings
+
+    ctx.shadowBlur=15;
+
+    ctx.fillStyle="#e8f6ff";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,-38);
+    ctx.lineTo(-12,5);
+    ctx.lineTo(-37,28);
+    ctx.lineTo(-14,25);
+    ctx.lineTo(0,14);
+    ctx.lineTo(14,25);
+    ctx.lineTo(37,28);
+    ctx.lineTo(12,5);
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    // Cockpit
+
+    ctx.fillStyle="#0878b5";
+
+    ctx.beginPath();
+    ctx.ellipse(0,-15,8,15,0,0,Math.PI*2);
+    ctx.fill();
+
+
+    // Weapon glow
+
+    ctx.shadowColor=powers[powerLevel].color;
+    ctx.strokeStyle=powers[powerLevel].color;
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+    ctx.moveTo(-8,-32);
+    ctx.lineTo(-8,-15);
+    ctx.moveTo(8,-32);
+    ctx.lineTo(8,-15);
+    ctx.stroke();
+
+    ctx.restore();
+
+}
+
+
+// ============================================================
+// DRAW ENEMY
+// ============================================================
+
+function drawEnemy(e){
+
+    ctx.save();
+
+    ctx.translate(e.x,e.y);
+
+    ctx.rotate(Math.sin(e.angle)*.08);
+
+    ctx.shadowBlur=12;
+    ctx.shadowColor=
+        e.type==="tank"
+        ? "#ff8800"
+        : "#9a5cff";
+
+    // UFO wings
+
+    ctx.fillStyle=
+        e.type==="tank"
+        ? "#d76a16"
+        : "#743bc4";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,-25);
+    ctx.lineTo(-24,10);
+    ctx.lineTo(-8,6);
+    ctx.lineTo(0,20);
+    ctx.lineTo(8,6);
+    ctx.lineTo(24,10);
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    // Body
+
+    ctx.fillStyle="#d7c9ff";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        0,
+        13,
+        22,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Alien glass
+
+    ctx.fillStyle="#2d103e";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        -7,
+        8,
+        10,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Eyes
+
+    ctx.fillStyle="#ff4cff";
+
+    ctx.beginPath();
+
+    ctx.arc(-3,-8,2,0,Math.PI*2);
+    ctx.arc(3,-8,2,0,Math.PI*2);
+
+    ctx.fill();
+
+
+    // HP
+
+    if(e.hp<e.maxHp){
+
+        ctx.fillStyle="#300";
+
+        ctx.fillRect(-20,-35,40,4);
+
+        ctx.fillStyle="#ff3838";
+
+        ctx.fillRect(
+            -20,
+            -35,
+            40*(e.hp/e.maxHp),
+            4
+        );
+
+    }
+
+    ctx.restore();
+
+}
+
+
+// ============================================================
+// DRAW BOSS
+// ============================================================
+
+function drawBoss(){
+
+    if(!boss) return;
+
+    ctx.save();
+
+    ctx.translate(boss.x,boss.y);
+
+    ctx.shadowBlur=35;
+    ctx.shadowColor="#ff2020";
+
+
+    // Outer wings
+
+    ctx.fillStyle="#4d0b15";
+
+    ctx.beginPath();
+
+    ctx.moveTo(0,-65);
+
+    ctx.lineTo(-85,20);
+    ctx.lineTo(-105,55);
+    ctx.lineTo(-55,43);
+
+    ctx.lineTo(0,70);
+
+    ctx.lineTo(55,43);
+    ctx.lineTo(105,55);
+    ctx.lineTo(85,20);
+
+    ctx.closePath();
+
+    ctx.fill();
+
+
+    // Body
+
+    ctx.fillStyle="#9b1720";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        0,
+        62,
+        65,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Head
+
+    ctx.fillStyle="#d64242";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        -18,
+        34,
+        32,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Eyes
+
+    ctx.fillStyle="#ffff5b";
+    ctx.shadowColor="#fff600";
+
+    ctx.beginPath();
+
+    ctx.ellipse(-13,-20,7,11,0,0,Math.PI*2);
+    ctx.ellipse(13,-20,7,11,0,0,Math.PI*2);
+
+    ctx.fill();
+
+
+    // Mouth
+
+    ctx.shadowBlur=0;
+
+    ctx.fillStyle="#220308";
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        0,
+        5,
+        20,
+        10,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.fill();
+
+
+    // Horns
+
+    ctx.fillStyle="#ff9c43";
+
+    ctx.beginPath();
+
+    ctx.moveTo(-28,-40);
+    ctx.lineTo(-48,-70);
+    ctx.lineTo(-20,-48);
+
+    ctx.moveTo(28,-40);
+    ctx.lineTo(48,-70);
+    ctx.lineTo(20,-48);
+
+    ctx.fill();
+
+
+    ctx.restore();
+
+}
+
+
+// ============================================================
+// DRAW BULLETS
+// ============================================================
+
+function drawBullets(){
+
+    for(const b of bullets){
+
+        ctx.save();
+
+        ctx.shadowBlur=20;
+        ctx.shadowColor=powers[powerLevel].color;
+
+        ctx.fillStyle=powers[powerLevel].color;
+
+        ctx.fillRect(
+            b.x-3,
+            b.y-12,
+            6,
+            24
+        );
+
+        ctx.restore();
+
+    }
+
+}
+
+
+// ============================================================
+// DRAW ENEMY BULLETS
+// ============================================================
+
+function drawEnemyBullets(){
+
+    for(const b of enemyBullets){
+
+        ctx.save();
+
+        ctx.shadowBlur=18;
+        ctx.shadowColor="#ff2a2a";
+
+        ctx.fillStyle=b.fire?"#ff5a00":"#ff3030";
+
+        ctx.beginPath();
+
+        ctx.arc(
+            b.x,
+            b.y,
+            b.r||7,
             0,
-            encounter.playerHP-damage
+            Math.PI*2
         );
 
+        ctx.fill();
 
-    encounter.log=
-        `${npc.name}: ${message}`;
+        ctx.restore();
 
+    }
 
-    encounter.turn="player";
-
-
-    renderBattle();
+}
 
 
-    showBubble(
-        npc.name,
-        message,
-        3000,
-        ()=>{
+// ============================================================
+// DRAW POWERUPS
+// ============================================================
 
-            if(
-                encounter &&
-                encounter.playerHP<=0
-            ){
+function drawPowerups(){
 
-                loseBattle();
+    for(const p of powerups){
 
-            }
-            else if(encounter){
+        const power=powers[p.level];
 
-                encounter.turn="player";
+        ctx.save();
 
-                renderBattle();
+        ctx.translate(p.x,p.y);
+        ctx.rotate(p.rotation);
 
-            }
+        ctx.shadowBlur=25;
+        ctx.shadowColor=power.color;
+
+        ctx.strokeStyle=power.color;
+        ctx.lineWidth=4;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            0,
+            0,
+            p.r,
+            0,
+            Math.PI*2
+        );
+
+        ctx.stroke();
+
+        ctx.rotate(-p.rotation);
+
+        ctx.fillStyle=power.color;
+
+        ctx.font="bold 11px Arial";
+        ctx.textAlign="center";
+        ctx.textBaseline="middle";
+
+        ctx.fillText(
+            power.name,
+            0,
+            0
+        );
+
+        ctx.restore();
+
+    }
+
+}
+
+
+// ============================================================
+// DRAW PARTICLES
+// ============================================================
+
+function drawParticles(){
+
+    for(const p of particles){
+
+        ctx.globalAlpha=Math.max(0,p.life/50);
+
+        ctx.fillStyle=p.color;
+
+        ctx.beginPath();
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+    ctx.globalAlpha=1;
+
+}
+
+
+// ============================================================
+// DRAW FLOATING TEXTS
+// ============================================================
+
+function drawFloatingTexts(){
+
+    for(const t of floatingTexts){
+
+        ctx.save();
+
+        ctx.globalAlpha=Math.min(
+            1,
+            t.life/40
+        );
+
+        ctx.fillStyle=t.color;
+
+        ctx.shadowBlur=10;
+        ctx.shadowColor="#000";
+
+        ctx.font=
+            "bold " +
+            (t.size||18) +
+            "px Arial";
+
+        ctx.textAlign="center";
+
+        ctx.fillText(
+            t.text,
+            t.x,
+            t.y
+        );
+
+        ctx.restore();
+
+    }
+
+}
+
+
+// ============================================================
+// COLLISION / UPDATE
+// ============================================================
+
+function update(){
+
+    frame++;
+
+    movePlayer();
+
+    if(player.fireCooldown>0)
+        player.fireCooldown--;
+
+    if(shootHeld)
+        shoot();
+
+    spawnLogic();
+
+    updateBullets();
+    updateEnemies();
+    updateEnemyBullets();
+    updatePowerups();
+    updateParticles();
+    updateFloatingTexts();
+    updateBoss();
+
+    if(messageTimer>0){
+
+        messageTimer--;
+
+        if(messageTimer<25){
+
+            document.getElementById("message").style.opacity=
+                messageTimer/25;
 
         }
-    );
-
-}
-
-
-/* =========================================================
-   CUSTOMER DIALOGUE TYPES
-========================================================= */
-
-function customerCounterLine(type){
-
-    const data={
-
-        price:[
-
-            "Έχω ήδη χαμηλή τιμή λόγω υπαλληλικού πακέτου!",
-
-            "Αν δεν είναι φθηνότερο, δεν αλλάζω!",
-
-            "Μου κάνουν καλύτερη τιμή ήδη!",
-
-            "Δεν θα πληρώσω παραπάνω μόνο για ταχύτητα!"
-
-        ],
-
-        quality:[
-
-            "Ωραία τα λες, αλλά θέλω αποδείξεις!",
-
-            "Δεν με ενδιαφέρει μόνο το νούμερο των Mbps!",
-
-            "Τι εγγύηση έχω ότι θα είναι καλύτερο;", 
-
-            "Μου λες 2.5 Gbps, αλλά τα χρειάζομαι πραγματικά;"
-
-        ],
-
-        loyal:[
-
-            "Η τωρινή μου εταιρεία με έχει εξυπηρετήσει καλά!",
-
-            "Δεν αλλάζω έτσι εύκολα!",
-
-            "Πρέπει να μου δώσεις πολύ σοβαρό λόγο!",
-
-            "Δεν θέλω να μπλέξω με αλλαγές!"
-
-        ]
-
-    };
-
-
-    const list=data[type];
-
-
-    return list[
-        Math.floor(
-            Math.random()*list.length
-        )
-    ];
-
-}
-
-
-function customerDefenseLine(type){
-
-    const data={
-
-        price:[
-
-            "Δεν θέλω να πληρώνω παραπάνω.",
-
-            "Θέλω να το σκεφτώ.",
-
-            "Η τιμή μου φαίνεται υψηλή.",
-
-            "Δεν είμαι σίγουρος ότι αξίζει."
-
-        ],
-
-        quality:[
-
-            "Θέλω χρόνο να το σκεφτώ.",
-
-            "Πρέπει να δω τι πραγματικά χρειάζομαι.",
-
-            "Δεν θέλω υπερβολές.",
-
-            "Θέλω κάτι αξιόπιστο."
-
-        ],
-
-        loyal:[
-
-            "Δεν μου αρέσει να αλλάζω εύκολα.",
-
-            "Προτιμώ αυτό που ήδη ξέρω.",
-
-            "Θέλω να είμαι σίγουρος.",
-
-            "Δεν θέλω βιαστικές αποφάσεις."
-
-        ]
-
-    };
-
-
-    const list=data[type];
-
-
-    return list[
-        Math.floor(
-            Math.random()*list.length
-        )
-    ];
-
-}
-
-
-function customerHealLine(type){
-
-    return [
-
-        "«Μισό λεπτό, ας το ξανασκεφτώ.»",
-
-        "«Δεν έχω πειστεί ακόμα.»",
-
-        "«Νομίζω ότι πρέπει να το δω λίγο καλύτερα.»",
-
-        "«Δεν είμαι έτοιμος να αποφασίσω.»"
-
-    ][
-        Math.floor(
-            Math.random()*4
-        )
-    ];
-
-}
-
-
-function customerQuestionLine(type){
-
-    const questions={
-
-        price:[
-
-            "«Πόσο ακριβώς θα πληρώνω τον μήνα;»",
-
-            "«Πόσα ευρώ θα γλιτώνω;»",
-
-            "«Υπάρχουν επιπλέον χρεώσεις;»"
-
-        ],
-
-        quality:[
-
-            "«Τι διαφορά θα δω στην πράξη;»",
-
-            "«Για πόσες συσκευές είναι αρκετό;»",
-
-            "«Το 2.5 Gbps αξίζει πραγματικά;»"
-
-        ],
-
-        loyal:[
-
-            "«Τι διαφορετικό μου προσφέρεις;»",
-
-            "«Τι γίνεται αν δεν είμαι ευχαριστημένος;»",
-
-            "«Γιατί να φύγω από την τωρινή εταιρεία;»"
-
-        ]
-
-    };
-
-
-    const list=
-        questions[type];
-
-
-    return list[
-        Math.floor(
-            Math.random()*list.length
-        )
-    ];
-
-}
-
-
-/* =========================================================
-   ESCAPE
-========================================================= */
-
-function attemptEscape(){
-
-    if(!encounter)
-        return;
-
-
-    if(encounter.turn!=="player")
-        return;
-
-
-    encounter.turn="enemy";
-
-
-    encounter.log=
-        "Ο πελάτης προσπαθεί να φύγει...";
-
-
-    renderBattle();
-
-
-    setTimeout(
-        ()=>{
-
-            if(
-                Math.random()<.45
-            ){
-
-                loseBattle();
-
-            }
-            else{
-
-                encounter.turn="player";
-
-                encounter.log=
-                    "Τον σταμάτησες εγκαίρως. Η συζήτηση συνεχίζεται.";
-
-                renderBattle();
-
-            }
-
-        },
-        800
-    );
-
-}
-
-
-/* =========================================================
-   WIN
-========================================================= */
-
-function winBattle(){
-
-    if(!encounter)
-        return;
-
-
-    const npc=
-        encounter.npc;
-
-
-    npc.done=true;
-
-    npc.hp=0;
-
-
-    const xpGain=
-        25+
-        Math.floor(
-            encounter.saleValue/3
-        );
-
-
-    const moneyGain=
-        25+
-        encounter.saleValue;
-
-
-    player.money+=
-        moneyGain;
-
-
-    player.xp+=
-        xpGain;
-
-
-    player.stats.sales++;
-
-
-    if(encounter.selectedInternet)
-        player.stats.products++;
-
-
-    if(encounter.selectedFixed)
-        player.stats.products++;
-
-
-    if(encounter.selectedInternational)
-        player.stats.products++;
-
-
-    let leveled=false;
-
-
-    if(player.xp>=100){
-
-        player.xp-=100;
-
-        player.level++;
-
-        player.maxHp+=10;
-
-        player.hp=
-            player.maxHp;
-
-        leveled=true;
-
-    }
-    else{
-
-        player.hp=
-            Math.min(
-                player.maxHp,
-                encounter.playerHP
-            );
 
     }
 
-
-    encounter.turn="won";
-
-    encounter.log=
-        "🏆 Η ΠΩΛΗΣΗ ΚΛΕΙΣΤΗ!";
-
-
-    renderBattle();
-
-
-    let saleText=
-        "ΠΩΛΗΣΗ ΟΛΟΚΛΗΡΩΘΗΚΕ!";
-
-
-    if(leveled)
-        saleText+=
-            " LEVEL UP!";
-
-
-    showBubble(
-        "SYSTEM",
-        saleText,
-        3000,
-        ()=>{
-
-            showSaleSummary(
-                moneyGain,
-                xpGain
-            );
-
-        }
-    );
+    if(shake>0)
+        shake*=.86;
 
 }
 
 
-/* =========================================================
-   SALE SUMMARY
-========================================================= */
+// ============================================================
+// DRAW
+// ============================================================
 
-function showSaleSummary(
-    money,
-    xp
-){
+function draw(){
 
-    const bubble=
-        document.getElementById(
-            "bubble"
+    ctx.save();
+
+    if(shake>0){
+
+        ctx.translate(
+            (Math.random()-.5)*shake,
+            (Math.random()-.5)*shake
         );
-
-
-    bubble.style.display="block";
-
-
-    document.getElementById(
-        "bubbleName"
-    ).textContent=
-        "🏆 SALE CLOSED";
-
-
-    document.getElementById(
-        "bubbleText"
-    ).innerHTML=
-        `💰 +€${money}
-         &nbsp;&nbsp;
-         ⭐ +${xp} XP
-         <br><br>
-         📦 Πακέτο:
-         ${
-            encounter.selectedInternet
-            ? (
-                encounter.selectedInternet==="500"
-                ? "500 Mbps"
-                : encounter.selectedInternet==="1000"
-                ? "1000 Mbps"
-                : "2.5 Gbps"
-            )
-            : "—"
-         }
-         ${
-            encounter.selectedFixed
-            ? " + Basic Fixed"
-            : ""
-         }
-         ${
-            encounter.selectedInternational
-            ? " + International"
-            : ""
-         }`;
-
-
-    document.getElementById(
-        "bubbleTimerFill"
-    ).style.display="none";
-
-
-    setTimeout(
-        ()=>{
-
-            bubble.style.display=
-                "none";
-
-
-            endBattle();
-
-        },
-        3500
-    );
-
-}
-
-
-/* =========================================================
-   LOSE
-========================================================= */
-
-function loseBattle(){
-
-    if(!encounter)
-        return;
-
-
-    encounter.turn="lost";
-
-    encounter.log=
-        "❌ Η πώληση χάθηκε.";
-
-
-    renderBattle();
-
-
-    showBubble(
-        "SYSTEM",
-        "Ο πελάτης έφυγε. Δοκίμασε άλλη προσέγγιση την επόμενη φορά.",
-        3000,
-        ()=>endBattle()
-    );
-
-}
-
-
-/* =========================================================
-   END BATTLE
-========================================================= */
-
-function endBattle(){
-
-    encounter=null;
-
-    state="world";
-
-
-    document.getElementById(
-        "battleUI"
-    ).style.display=
-        "none";
-
-
-    document.getElementById(
-        "bubble"
-    ).style.display=
-        "none";
-
-}
-
-
-/* =========================================================
-   MOVEMENT
-========================================================= */
-
-function update(dt){
-
-    if(state!=="world")
-        return;
-
-
-    let dx=0;
-    let dy=0;
-
-
-    if(
-        keys["arrowleft"] ||
-        keys["a"]
-    )
-        dx--;
-
-
-    if(
-        keys["arrowright"] ||
-        keys["d"]
-    )
-        dx++;
-
-
-    if(
-        keys["arrowup"] ||
-        keys["w"]
-    )
-        dy--;
-
-
-    if(
-        keys["arrowdown"] ||
-        keys["s"]
-    )
-        dy++;
-
-
-    if(
-        dx!==0 ||
-        dy!==0
-    ){
-
-        const length=
-            Math.hypot(
-                dx,
-                dy
-            );
-
-
-        dx/=length;
-        dy/=length;
-
-
-        player.x+=
-            dx*
-            player.speed*
-            dt;
-
-
-        player.y+=
-            dy*
-            player.speed*
-            dt;
 
     }
 
+    drawBackground();
 
-    player.x=
-        Math.max(
-            10,
-            Math.min(
-                W-10,
-                player.x
-            )
-        );
+    drawPowerups();
 
+    drawBullets();
 
-    player.y=
-        Math.max(
-            75,
-            Math.min(
-                H-10,
-                player.y
-            )
-        );
+    drawEnemyBullets();
 
-}
+    for(const e of enemies)
+        drawEnemy(e);
 
+    drawBoss();
 
-/* =========================================================
-   MAIN LOOP
-========================================================= */
+    drawPlayer();
 
-function loop(time){
+    drawParticles();
 
-    const dt=
-        Math.min(
-            .05,
-            (time-lastTime)/1000 || 0
-        );
+    drawFloatingTexts();
 
-
-    lastTime=time;
-
-
-    update(dt);
-
-
-    if(state==="world"){
-
-        drawWorld();
-
-    }
-
-
-    if(state==="battle"){
-
-        drawBattleScene();
-
-    }
-
-
-    requestAnimationFrame(loop);
+    ctx.restore();
 
 }
 
 
-requestAnimationFrame(loop);
+// ============================================================
+// GAME LOOP
+// ============================================================
+
+function gameLoop(){
+
+    if(!running) return;
+
+    update();
+    draw();
+
+    requestAnimationFrame(gameLoop);
+
+}
+
+
+// ============================================================
+// GAME OVER
+// ============================================================
+
+function endGame(reason){
+
+    running=false;
+
+    document.getElementById("finalReason").textContent=reason;
+
+    document.getElementById("finalScore").textContent=score;
+
+    document.getElementById("finalKills").textContent=kills;
+
+    document.getElementById("gameOver").classList.remove("hidden");
+
+}
+
+
+// ============================================================
+// BUTTONS
+// ============================================================
+
+document.getElementById("startBtn").addEventListener(
+    "click",
+    startGame
+);
+
+document.getElementById("restartBtn").addEventListener(
+    "click",
+    startGame
+);
+
+
+// ============================================================
+// INITIAL
+// ============================================================
+
+updateHUD();
 
 </script>
 
