@@ -1,181 +1,381 @@
 ```html
 <!DOCTYPE html>
 <html lang="el">
+
 <head>
+
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width,initial-scale=1.0">
+
 <title>Sales Fighter 1942</title>
 
 <style>
+
 *{
     box-sizing:border-box;
     user-select:none;
 }
 
 html,body{
+
     margin:0;
     padding:0;
+
     width:100%;
     height:100%;
+
     overflow:hidden;
+
     background:#020611;
-    font-family:Arial,Helvetica,sans-serif;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
 }
 
 canvas{
+
     display:block;
+
     width:100vw;
     height:100vh;
+
     cursor:crosshair;
 }
 
+
+/* =========================================================
+   HUD
+========================================================= */
+
 #hud{
+
     position:fixed;
+
     top:0;
     left:0;
+
     width:100%;
+
     padding:10px 15px;
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:flex-start;
+
     pointer-events:none;
+
+    z-index:10;
+
     color:white;
-    z-index:5;
-    text-shadow:0 2px 4px #000;
+
+    text-shadow:
+        0 2px 4px #000;
 }
 
 .panel{
-    background:rgba(0,10,25,.72);
-    border:1px solid rgba(100,200,255,.35);
+
+    background:
+        rgba(0,10,25,.78);
+
+    border:
+        1px solid
+        rgba(100,200,255,.35);
+
     border-radius:10px;
+
     padding:8px 12px;
-    backdrop-filter:blur(5px);
+
+    backdrop-filter:
+        blur(5px);
+
 }
 
 #stats{
+
     line-height:1.5;
+
     font-size:14px;
+
 }
 
 #weapon{
+
     text-align:right;
+
     font-size:14px;
+
 }
 
 #powerText{
+
     color:#58eaff;
+
     font-weight:bold;
+
     font-size:18px;
+
 }
 
+#waveName{
+
+    color:#ffd84d;
+
+    font-weight:bold;
+
+}
+
+
+/* =========================================================
+   BOSS BAR
+========================================================= */
+
 #bossBar{
+
     position:fixed;
-    top:82px;
+
+    top:78px;
+
     left:50%;
-    transform:translateX(-50%);
-    width:min(600px,75vw);
+
+    transform:
+        translateX(-50%);
+
+    width:
+        min(680px,80vw);
+
     display:none;
-    z-index:6;
+
+    z-index:12;
+
 }
 
 #bossName{
+
     color:#ff5b5b;
+
     text-align:center;
+
     font-size:18px;
+
     font-weight:bold;
-    margin-bottom:5px;
-    text-shadow:0 0 10px red;
+
+    margin-bottom:6px;
+
+    text-shadow:
+        0 0 5px #000,
+        0 0 15px red;
+
 }
 
 .bar{
-    height:18px;
+
+    height:21px;
+
     background:#180606;
-    border:2px solid #ff4444;
+
+    border:
+        2px solid
+        #ff4444;
+
     border-radius:10px;
+
     overflow:hidden;
+
 }
 
 #bossHp{
+
     height:100%;
+
     width:100%;
-    background:linear-gradient(90deg,#ff1010,#ff9900);
-    transition:width .1s;
+
+    background:
+        linear-gradient(
+            90deg,
+            #ff1010,
+            #ff6600,
+            #ffd000
+        );
+
+    transition:
+        width .1s;
+
 }
 
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
 #message{
+
     position:fixed;
+
     left:50%;
     top:43%;
-    transform:translate(-50%,-50%);
+
+    transform:
+        translate(-50%,-50%);
+
     color:white;
+
     font-weight:bold;
+
     font-size:30px;
+
+    line-height:1.3;
+
     text-align:center;
+
     text-shadow:
         0 0 5px #000,
-        0 0 15px #00c8ff;
+        0 0 15px #00c8ff,
+        0 0 30px #00c8ff;
+
     pointer-events:none;
-    z-index:20;
+
+    z-index:30;
+
     opacity:0;
+
+    white-space:nowrap;
+
 }
+
+
+/* =========================================================
+   START / GAME OVER
+========================================================= */
 
 #startScreen,
 #gameOver{
+
     position:fixed;
+
     inset:0;
+
     background:
-        radial-gradient(circle at center,rgba(0,80,140,.25),rgba(0,0,0,.94)),
+
+        radial-gradient(
+            circle at center,
+            rgba(0,80,140,.25),
+            rgba(0,0,0,.96)
+        ),
+
         #020611;
+
     display:flex;
+
     justify-content:center;
+
     align-items:center;
-    z-index:50;
+
+    z-index:100;
+
     color:white;
+
     text-align:center;
+
 }
 
 .menu{
-    width:min(600px,90vw);
+
+    width:
+        min(680px,92vw);
+
     padding:35px;
+
     border-radius:20px;
-    border:1px solid rgba(100,220,255,.4);
-    background:rgba(2,12,30,.88);
-    box-shadow:0 0 50px rgba(0,150,255,.18);
+
+    border:
+        1px solid
+        rgba(100,220,255,.4);
+
+    background:
+        rgba(2,12,30,.90);
+
+    box-shadow:
+        0 0 50px
+        rgba(0,150,255,.18);
+
 }
 
 h1{
-    margin:0 0 10px;
+
+    margin:
+        0 0 10px;
+
     font-size:48px;
+
     color:#62e9ff;
-    text-shadow:0 0 20px #00bfff;
+
+    text-shadow:
+        0 0 20px #00bfff;
+
 }
 
 .subtitle{
+
     color:#aaa;
+
     margin-bottom:25px;
+
 }
 
 button{
+
     border:0;
+
     border-radius:12px;
-    padding:14px 30px;
+
+    padding:
+        14px 30px;
+
     font-size:18px;
+
     font-weight:bold;
+
     color:white;
-    background:linear-gradient(135deg,#0077ff,#00c8ff);
+
+    background:
+        linear-gradient(
+            135deg,
+            #0077ff,
+            #00c8ff
+        );
+
     cursor:pointer;
-    box-shadow:0 0 20px rgba(0,190,255,.35);
+
+    box-shadow:
+        0 0 20px
+        rgba(0,190,255,.35);
+
 }
 
 button:hover{
-    transform:scale(1.05);
+
+    transform:
+        scale(1.05);
+
 }
 
 .instructions{
+
     text-align:left;
-    line-height:1.7;
+
+    line-height:1.65;
+
     color:#cbd8e8;
-    margin:20px 0;
+
+    margin:
+        20px 0;
+
 }
 
 .red{
@@ -195,84 +395,256 @@ button:hover{
 }
 
 .hidden{
-    display:none!important;
+
+    display:none !important;
+
 }
 
 #mobileHint{
+
     position:fixed;
+
     bottom:12px;
+
     left:50%;
-    transform:translateX(-50%);
+
+    transform:
+        translateX(-50%);
+
     color:#8faac0;
+
     font-size:12px;
+
     z-index:4;
+
     pointer-events:none;
+
 }
+
 </style>
+
 </head>
+
 
 <body>
 
+
 <canvas id="game"></canvas>
+
+
+<!-- =======================================================
+     HUD
+======================================================= -->
 
 <div id="hud">
 
-    <div class="panel" id="stats">
-        <div>💰 Πωλήσεις: <span id="score">0</span></div>
-        <div>☠️ Kills: <span id="kills">0</span></div>
-        <div>🔥 Combo: <span id="combo">0</span></div>
-        <div>🌊 Wave: <span id="wave">1</span></div>
+    <div class="panel">
+
+        <div>
+            💰 Πωλήσεις:
+            <span id="score">0</span>
+        </div>
+
+        <div>
+            ☠️ Kills:
+            <span id="kills">0</span>
+        </div>
+
+        <div>
+            🔥 Combo:
+            <span id="combo">0</span>
+        </div>
+
+        <div>
+            🌊 Wave:
+            <span id="wave">1</span>
+        </div>
+
+        <div id="waveName">
+            Εύκολοι πελάτες
+        </div>
+
     </div>
+
 
     <div class="panel" id="weapon">
-        <div>📡 Σύνδεση</div>
-        <div id="powerText">500 Mbps</div>
-        <div>DMG: <span id="damage">17.9</span></div>
+
+        <div>
+            📡 Σύνδεση
+        </div>
+
+        <div id="powerText">
+            500 Mbps
+        </div>
+
+        <div>
+            DMG:
+            <span id="damage">17.9</span>
+        </div>
+
     </div>
 
 </div>
+
+
+<!-- =======================================================
+     BOSS BAR
+======================================================= -->
 
 <div id="bossBar">
-    <div id="bossName">👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ — ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ</div>
-    <div class="bar">
-        <div id="bossHp"></div>
+
+    <div id="bossName">
+
+        👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ
+        —
+        ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ
+
     </div>
+
+    <div class="bar">
+
+        <div id="bossHp"></div>
+
+    </div>
+
 </div>
+
 
 <div id="message"></div>
 
+
 <div id="mobileHint">
-    🖱️ Κούνα το mouse για να κινήσεις το μαχητικό • Κλικ/Space για πυρ
+
+    🖱️ Mouse για κίνηση
+    •
+    Κλικ / Space για πυρ
+
 </div>
+
+
+<!-- =======================================================
+     START SCREEN
+======================================================= -->
 
 <div id="startScreen">
+
     <div class="menu">
 
-        <h1>SALES FIGHTER</h1>
+        <h1>
+            SALES FIGHTER
+        </h1>
 
         <div class="subtitle">
-            1942: HORECA EDITION
+            1942 — HORECA SALES EDITION
         </div>
+
 
         <div class="instructions">
-            ✈️ Είσαι ο <b>πωλητής-μαχητικό</b>.<br>
-            👽 Κατάστρεψε τους εξωγήινους πελάτες.<br>
-            🎁 Μάζεψε τα <span class="blue">Mbps / Gbps bonuses</span> πριν χαθούν.<br>
-            💥 Όσο ανεβαίνει η σύνδεση, ανεβαίνει και το damage.<br>
-            👹 Πρόσεχε το <span class="red">Boss</span> — έχει τεράστιο HP και ρίχνει αντιρρήσεις.<br>
-            🗣️ «Δεν ενδιαφέρομαι», «Είναι ακριβό», «Έχω ήδη πάροχο»...<br>
-            🔥 Απόφυγε τις φωτιές και συνέχισε την πώληση!
+
+            ✈️ Είσαι ο
+            <b>πωλητής-μαχητικό</b>.
+
+            <br>
+
+            👽 Κάθε κύμα έχει διαφορετικούς
+            πελάτες.
+
+            <br><br>
+
+            <b class="blue">
+                WAVE 1
+            </b>
+            —
+            Εύκολοι πελάτες
+
+            <br>
+
+            <b>
+                WAVE 2
+            </b>
+            —
+            Ευγενικοί πελάτες
+
+            <br>
+
+            <b>
+                WAVE 3
+            </b>
+            —
+            Ήρεμοι αλλά δύσκολοι
+
+            <br>
+
+            <b class="red">
+                WAVE 4
+            </b>
+            —
+            Εκνευρισμένοι
+
+            <br><br>
+
+            🎁 Μάζεψε τα power-ups.
+
+            <br>
+
+            📡 500 Mbps =
+            <b>17.9 DMG</b>
+
+            <br>
+
+            📡 1000 Mbps =
+            <b>19.9 DMG</b>
+
+            <br>
+
+            🚀 2.5 Gbps =
+            <b>52.9 DMG</b>
+
+            <br><br>
+
+            🐝 Αν αργήσεις πολύ,
+            θα εμφανιστούν
+            <b>σμήνη</b>.
+
+            <br>
+
+            👹 Στα
+            <b class="red">
+                50 KILLS
+            </b>
+            έρχεται ο Μεγάλος Πελάτης.
+
+            <br>
+
+            🔥 Όσο εκνευρίζεται,
+            τόσο πιο lethal γίνεται.
+
         </div>
 
-        <button id="startBtn">▶ ΕΝΑΡΞΗ ΠΩΛΗΣΕΩΝ</button>
+
+        <button id="startBtn">
+
+            ▶ ΕΝΑΡΞΗ ΠΩΛΗΣΕΩΝ
+
+        </button>
 
     </div>
+
 </div>
 
-<div id="gameOver" class="hidden">
+
+<!-- =======================================================
+     GAME OVER
+======================================================= -->
+
+<div id="gameOver"
+     class="hidden">
+
     <div class="menu">
 
-        <h1>GAME OVER</h1>
+        <h1>
+            GAME OVER
+        </h1>
 
         <p id="finalReason"></p>
 
@@ -286,25 +658,54 @@ button:hover{
             <b id="finalKills">0</b>
         </p>
 
-        <button id="restartBtn">🔄 ΞΑΝΑ</button>
+        <button id="restartBtn">
+
+            🔄 ΞΑΝΑ
+
+        </button>
 
     </div>
+
 </div>
+
+
 
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
 
-let W = 0;
-let H = 0;
+// ============================================================
+// CANVAS
+// ============================================================
+
+const canvas =
+    document.getElementById("game");
+
+const ctx =
+    canvas.getContext("2d");
+
+
+let W=0;
+let H=0;
+
 
 function resize(){
-    W = canvas.width = window.innerWidth;
-    H = canvas.height = window.innerHeight;
+
+    W=
+        canvas.width=
+        window.innerWidth;
+
+    H=
+        canvas.height=
+        window.innerHeight;
+
 }
 
-window.addEventListener("resize",resize);
+
+window.addEventListener(
+    "resize",
+    resize
+);
+
 resize();
 
 
@@ -312,54 +713,97 @@ resize();
 // GAME STATE
 // ============================================================
 
-let running = false;
+let running=false;
 
-let score = 0;
-let kills = 0;
-let combo = 0;
-let wave = 1;
+let score=0;
 
-let frame = 0;
+let kills=0;
 
-let damage = 17.9;
-let powerLevel = 0;
+let combo=0;
 
-let bossActive = false;
-let boss = null;
+let wave=1;
 
-let bullets = [];
-let enemies = [];
-let enemyBullets = [];
-let particles = [];
-let powerups = [];
-let floatingTexts = [];
-let stars = [];
+let frame=0;
 
-let keys = {};
+let damage=17.9;
 
-let mouseX = W/2;
-let mouseY = H-130;
+let powerLevel=0;
 
-let shootHeld = false;
+let bossActive=false;
 
-let spawnTimer = 0;
-let bossTimer = 0;
+let boss=null;
 
-let shake = 0;
+let bullets=[];
+
+let enemies=[];
+
+let enemyBullets=[];
+
+let particles=[];
+
+let powerups=[];
+
+let floatingTexts=[];
+
+let stars=[];
+
+let swarms=[];
+
+let keys={};
+
+let mouseX=W/2;
+
+let mouseY=H-130;
+
+let shootHeld=false;
+
+let spawnTimer=0;
+
+let shake=0;
+
+let messageTimer=0;
+
+let waveStartTime=0;
+
+let swarmCountThisWave=0;
+
+let lastBossObjection="";
 
 
 // ============================================================
-// PLAYER
+// WAVE DEFINITIONS
 // ============================================================
 
-const player = {
-    x:W/2,
-    y:H-130,
-    w:48,
-    h:70,
-    speed:8,
-    fireCooldown:0,
-    alive:true
+const waveData={
+
+    1:{
+        name:"Εύκολοι πελάτες",
+        enemySpeed:1.45,
+        hpMultiplier:.75,
+        shootChance:.003
+    },
+
+    2:{
+        name:"Ευγενικοί πελάτες",
+        enemySpeed:1.75,
+        hpMultiplier:1,
+        shootChance:.006
+    },
+
+    3:{
+        name:"Ήρεμοι πελάτες",
+        enemySpeed:2.05,
+        hpMultiplier:1.25,
+        shootChance:.009
+    },
+
+    4:{
+        name:"Εκνευρισμένοι πελάτες",
+        enemySpeed:2.35,
+        hpMultiplier:1.6,
+        shootChance:.014
+    }
+
 };
 
 
@@ -367,23 +811,54 @@ const player = {
 // POWER LEVELS
 // ============================================================
 
-const powers = [
+const powers=[
+
     {
         name:"500 Mbps",
         damage:17.9,
         color:"#42e8ff"
     },
+
     {
         name:"1000 Mbps",
         damage:19.9,
         color:"#fff15a"
     },
+
     {
         name:"2.5 Gbps",
         damage:52.9,
         color:"#ff62ff"
     }
+
 ];
+
+
+// ============================================================
+// PLAYER
+// ============================================================
+
+const player={
+
+    x:W/2,
+
+    y:H-130,
+
+    w:48,
+
+    h:70,
+
+    // Λίγο πιο αργός
+
+    speed:5.8,
+
+    fireCooldown:0,
+
+    alive:true,
+
+    strikes:0
+
+};
 
 
 // ============================================================
@@ -394,16 +869,31 @@ function createStars(){
 
     stars=[];
 
-    for(let i=0;i<180;i++){
+    for(
+        let i=0;
+        i<180;
+        i++
+    ){
 
         stars.push({
-            x:Math.random()*W,
-            y:Math.random()*H,
-            speed:1+Math.random()*5,
-            size:Math.random()*2
+
+            x:
+                Math.random()*W,
+
+            y:
+                Math.random()*H,
+
+            speed:
+                .7+
+                Math.random()*3,
+
+            size:
+                Math.random()*2
+
         });
 
     }
+
 }
 
 createStars();
@@ -418,36 +908,87 @@ function startGame(){
     running=true;
 
     score=0;
+
     kills=0;
+
     combo=0;
+
     wave=1;
 
-    powerLevel=0;
-    damage=powers[0].damage;
+    frame=0;
 
-    bullets=[];
-    enemies=[];
-    enemyBullets=[];
-    particles=[];
-    powerups=[];
-    floatingTexts=[];
+    powerLevel=0;
+
+    damage=
+        powers[0].damage;
 
     boss=null;
+
     bossActive=false;
 
-    player.x=W/2;
-    player.y=H-130;
-    player.alive=true;
+    bullets=[];
+
+    enemies=[];
+
+    enemyBullets=[];
+
+    particles=[];
+
+    powerups=[];
+
+    floatingTexts=[];
+
+    swarms=[];
 
     spawnTimer=0;
-    bossTimer=0;
 
-    document.getElementById("startScreen").classList.add("hidden");
-    document.getElementById("gameOver").classList.add("hidden");
+    shake=0;
+
+    messageTimer=0;
+
+    waveStartTime=
+        performance.now();
+
+    swarmCountThisWave=0;
+
+    lastBossObjection="";
+
+    player.strikes=0;
+
+    player.x=W/2;
+
+    player.y=H-130;
+
+    player.alive=true;
+
+
+    document
+        .getElementById("startScreen")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("gameOver")
+        .classList
+        .add("hidden");
+
+
+    document
+        .getElementById("bossBar")
+        .style.display="none";
+
 
     updateHUD();
 
-    requestAnimationFrame(gameLoop);
+
+    showWaveMessage();
+
+
+    requestAnimationFrame(
+        gameLoop
+    );
+
 }
 
 
@@ -455,72 +996,128 @@ function startGame(){
 // INPUT
 // ============================================================
 
-window.addEventListener("keydown",e=>{
+window.addEventListener(
+    "keydown",
+    e=>{
 
-    keys[e.key.toLowerCase()]=true;
+        keys[
+            e.key.toLowerCase()
+        ]=true;
 
-    if(e.code==="Space"){
+
+        if(e.code==="Space"){
+
+            shootHeld=true;
+
+            e.preventDefault();
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        keys[
+            e.key.toLowerCase()
+        ]=false;
+
+
+        if(e.code==="Space"){
+
+            shootHeld=false;
+
+        }
+
+    }
+);
+
+
+canvas.addEventListener(
+    "mousemove",
+    e=>{
+
+        mouseX=e.clientX;
+
+        mouseY=e.clientY;
+
+    }
+);
+
+
+canvas.addEventListener(
+    "mousedown",
+    ()=>{
+
         shootHeld=true;
-        e.preventDefault();
+
     }
+);
 
-});
 
-window.addEventListener("keyup",e=>{
+window.addEventListener(
+    "mouseup",
+    ()=>{
 
-    keys[e.key.toLowerCase()]=false;
-
-    if(e.code==="Space"){
         shootHeld=false;
+
     }
-
-});
-
-canvas.addEventListener("mousemove",e=>{
-
-    mouseX=e.clientX;
-    mouseY=e.clientY;
-
-});
-
-canvas.addEventListener("mousedown",()=>{
-    shootHeld=true;
-});
-
-window.addEventListener("mouseup",()=>{
-    shootHeld=false;
-});
+);
 
 
-// Touch
+// TOUCH
 
-canvas.addEventListener("touchmove",e=>{
+canvas.addEventListener(
+    "touchmove",
+    e=>{
 
-    const t=e.touches[0];
+        const t=e.touches[0];
 
-    mouseX=t.clientX;
-    mouseY=t.clientY;
+        mouseX=t.clientX;
 
-    e.preventDefault();
+        mouseY=t.clientY;
 
-},{passive:false});
+        e.preventDefault();
 
-canvas.addEventListener("touchstart",e=>{
+    },
+    {
+        passive:false
+    }
+);
 
-    const t=e.touches[0];
 
-    mouseX=t.clientX;
-    mouseY=t.clientY;
+canvas.addEventListener(
+    "touchstart",
+    e=>{
 
-    shootHeld=true;
+        const t=e.touches[0];
 
-    e.preventDefault();
+        mouseX=t.clientX;
 
-},{passive:false});
+        mouseY=t.clientY;
 
-canvas.addEventListener("touchend",()=>{
-    shootHeld=false;
-});
+        shootHeld=true;
+
+        e.preventDefault();
+
+    },
+    {
+        passive:false
+    }
+);
+
+
+canvas.addEventListener(
+    "touchend",
+    ()=>{
+
+        shootHeld=false;
+
+    }
+);
 
 
 // ============================================================
@@ -529,7 +1126,8 @@ canvas.addEventListener("touchend",()=>{
 
 function movePlayer(){
 
-    const keyboard =
+    const keyboard=
+
         keys["arrowleft"] ||
         keys["a"] ||
         keys["arrowright"] ||
@@ -539,31 +1137,90 @@ function movePlayer(){
         keys["arrowdown"] ||
         keys["s"];
 
+
     if(keyboard){
 
-        if(keys["arrowleft"] || keys["a"])
-            player.x-=player.speed;
+        if(
+            keys["arrowleft"] ||
+            keys["a"]
+        ){
 
-        if(keys["arrowright"] || keys["d"])
-            player.x+=player.speed;
+            player.x-=
+                player.speed;
 
-        if(keys["arrowup"] || keys["w"])
-            player.y-=player.speed;
+        }
 
-        if(keys["arrowdown"] || keys["s"])
-            player.y+=player.speed;
 
-    }else{
+        if(
+            keys["arrowright"] ||
+            keys["d"]
+        ){
 
-        // smooth mouse following
+            player.x+=
+                player.speed;
 
-        player.x += (mouseX-player.x)*0.16;
-        player.y += (mouseY-player.y)*0.16;
+        }
+
+
+        if(
+            keys["arrowup"] ||
+            keys["w"]
+        ){
+
+            player.y-=
+                player.speed;
+
+        }
+
+
+        if(
+            keys["arrowdown"] ||
+            keys["s"]
+        ){
+
+            player.y+=
+                player.speed;
+
+        }
 
     }
 
-    player.x=Math.max(30,Math.min(W-30,player.x));
-    player.y=Math.max(70,Math.min(H-45,player.y));
+    else{
+
+        player.x +=
+            (
+                mouseX-
+                player.x
+            )*.10;
+
+
+        player.y +=
+            (
+                mouseY-
+                player.y
+            )*.10;
+
+    }
+
+
+    player.x=
+        Math.max(
+            30,
+            Math.min(
+                W-30,
+                player.x
+            )
+        );
+
+
+    player.y=
+        Math.max(
+            70,
+            Math.min(
+                H-45,
+                player.y
+            )
+        );
 
 }
 
@@ -574,46 +1231,66 @@ function movePlayer(){
 
 function shoot(){
 
-    if(player.fireCooldown>0) return;
+    if(
+        player.fireCooldown>0
+    ){
 
-    player.fireCooldown=7;
+        return;
 
-    if(powerLevel===2){
+    }
 
-        // Triple laser
+
+    player.fireCooldown=8;
+
+
+    if(
+        powerLevel===2
+    ){
 
         bullets.push(
+
             {
                 x:player.x-12,
                 y:player.y-35,
-                vx:-0.5,
+                vx:-.45,
                 vy:-12,
                 damage:damage
             },
+
             {
                 x:player.x,
                 y:player.y-38,
                 vx:0,
-                vy:-14,
+                vy:-13,
                 damage:damage
             },
+
             {
                 x:player.x+12,
                 y:player.y-35,
-                vx:0.5,
+                vx:.45,
                 vy:-12,
                 damage:damage
             }
+
         );
 
-    }else{
+    }
+
+    else{
 
         bullets.push({
+
             x:player.x,
+
             y:player.y-35,
+
             vx:0,
-            vy:-13,
+
+            vy:-12,
+
             damage:damage
+
         });
 
     }
@@ -622,57 +1299,312 @@ function shoot(){
 
 
 // ============================================================
-// ENEMIES
+// SPAWN ENEMY
 // ============================================================
 
 function spawnEnemy(){
 
+    if(bossActive)
+        return;
+
+
+    const data=
+        waveData[
+            Math.min(
+                wave,
+                4
+            )
+        ];
+
+
     const types=[
+
         "alien",
         "alien",
         "fast",
         "tank"
+
     ];
 
-    const type=types[Math.floor(Math.random()*types.length)];
+
+    const type=
+        types[
+            Math.floor(
+                Math.random()*
+                types.length
+            )
+        ];
+
 
     let enemy={
 
-        x:40+Math.random()*(W-80),
+        x:
+            40+
+            Math.random()*
+            (W-80),
+
         y:-70,
+
         w:42,
+
         h:52,
 
         type:type,
 
-        hp:20,
-        maxHp:20,
+        hp:
+            20*
+            data.hpMultiplier,
 
-        speed:2+Math.random()*1.7,
+        maxHp:
+            20*
+            data.hpMultiplier,
 
-        shootTimer:60+Math.random()*150,
+        speed:
+            data.enemySpeed+
+            Math.random()*.6,
+
+        shootTimer:
+            100+
+            Math.random()*180,
 
         angle:0
 
     };
 
+
     if(type==="fast"){
 
-        enemy.hp=14;
-        enemy.maxHp=14;
-        enemy.speed=4+Math.random()*2;
+        enemy.hp=
+            14*
+            data.hpMultiplier;
+
+        enemy.maxHp=
+            enemy.hp;
+
+        enemy.speed=
+            data.enemySpeed+
+            1.2+
+            Math.random()*.8;
 
     }
+
 
     if(type==="tank"){
 
-        enemy.hp=70;
-        enemy.maxHp=70;
-        enemy.speed=1.4;
+        enemy.hp=
+            65*
+            data.hpMultiplier;
+
+        enemy.maxHp=
+            enemy.hp;
+
+        enemy.speed=
+            data.enemySpeed*.7;
 
     }
 
+
     enemies.push(enemy);
+
+}
+
+
+// ============================================================
+// WAVE MESSAGE
+// ============================================================
+
+function showWaveMessage(){
+
+    const data=
+        waveData[
+            Math.min(
+                wave,
+                4
+            )
+        ];
+
+
+    showMessage(
+
+        "🌊 WAVE "+
+        wave+
+        "<br>"+
+        data.name,
+
+        "#ffd84d"
+
+    );
+
+}
+
+
+// ============================================================
+// SWARM
+// ============================================================
+
+function spawnSwarm(){
+
+    if(bossActive)
+        return;
+
+
+    if(
+        swarmCountThisWave>=3
+    ){
+
+        return;
+
+    }
+
+
+    swarmCountThisWave++;
+
+
+    const horizontal=
+        Math.random()<.5;
+
+
+    swarms.push({
+
+        horizontal:
+            horizontal,
+
+        x:
+            horizontal
+            ? -150
+            : Math.random()*W,
+
+        y:
+            horizontal
+            ? 100+
+              Math.random()*
+              (H-220)
+            : -150,
+
+        speed:
+            2.8+
+            wave*.25,
+
+        direction:
+            horizontal
+            ? 1
+            : 1,
+
+        life:500
+
+    });
+
+
+    showMessage(
+
+        "🐝 ΣΜΗΝΟΣ ΠΕΛΑΤΩΝ!",
+
+        "#ffcf48"
+
+    );
+
+}
+
+
+// ============================================================
+// SWARM UPDATE
+// ============================================================
+
+function updateSwarms(){
+
+    for(
+        let i=swarms.length-1;
+        i>=0;
+        i--
+    ){
+
+        const s=
+            swarms[i];
+
+
+        if(
+            s.horizontal
+        ){
+
+            s.x+=
+                s.speed;
+
+        }
+
+        else{
+
+            s.y+=
+                s.speed;
+
+        }
+
+
+        s.life--;
+
+
+        // Spawn mini enemies
+
+        if(
+            s.life%18===0
+        ){
+
+            enemies.push({
+
+                x:
+                    s.horizontal
+                    ? s.x
+                    : s.x+
+                      (Math.random()*100-50),
+
+                y:
+                    s.horizontal
+                    ? s.y+
+                      (Math.random()*80-40)
+                    : s.y,
+
+                w:30,
+
+                h:38,
+
+                type:"swarm",
+
+                hp:
+                    9+
+                    wave*2,
+
+                maxHp:
+                    9+
+                    wave*2,
+
+                speed:
+                    2+
+                    wave*.25,
+
+                shootTimer:999,
+
+                angle:0
+
+            });
+
+        }
+
+
+        if(
+
+            s.x>W+180 ||
+            s.y>H+180 ||
+            s.life<=0
+
+        ){
+
+            swarms.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
 
 }
 
@@ -685,86 +1617,454 @@ function spawnBoss(){
 
     bossActive=true;
 
+
+    enemies=[];
+
+    swarms=[];
+
+
     boss={
 
         x:W/2,
-        y:-150,
 
-        w:170,
-        h:130,
+        y:-170,
 
-        hp:5000 + wave*1000,
-        maxHp:5000 + wave*1000,
+        w:190,
 
-        vx:2,
+        h:145,
 
-        fireTimer:100,
+        hp:
+            6000+
+            wave*1200,
 
-        curseTimer:160,
+        maxHp:
+            6000+
+            wave*1200,
+
+        vx:1.8,
+
+        fireTimer:90,
+
+        objectionTimer:20,
 
         entrance:true
 
     };
 
-    document.getElementById("bossBar").style.display="block";
+
+    document
+        .getElementById(
+            "bossBar"
+        )
+        .style.display="block";
+
 
     showMessage(
-        "👹 BOSS!\n" +
-        "ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ",
+
+        "👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ!<br>"+
+        "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
+
         "#ff4d4d"
+
     );
 
 }
 
 
 // ============================================================
-// BOSS ATTACKS
+// BOSS OBJECTIONS
 // ============================================================
 
-const objections=[
+const bossObjections=[
 
-    "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ",
+    {
+        category:"ΑΔΙΑΦΟΡΙΑ",
+        text:"ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!"
+    },
 
-    "ΕΧΩ ΗΔΗ ΠΑΡΟΧΟ",
+    {
+        category:"ΑΔΙΑΦΟΡΙΑ",
+        text:"ΔΕΝ ΘΕΛΩ ΝΑ ΑΚΟΥΣΩ!"
+    },
 
-    "ΕΙΝΑΙ ΑΚΡΙΒΟ",
+    {
+        category:"ΤΑΧΥΤΗΤΑ",
+        text:"ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ, ΔΕΝ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ!"
+    },
 
-    "ΔΕΝ ΘΕΛΩ ΣΥΜΒΟΛΑΙΟ",
+    {
+        category:"ΤΑΧΥΤΗΤΑ",
+        text:"Η ΤΑΧΥΤΗΤΑ ΜΟΥ ΕΙΝΑΙ ΜΙΑ ΧΑΡΑ!"
+    },
 
-    "ΘΑ ΤΟ ΣΚΕΦΤΩ",
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΕΧΩ ΗΔΗ ΠΑΡΟΧΟ!"
+    },
 
-    "ΔΕΝ ΕΙΝΑΙ Η ΚΑΤΑΛΛΗΛΗ ΣΤΙΓΜΗ",
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΔΕΝ ΑΓΟΡΑΖΩ!"
+    },
 
-    "ΜΙΛΗΣΕ ΜΕ ΤΟΝ ΥΠΕΥΘΥΝΟ",
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΔΕΝ ΘΕΛΩ ΑΛΛΑΓΗ!"
+    },
 
-    "ΣΤΕΙΛΕ ΜΟΥ ΠΡΟΣΦΟΡΑ"
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΕΙΝΑΙ ΠΟΛΥ ΑΚΡΙΒΟ!"
+    },
+
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΘΑ ΤΟ ΣΚΕΦΤΩ!"
+    },
+
+    {
+        category:"ΑΝΤΙΡΡΗΣΗ",
+        text:"ΔΕΝ ΒΛΕΠΩ ΤΟ ΟΦΕΛΟΣ!"
+    },
+
+    {
+        category:"ΘΥΜΟΣ",
+        text:"ΣΟΥ ΕΙΠΑ ΟΤΙ ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!"
+    },
+
+    {
+        category:"ΘΥΜΟΣ",
+        text:"ΠΟΣΕΣ ΦΟΡΕΣ ΘΑ ΤΟ ΠΟΥΜΕ;"
+    },
+
+    {
+        category:"ΝΕΥΡΑ",
+        text:"ΜΗΝ ΕΠΙΜΕΝΕΙΣ!"
+    },
+
+    {
+        category:"ΝΕΥΡΑ",
+        text:"ΜΕ ΕΧΕΙΣ ΚΟΥΡΑΣΕΙ!"
+    },
+
+    {
+        category:"ΝΕΥΡΑ",
+        text:"ΑΡΚΕΤΑ!"
+    },
+
+    {
+        category:"ΑΠΕΙΛΗ",
+        text:"ΦΥΓΕ ΑΠΟ ΕΔΩ!"
+    },
+
+    {
+        category:"ΑΠΕΙΛΗ",
+        text:"ΜΗΝ ΞΑΝΑΕΡΘΕΙΣ!"
+    },
+
+    {
+        category:"ΑΠΕΙΛΗ",
+        text:"ΔΕΝ ΘΕΛΩ ΝΑ ΜΕ ΞΑΝΑΕΝΟΧΛΗΣΕΙΣ!"
+    }
 
 ];
 
 
+// ============================================================
+// BOSS OBJECTION
+// ============================================================
+
+function bossObjection(){
+
+    if(!boss)
+        return;
+
+
+    const ratio=
+        boss.hp/
+        boss.maxHp;
+
+
+    let list;
+
+
+    // --------------------------------------------------------
+    // 0-25% = έξαλλο
+    // --------------------------------------------------------
+
+    if(
+        ratio<.25
+    ){
+
+        list=
+            bossObjections.filter(
+                o=>
+                    o.category==="ΘΥΜΟΣ" ||
+                    o.category==="ΝΕΥΡΑ" ||
+                    o.category==="ΑΠΕΙΛΗ"
+            );
+
+    }
+
+    // --------------------------------------------------------
+    // 25-55% = νευριασμένο
+    // --------------------------------------------------------
+
+    else if(
+        ratio<.55
+    ){
+
+        list=
+            bossObjections.filter(
+                o=>
+                    o.category!=="ΑΔΙΑΦΟΡΙΑ"
+            );
+
+    }
+
+    // --------------------------------------------------------
+    // 55-100% = αρχικές αντιρρήσεις
+    // --------------------------------------------------------
+
+    else{
+
+        list=
+            bossObjections.filter(
+                o=>
+                    o.category==="ΑΔΙΑΦΟΡΙΑ" ||
+                    o.category==="ΤΑΧΥΤΗΤΑ" ||
+                    o.category==="ΑΝΤΙΡΡΗΣΗ"
+            );
+
+    }
+
+
+    let objection;
+
+
+    // Avoid repeating same phrase
+
+    do{
+
+        objection=
+            list[
+                Math.floor(
+                    Math.random()*
+                    list.length
+                )
+            ];
+
+    }
+
+    while(
+
+        objection.text===
+        lastBossObjection &&
+        list.length>1
+
+    );
+
+
+    lastBossObjection=
+        objection.text;
+
+
+    let color="#ff7070";
+
+
+    if(
+        objection.category===
+        "ΑΔΙΑΦΟΡΙΑ"
+    ){
+
+        color="#aaaaaa";
+
+    }
+
+
+    if(
+        objection.category===
+        "ΤΑΧΥΤΗΤΑ"
+    ){
+
+        color="#55ddff";
+
+    }
+
+
+    if(
+        objection.category===
+        "ΑΝΤΙΡΡΗΣΗ"
+    ){
+
+        color="#ffd34d";
+
+    }
+
+
+    if(
+        objection.category===
+        "ΘΥΜΟΣ"
+    ){
+
+        color="#ff7733";
+
+    }
+
+
+    if(
+        objection.category===
+        "ΝΕΥΡΑ"
+    ){
+
+        color="#ff3333";
+
+    }
+
+
+    if(
+        objection.category===
+        "ΑΠΕΙΛΗ"
+    ){
+
+        color="#ff0055";
+
+    }
+
+
+    floatingTexts.push({
+
+        x:
+            boss.x+
+            (
+                Math.random()*
+                170-
+                85
+            ),
+
+        y:
+            boss.y+90,
+
+        text:
+            objection.text,
+
+        life:180,
+
+        color:color,
+
+        size:
+            objection.category===
+            "ΑΠΕΙΛΗ"
+            ?21
+            :17
+
+    });
+
+}
+
+
+// ============================================================
+// BOSS FIRE
+// ============================================================
+
 function bossAttack(){
 
-    if(!boss) return;
+    if(!boss)
+        return;
 
-    // Fireball spread
 
-    const count=7;
+    const ratio=
+        boss.hp/
+        boss.maxHp;
 
-    for(let i=0;i<count;i++){
 
-        const angle =
-            Math.PI/2 +
-            (i-(count-1)/2)*0.16;
+    let count=5;
+
+    let spread=.12;
+
+    let speed=3.2;
+
+
+    // 55% HP
+
+    if(
+        ratio<.55
+    ){
+
+        count=7;
+
+        spread=.16;
+
+        speed=3.7;
+
+    }
+
+
+    // 30% HP
+
+    if(
+        ratio<.30
+    ){
+
+        count=10;
+
+        spread=.19;
+
+        speed=4.2;
+
+    }
+
+
+    // 15% HP = lethal phase
+
+    if(
+        ratio<.15
+    ){
+
+        count=13;
+
+        spread=.22;
+
+        speed=4.7;
+
+    }
+
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const angle=
+
+            Math.PI/2+
+
+            (
+                i-
+                (count-1)/2
+            )*
+            spread;
+
 
         enemyBullets.push({
 
             x:boss.x,
-            y:boss.y+55,
 
-            vx:Math.cos(angle)*4,
-            vy:Math.sin(angle)*4,
+            y:boss.y+58,
 
-            r:10,
+            vx:
+                Math.cos(angle)*
+                speed,
+
+            vy:
+                Math.sin(angle)*
+                speed,
+
+            r:
+                ratio<.30
+                ? 11
+                : 9,
 
             fire:true
 
@@ -775,77 +2075,367 @@ function bossAttack(){
 }
 
 
-function bossCurse(){
+// ============================================================
+// BOSS UPDATE
+// ============================================================
 
-    if(!boss) return;
+function updateBoss(){
 
-    const text=
-        objections[Math.floor(Math.random()*objections.length)];
+    if(!boss)
+        return;
 
-    floatingTexts.push({
 
-        x:boss.x+(Math.random()*120-60),
-        y:boss.y+70,
+    // Entrance
 
-        text:text,
+    if(
+        boss.entrance
+    ){
 
-        life:150,
+        boss.y+=1.8;
 
-        color:"#ff7070",
 
-        size:17
+        if(
+            boss.y>=140
+        ){
 
-    });
+            boss.entrance=false;
+
+            bossObjection();
+
+        }
+
+
+        return;
+
+    }
+
+
+    const ratio=
+        boss.hp/
+        boss.maxHp;
+
+
+    // Faster horizontal movement
+    // as HP decreases
+
+    const bossSpeed=
+
+        ratio<.25
+        ?3.0
+        :ratio<.5
+        ?2.5
+        :1.8;
+
+
+    boss.x+=
+        boss.vx*
+        bossSpeed/
+        1.8;
+
+
+    if(
+
+        boss.x<
+            boss.w/2+20 ||
+
+        boss.x>
+            W-
+            boss.w/2-
+            20
+
+    ){
+
+        boss.vx*=-1;
+
+    }
+
+
+    // ========================================================
+    // FIRE TIMER
+    // ========================================================
+
+    boss.fireTimer--;
+
+
+    let fireDelay=85;
+
+
+    if(
+        ratio<.55
+    ){
+
+        fireDelay=65;
+
+    }
+
+
+    if(
+        ratio<.30
+    ){
+
+        fireDelay=48;
+
+    }
+
+
+    if(
+        ratio<.15
+    ){
+
+        fireDelay=34;
+
+    }
+
+
+    if(
+        boss.fireTimer<=0
+    ){
+
+        boss.fireTimer=
+            fireDelay;
+
+        bossAttack();
+
+    }
+
+
+    // ========================================================
+    // OBJECTION TIMER
+    // ========================================================
+
+    boss.objectionTimer--;
+
+
+    let objectionDelay=135;
+
+
+    if(
+        ratio<.55
+    ){
+
+        objectionDelay=105;
+
+    }
+
+
+    if(
+        ratio<.30
+    ){
+
+        objectionDelay=80;
+
+    }
+
+
+    if(
+        ratio<.15
+    ){
+
+        objectionDelay=60;
+
+    }
+
+
+    if(
+        boss.objectionTimer<=0
+    ){
+
+        boss.objectionTimer=
+            objectionDelay;
+
+        bossObjection();
+
+    }
+
+
+    updateHUD();
 
 }
 
 
 // ============================================================
-// BULLET UPDATE
+// BOSS DEFEATED
+// ============================================================
+
+function destroyBoss(){
+
+    if(!boss)
+        return;
+
+
+    const bx=
+        boss.x;
+
+    const by=
+        boss.y;
+
+
+    for(
+        let i=0;
+        i<100;
+        i++
+    ){
+
+        createExplosion(
+
+            bx+
+            (
+                Math.random()*
+                260-
+                130
+            ),
+
+            by+
+            (
+                Math.random()*
+                190-
+                95
+            )
+
+        );
+
+    }
+
+
+    score+=10000;
+
+    combo+=25;
+
+
+    boss=null;
+
+    bossActive=false;
+
+
+    document
+        .getElementById(
+            "bossBar"
+        )
+        .style.display="none";
+
+
+    powerLevel=2;
+
+    damage=
+        powers[2].damage;
+
+
+    showMessage(
+
+        "🎉 ΕΓΙΝΕ ΠΕΛΑΤΗΣ! 🎉<br>"+
+        "Η ΠΩΛΗΣΗ ΚΛΕΙΣΤΗΚΕ!<br>"+
+        "+10.000 SALES",
+
+        "#5dff9b"
+
+    );
+
+
+    wave=5;
+
+
+    waveStartTime=
+        performance.now();
+
+
+    swarmCountThisWave=0;
+
+
+    updateHUD();
+
+}
+
+
+// ============================================================
+// BULLETS UPDATE
 // ============================================================
 
 function updateBullets(){
 
-    for(let i=bullets.length-1;i>=0;i--){
+    for(
+        let i=bullets.length-1;
+        i>=0;
+        i--
+    ){
 
-        const b=bullets[i];
+        const b=
+            bullets[i];
+
 
         b.x+=b.vx;
+
         b.y+=b.vy;
 
-        if(b.y<-50){
 
-            bullets.splice(i,1);
+        if(
+            b.y<-60
+        ){
+
+            bullets.splice(
+                i,
+                1
+            );
+
             continue;
 
         }
 
-        // Boss collision
 
-        if(bossActive && boss){
+        // BOSS
+
+        if(
+            bossActive &&
+            boss
+        ){
 
             if(
 
-                b.x>boss.x-boss.w/2 &&
-                b.x<boss.x+boss.w/2 &&
-                b.y>boss.y-boss.h/2 &&
-                b.y<boss.y+boss.h/2
+                b.x>
+                    boss.x-
+                    boss.w/2 &&
+
+                b.x<
+                    boss.x+
+                    boss.w/2 &&
+
+                b.y>
+                    boss.y-
+                    boss.h/2 &&
+
+                b.y<
+                    boss.y+
+                    boss.h/2
 
             ){
 
-                boss.hp-=b.damage;
+                boss.hp-=
+                    b.damage;
 
-                createHitParticles(b.x,b.y,"#ffdc48");
 
-                bullets.splice(i,1);
+                createHitParticles(
+                    b.x,
+                    b.y,
+                    "#ffdc48"
+                );
 
-                shake=3;
 
-                if(boss.hp<=0){
+                bullets.splice(
+                    i,
+                    1
+                );
+
+
+                shake=2.5;
+
+
+                if(
+                    boss.hp<=0
+                ){
 
                     destroyBoss();
 
                 }
+
 
                 continue;
 
@@ -854,32 +2444,64 @@ function updateBullets(){
         }
 
 
-        // Enemy collision
+        // ENEMIES
 
-        for(let j=enemies.length-1;j>=0;j--){
+        for(
+            let j=
+                enemies.length-1;
+            j>=0;
+            j--
+        ){
 
-            const e=enemies[j];
+            const e=
+                enemies[j];
+
 
             if(
 
-                b.x>e.x-e.w/2 &&
-                b.x<e.x+e.w/2 &&
-                b.y>e.y-e.h/2 &&
-                b.y<e.y+e.h/2
+                b.x>
+                    e.x-
+                    e.w/2 &&
+
+                b.x<
+                    e.x+
+                    e.w/2 &&
+
+                b.y>
+                    e.y-
+                    e.h/2 &&
+
+                b.y<
+                    e.y+
+                    e.h/2
 
             ){
 
-                e.hp-=b.damage;
+                e.hp-=
+                    b.damage;
 
-                createHitParticles(b.x,b.y,"#6cf");
 
-                bullets.splice(i,1);
+                createHitParticles(
+                    b.x,
+                    b.y,
+                    "#6cf"
+                );
 
-                if(e.hp<=0){
+
+                bullets.splice(
+                    i,
+                    1
+                );
+
+
+                if(
+                    e.hp<=0
+                ){
 
                     destroyEnemy(j);
 
                 }
+
 
                 break;
 
@@ -893,77 +2515,85 @@ function updateBullets(){
 
 
 // ============================================================
-// ENEMY DESTRUCTION
+// ENEMY DESTROYED
 // ============================================================
 
 function destroyEnemy(index){
 
-    const e=enemies[index];
+    const e=
+        enemies[index];
 
-    enemies.splice(index,1);
+
+    enemies.splice(
+        index,
+        1
+    );
+
 
     kills++;
 
     combo++;
 
-    score+=100 + combo*10;
 
-    createExplosion(e.x,e.y);
-
-    // Power-up chance
-
-    if(combo>=4 && Math.random()<0.28){
-
-        spawnPowerup(e.x,e.y);
-
-    }
-
-    // Every 12 kills increase wave
-
-    if(kills%12===0){
-
-        wave++;
-
-    }
-
-    updateHUD();
-
-}
+    score+=
+        100+
+        combo*10;
 
 
-// ============================================================
-// BOSS DESTRUCTION
-// ============================================================
+    createExplosion(
+        e.x,
+        e.y
+    );
 
-function destroyBoss(){
 
-    if(!boss) return;
+    // Power-up
 
-    const bx=boss.x;
-    const by=boss.y;
+    if(
 
-    for(let i=0;i<40;i++){
+        combo>=4 &&
+        Math.random()<.28
 
-        createExplosion(
-            bx+(Math.random()*180-90),
-            by+(Math.random()*130-65)
+    ){
+
+        spawnPowerup(
+            e.x,
+            e.y
         );
 
     }
 
-    score+=5000;
 
-    boss=null;
-    bossActive=false;
+    // Every 10 kills,
+    // move to next wave,
+    // but boss remains at 50
 
-    document.getElementById("bossBar").style.display="none";
+    if(
 
-    showMessage(
-        "💰 DEAL CLOSED!\n+5000 SALES",
-        "#5dff9b"
-    );
+        kills<50 &&
+        kills%10===0
 
-    wave++;
+    ){
+
+        wave=
+            Math.min(
+                4,
+                Math.floor(
+                    kills/10
+                )+1
+            );
+
+
+        waveStartTime=
+            performance.now();
+
+
+        swarmCountThisWave=0;
+
+
+        showWaveMessage();
+
+    }
+
 
     updateHUD();
 
@@ -976,18 +2606,24 @@ function destroyBoss(){
 
 function spawnPowerup(x,y){
 
-    let nextLevel=Math.min(powerLevel+1,2);
+    const nextLevel=
+        Math.min(
+            powerLevel+1,
+            2
+        );
+
 
     powerups.push({
 
         x:x,
+
         y:y,
 
-        r:22,
+        r:23,
 
         level:nextLevel,
 
-        vy:1.8,
+        vy:1.2,
 
         life:500,
 
@@ -1000,62 +2636,97 @@ function spawnPowerup(x,y){
 
 function collectPowerup(p){
 
-    powerLevel=p.level;
+    powerLevel=
+        p.level;
 
-    damage=powers[powerLevel].damage;
+
+    damage=
+        powers[
+            powerLevel
+        ].damage;
+
 
     score+=250;
 
     combo+=2;
 
+
     showMessage(
 
-        "📡 " + powers[powerLevel].name +
-        "\nDMG " + powers[powerLevel].damage,
+        "📡 "+
+        powers[
+            powerLevel
+        ].name+
+        "<br>"+
+        "DMG "+
+        powers[
+            powerLevel
+        ].damage,
 
-        powers[powerLevel].color
+        powers[
+            powerLevel
+        ].color
 
     );
+
 
     updateHUD();
 
 }
 
 
-// ============================================================
-// POWERUP UPDATE
-// ============================================================
-
 function updatePowerups(){
 
-    for(let i=powerups.length-1;i>=0;i--){
+    for(
+        let i=
+            powerups.length-1;
+        i>=0;
+        i--
+    ){
 
-        const p=powerups[i];
+        const p=
+            powerups[i];
+
 
         p.y+=p.vy;
+
         p.life--;
-        p.rotation+=0.08;
+
+        p.rotation+=.06;
+
 
         if(
 
             Math.hypot(
                 p.x-player.x,
                 p.y-player.y
-            ) < 45
+            )<45
 
         ){
 
             collectPowerup(p);
 
-            powerups.splice(i,1);
+            powerups.splice(
+                i,
+                1
+            );
 
             continue;
 
         }
 
-        if(p.y>H+50 || p.life<=0){
 
-            powerups.splice(i,1);
+        if(
+
+            p.y>H+50 ||
+            p.life<=0
+
+        ){
+
+            powerups.splice(
+                i,
+                1
+            );
 
         }
 
@@ -1065,37 +2736,82 @@ function updatePowerups(){
 
 
 // ============================================================
-// ENEMY UPDATE
+// ENEMIES UPDATE
 // ============================================================
 
 function updateEnemies(){
 
-    for(let i=enemies.length-1;i>=0;i--){
+    for(
+        let i=
+            enemies.length-1;
+        i>=0;
+        i--
+    ){
 
-        const e=enemies[i];
+        const e=
+            enemies[i];
 
-        e.y+=e.speed;
 
-        e.angle+=0.04;
+        e.y+=
+            e.speed;
+
+
+        e.angle+=.04;
+
 
         e.shootTimer--;
 
-        if(e.shootTimer<=0){
 
-            e.shootTimer=100+Math.random()*180;
+        const data=
+            waveData[
+                Math.min(
+                    wave,
+                    4
+                )
+            ];
 
-            const dx=player.x-e.x;
-            const dy=player.y-e.y;
 
-            const len=Math.hypot(dx,dy)||1;
+        if(
+
+            e.shootTimer<=0 &&
+            Math.random()<
+                data.shootChance*20
+
+        ){
+
+            e.shootTimer=
+                100+
+                Math.random()*180;
+
+
+            const dx=
+                player.x-
+                e.x;
+
+
+            const dy=
+                player.y-
+                e.y;
+
+
+            const len=
+                Math.hypot(
+                    dx,
+                    dy
+                )||1;
+
 
             enemyBullets.push({
 
                 x:e.x,
+
                 y:e.y+20,
 
-                vx:dx/len*3,
-                vy:dy/len*3,
+                vx:
+                    dx/len*2.4,
+
+                vy:
+                    dy/len*2.4,
 
                 r:6
 
@@ -1104,31 +2820,40 @@ function updateEnemies(){
         }
 
 
-        if(e.y>H+70){
+        if(
+            e.y>H+80
+        ){
 
-            enemies.splice(i,1);
+            enemies.splice(
+                i,
+                1
+            );
+
 
             combo=0;
+
 
             continue;
 
         }
 
 
-        // Collision with player
-
         if(
 
             Math.hypot(
                 e.x-player.x,
                 e.y-player.y
-            ) < 42
+            )<40
 
         ){
 
             playerHit();
 
-            enemies.splice(i,1);
+
+            enemies.splice(
+                i,
+                1
+            );
 
         }
 
@@ -1143,38 +2868,55 @@ function updateEnemies(){
 
 function updateEnemyBullets(){
 
-    for(let i=enemyBullets.length-1;i>=0;i--){
+    for(
+        let i=
+            enemyBullets.length-1;
+        i>=0;
+        i--
+    ){
 
-        const b=enemyBullets[i];
+        const b=
+            enemyBullets[i];
+
 
         b.x+=b.vx;
+
         b.y+=b.vy;
+
 
         if(
 
-            b.x<-50 ||
-            b.x>W+50 ||
-            b.y<-50 ||
-            b.y>H+50
+            b.x<-60 ||
+            b.x>W+60 ||
+            b.y<-60 ||
+            b.y>H+60
 
         ){
 
-            enemyBullets.splice(i,1);
+            enemyBullets.splice(
+                i,
+                1
+            );
 
             continue;
 
         }
+
 
         if(
 
             Math.hypot(
                 b.x-player.x,
                 b.y-player.y
-            ) < 30
+            )<30
 
         ){
 
-            enemyBullets.splice(i,1);
+            enemyBullets.splice(
+                i,
+                1
+            );
+
 
             playerHit();
 
@@ -1193,37 +2935,58 @@ function playerHit(){
 
     shake=15;
 
-    createExplosion(player.x,player.y);
+
+    createExplosion(
+        player.x,
+        player.y
+    );
+
 
     combo=0;
 
+
     powerLevel=0;
-    damage=powers[0].damage;
+
+    damage=
+        powers[0].damage;
+
+
+    player.strikes++;
+
+
+    player.x=W/2;
+
+    player.y=H-120;
+
+
+    score=
+        Math.max(
+            0,
+            score-100
+        );
+
 
     updateHUD();
 
-    // Give temporary grace
 
-    player.x=W/2;
-    player.y=H-120;
+    if(
+        player.strikes>=3
+    ){
 
-    score=Math.max(0,score-100);
+        endGame(
+            "Το μαχητικό σου καταστράφηκε!"
+        );
 
-    // Not instant death:
-    // 3 strikes system
+    }
 
-    player.strikes=(player.strikes||0)+1;
-
-    if(player.strikes>=3){
-
-        endGame("Το μαχητικό σου καταστράφηκε!");
-
-    }else{
+    else{
 
         showMessage(
 
-            "💥 ΑΝΤΙΡΡΗΣΗ!\n" +
-            "Χτύπημα " + player.strikes + "/3",
+            "💥 ΧΤΥΠΗΜΑ!<br>"+
+            "ΑΝΤΟΧΗ "+
+            player.strikes+
+            "/3",
 
             "#ff5050"
 
@@ -1240,20 +3003,42 @@ function playerHit(){
 
 function spawnLogic(){
 
-    if(bossActive) return;
+    if(bossActive)
+        return;
+
 
     spawnTimer--;
 
-    if(spawnTimer<=0){
 
-        spawnTimer=Math.max(
-            18,
-            55-wave*2
-        );
+    if(
+        spawnTimer<=0
+    ){
+
+        const data=
+            waveData[
+                Math.min(
+                    wave,
+                    4
+                )
+            ];
+
+
+        spawnTimer=
+            Math.max(
+                26,
+                72-
+                wave*7
+            );
+
 
         spawnEnemy();
 
-        if(Math.random()<0.18+wave*0.01){
+
+        if(
+            Math.random()<
+            .12+
+            wave*.025
+        ){
 
             spawnEnemy();
 
@@ -1261,82 +3046,73 @@ function spawnLogic(){
 
     }
 
-    // Boss every 30 kills
+
+    // ========================================================
+    // 50 KILLS = BOSS
+    // ========================================================
 
     if(
 
-        kills>0 &&
-        kills%30===0 &&
+        kills>=50 &&
         !bossActive &&
-        bossTimer<=0
+        !boss
 
     ){
 
-        bossTimer=120;
-
         spawnBoss();
-
-    }
-
-    if(bossTimer>0){
-
-        bossTimer--;
-
-    }
-
-}
-
-
-// ============================================================
-// BOSS UPDATE
-// ============================================================
-
-function updateBoss(){
-
-    if(!boss) return;
-
-    if(boss.entrance){
-
-        boss.y+=2;
-
-        if(boss.y>=130){
-
-            boss.entrance=false;
-
-        }
 
         return;
 
     }
 
-    boss.x+=boss.vx;
+
+    // ========================================================
+    // LONG WAVE = SWARM
+    // ========================================================
+
+    const elapsed=
+        performance.now()-
+        waveStartTime;
+
+
+    // First swarm after 18 seconds
 
     if(
-        boss.x<boss.w/2+20 ||
-        boss.x>W-boss.w/2-20
+
+        elapsed>18000 &&
+        swarmCountThisWave===0
+
     ){
 
-        boss.vx*=-1;
+        spawnSwarm();
 
     }
 
-    boss.fireTimer--;
 
-    boss.curseTimer--;
+    // Second swarm after 30 sec
 
-    if(boss.fireTimer<=0){
+    if(
 
-        boss.fireTimer=80;
+        elapsed>30000 &&
+        swarmCountThisWave===1
 
-        bossAttack();
+    ){
+
+        spawnSwarm();
 
     }
 
-    if(boss.curseTimer<=0){
 
-        boss.curseTimer=120;
+    // Third swarm after 45 sec
 
-        bossCurse();
+    if(
+
+        elapsed>45000 &&
+        swarmCountThisWave===2
+
+    ){
+
+        spawnSwarm();
 
     }
 
@@ -1347,23 +3123,43 @@ function updateBoss(){
 // PARTICLES
 // ============================================================
 
-function createHitParticles(x,y,color){
+function createHitParticles(
+    x,
+    y,
+    color
+){
 
-    for(let i=0;i<5;i++){
+    for(
+        let i=0;
+        i<5;
+        i++
+    ){
 
         particles.push({
 
             x:x,
+
             y:y,
 
-            vx:(Math.random()-.5)*5,
-            vy:(Math.random()-.5)*5,
+            vx:
+                (
+                    Math.random()-
+                    .5
+                )*5,
+
+            vy:
+                (
+                    Math.random()-
+                    .5
+                )*5,
 
             life:25,
 
             color:color,
 
-            size:2+Math.random()*3
+            size:
+                2+
+                Math.random()*3
 
         });
 
@@ -1372,29 +3168,54 @@ function createHitParticles(x,y,color){
 }
 
 
-function createExplosion(x,y){
+function createExplosion(
+    x,
+    y
+){
 
-    for(let i=0;i<22;i++){
+    for(
+        let i=0;
+        i<22;
+        i++
+    ){
 
-        const a=Math.random()*Math.PI*2;
-        const s=1+Math.random()*7;
+        const a=
+            Math.random()*
+            Math.PI*2;
+
+
+        const s=
+            1+
+            Math.random()*6;
+
 
         particles.push({
 
             x:x,
+
             y:y,
 
-            vx:Math.cos(a)*s,
-            vy:Math.sin(a)*s,
+            vx:
+                Math.cos(a)*s,
 
-            life:35+Math.random()*35,
+            vy:
+                Math.sin(a)*s,
+
+            life:
+                35+
+                Math.random()*35,
 
             color:
+
                 Math.random()<.5
+
                 ? "#ff9d00"
+
                 : "#ffef62",
 
-            size:2+Math.random()*5
+            size:
+                2+
+                Math.random()*5
 
         });
 
@@ -1403,27 +3224,40 @@ function createExplosion(x,y){
 }
 
 
-// ============================================================
-// PARTICLE UPDATE
-// ============================================================
-
 function updateParticles(){
 
-    for(let i=particles.length-1;i>=0;i--){
+    for(
+        let i=
+            particles.length-1;
+        i>=0;
+        i--
+    ){
 
-        const p=particles[i];
+        const p=
+            particles[i];
+
 
         p.x+=p.vx;
+
         p.y+=p.vy;
 
+
         p.vx*=.98;
+
         p.vy*=.98;
+
 
         p.life--;
 
-        if(p.life<=0){
 
-            particles.splice(i,1);
+        if(
+            p.life<=0
+        ){
+
+            particles.splice(
+                i,
+                1
+            );
 
         }
 
@@ -1433,58 +3267,37 @@ function updateParticles(){
 
 
 // ============================================================
-// FLOATING TEXT
+// FLOATING TEXTS
 // ============================================================
 
 function updateFloatingTexts(){
 
-    for(let i=floatingTexts.length-1;i>=0;i--){
+    for(
+        let i=
+            floatingTexts.length-1;
+        i>=0;
+        i--
+    ){
 
-        const t=floatingTexts[i];
+        const t=
+            floatingTexts[i];
 
-        t.y-=0.35;
+
+        t.y-=.35;
+
         t.life--;
 
-        if(t.life<=0){
 
-            floatingTexts.splice(i,1);
+        if(
+            t.life<=0
+        ){
+
+            floatingTexts.splice(
+                i,
+                1
+            );
 
         }
-
-    }
-
-}
-
-
-// ============================================================
-// HUD
-// ============================================================
-
-function updateHUD(){
-
-    document.getElementById("score").textContent=score;
-    document.getElementById("kills").textContent=kills;
-    document.getElementById("combo").textContent=combo;
-    document.getElementById("wave").textContent=wave;
-
-    document.getElementById("powerText").textContent=
-        powers[powerLevel].name;
-
-    document.getElementById("powerText").style.color=
-        powers[powerLevel].color;
-
-    document.getElementById("damage").textContent=
-        damage.toFixed(1);
-
-    if(boss){
-
-        const hp=Math.max(
-            0,
-            boss.hp/boss.maxHp*100
-        );
-
-        document.getElementById("bossHp").style.width=
-            hp+"%";
 
     }
 
@@ -1495,18 +3308,117 @@ function updateHUD(){
 // MESSAGE
 // ============================================================
 
-let messageTimer=0;
+function showMessage(
+    text,
+    color="#fff"
+){
 
-function showMessage(text,color="#fff"){
+    const el=
+        document.getElementById(
+            "message"
+        );
 
-    const el=document.getElementById("message");
 
-    el.innerHTML=text.replace(/\n/g,"<br>");
+    el.innerHTML=text;
+
 
     el.style.color=color;
+
     el.style.opacity="1";
 
-    messageTimer=100;
+
+    messageTimer=110;
+
+}
+
+
+// ============================================================
+// HUD
+// ============================================================
+
+function updateHUD(){
+
+    document
+        .getElementById("score")
+        .textContent=
+            score;
+
+
+    document
+        .getElementById("kills")
+        .textContent=
+            kills;
+
+
+    document
+        .getElementById("combo")
+        .textContent=
+            combo;
+
+
+    document
+        .getElementById("wave")
+        .textContent=
+            wave;
+
+
+    document
+        .getElementById("waveName")
+        .textContent=
+            bossActive
+            ? "👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ"
+            : (
+                waveData[
+                    Math.min(
+                        wave,
+                        4
+                    )
+                ]?.name ||
+                "Τελικό στάδιο"
+            );
+
+
+    document
+        .getElementById("powerText")
+        .textContent=
+            powers[
+                powerLevel
+            ].name;
+
+
+    document
+        .getElementById("powerText")
+        .style.color=
+            powers[
+                powerLevel
+            ].color;
+
+
+    document
+        .getElementById("damage")
+        .textContent=
+            damage.toFixed(1);
+
+
+    if(boss){
+
+        const hp=
+            Math.max(
+                0,
+                boss.hp/
+                boss.maxHp*
+                100
+            );
+
+
+        document
+            .getElementById(
+                "bossHp"
+            )
+            .style.width=
+                hp+"%";
+
+    }
 
 }
 
@@ -1517,48 +3429,98 @@ function showMessage(text,color="#fff"){
 
 function drawBackground(){
 
-    ctx.fillStyle="#020611";
-    ctx.fillRect(0,0,W,H);
+    ctx.fillStyle=
+        "#020611";
 
-    // Nebula
 
-    const grd=ctx.createRadialGradient(
-        W*.5,H*.4,20,
-        W*.5,H*.4,H*.8
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
     );
 
-    grd.addColorStop(0,"rgba(0,80,150,.18)");
-    grd.addColorStop(1,"rgba(0,0,0,0)");
+
+    const grd=
+        ctx.createRadialGradient(
+
+            W*.5,
+            H*.4,
+            20,
+
+            W*.5,
+            H*.4,
+            H*.8
+
+        );
+
+
+    grd.addColorStop(
+        0,
+        "rgba(0,80,150,.18)"
+    );
+
+
+    grd.addColorStop(
+        1,
+        "rgba(0,0,0,0)"
+    );
+
 
     ctx.fillStyle=grd;
-    ctx.fillRect(0,0,W,H);
+
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
 
 
     // Stars
 
-    for(const s of stars){
+    for(
+        const s of stars
+    ){
 
         s.y+=s.speed;
 
-        if(s.y>H){
+
+        if(
+            s.y>H
+        ){
 
             s.y=0;
-            s.x=Math.random()*W;
+
+            s.x=
+                Math.random()*W;
 
         }
 
-        ctx.globalAlpha=.3+s.speed/8;
+
+        ctx.globalAlpha=
+            .25+
+            s.speed/6;
+
 
         ctx.fillStyle="#fff";
 
+
         ctx.fillRect(
+
             s.x,
+
             s.y,
+
             s.size,
+
             s.size*2
+
         );
 
     }
+
 
     ctx.globalAlpha=1;
 
@@ -1566,27 +3528,49 @@ function drawBackground(){
 
 
 // ============================================================
-// DRAW PLAYER
+// PLAYER DRAW
 // ============================================================
 
 function drawPlayer(){
 
     ctx.save();
 
-    ctx.translate(player.x,player.y);
+
+    ctx.translate(
+        player.x,
+        player.y
+    );
+
 
     // Engine
 
     ctx.shadowBlur=20;
-    ctx.shadowColor="#00d9ff";
 
-    ctx.fillStyle="#00bfff";
+    ctx.shadowColor=
+        "#00d9ff";
+
+
+    ctx.fillStyle=
+        "#00bfff";
+
 
     ctx.beginPath();
 
-    ctx.moveTo(-9,25);
-    ctx.lineTo(0,45+Math.random()*8);
-    ctx.lineTo(9,25);
+    ctx.moveTo(
+        -9,
+        25
+    );
+
+    ctx.lineTo(
+        0,
+        45+
+        Math.random()*8
+    );
+
+    ctx.lineTo(
+        9,
+        25
+    );
 
     ctx.closePath();
 
@@ -1597,18 +3581,52 @@ function drawPlayer(){
 
     ctx.shadowBlur=15;
 
-    ctx.fillStyle="#e8f6ff";
+    ctx.fillStyle=
+        "#e8f6ff";
+
 
     ctx.beginPath();
 
-    ctx.moveTo(0,-38);
-    ctx.lineTo(-12,5);
-    ctx.lineTo(-37,28);
-    ctx.lineTo(-14,25);
-    ctx.lineTo(0,14);
-    ctx.lineTo(14,25);
-    ctx.lineTo(37,28);
-    ctx.lineTo(12,5);
+    ctx.moveTo(
+        0,
+        -38
+    );
+
+    ctx.lineTo(
+        -12,
+        5
+    );
+
+    ctx.lineTo(
+        -37,
+        28
+    );
+
+    ctx.lineTo(
+        -14,
+        25
+    );
+
+    ctx.lineTo(
+        0,
+        14
+    );
+
+    ctx.lineTo(
+        14,
+        25
+    );
+
+    ctx.lineTo(
+        37,
+        28
+    );
+
+    ctx.lineTo(
+        12,
+        5
+    );
+
     ctx.closePath();
 
     ctx.fill();
@@ -1616,25 +3634,68 @@ function drawPlayer(){
 
     // Cockpit
 
-    ctx.fillStyle="#0878b5";
+    ctx.fillStyle=
+        "#0878b5";
+
 
     ctx.beginPath();
-    ctx.ellipse(0,-15,8,15,0,0,Math.PI*2);
+
+    ctx.ellipse(
+        0,
+        -15,
+        8,
+        15,
+        0,
+        0,
+        Math.PI*2
+    );
+
     ctx.fill();
 
 
-    // Weapon glow
+    // Weapon
 
-    ctx.shadowColor=powers[powerLevel].color;
-    ctx.strokeStyle=powers[powerLevel].color;
+    ctx.shadowColor=
+        powers[
+            powerLevel
+        ].color;
+
+
+    ctx.strokeStyle=
+        powers[
+            powerLevel
+        ].color;
+
+
     ctx.lineWidth=3;
 
+
     ctx.beginPath();
-    ctx.moveTo(-8,-32);
-    ctx.lineTo(-8,-15);
-    ctx.moveTo(8,-32);
-    ctx.lineTo(8,-15);
+
+    ctx.moveTo(
+        -8,
+        -32
+    );
+
+    ctx.lineTo(
+        -8,
+        -15
+    );
+
+
+    ctx.moveTo(
+        8,
+        -32
+    );
+
+    ctx.lineTo(
+        8,
+        -15
+    );
+
+
     ctx.stroke();
+
 
     ctx.restore();
 
@@ -1642,38 +3703,123 @@ function drawPlayer(){
 
 
 // ============================================================
-// DRAW ENEMY
+// ENEMY DRAW
 // ============================================================
 
 function drawEnemy(e){
 
     ctx.save();
 
-    ctx.translate(e.x,e.y);
 
-    ctx.rotate(Math.sin(e.angle)*.08);
+    ctx.translate(
+        e.x,
+        e.y
+    );
+
+
+    ctx.rotate(
+        Math.sin(e.angle)*.08
+    );
+
+
+    if(
+        e.type==="swarm"
+    ){
+
+        ctx.shadowBlur=15;
+
+        ctx.shadowColor=
+            "#ffcc33";
+
+        ctx.fillStyle=
+            "#ffbb22";
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            -18
+        );
+
+        ctx.lineTo(
+            -14,
+            12
+        );
+
+        ctx.lineTo(
+            0,
+            7
+        );
+
+        ctx.lineTo(
+            14,
+            12
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+
+        ctx.restore();
+
+        return;
+
+    }
+
 
     ctx.shadowBlur=12;
+
+
     ctx.shadowColor=
+
         e.type==="tank"
         ? "#ff8800"
         : "#9a5cff";
 
-    // UFO wings
+
+    // Wings
 
     ctx.fillStyle=
+
         e.type==="tank"
         ? "#d76a16"
         : "#743bc4";
 
+
     ctx.beginPath();
 
-    ctx.moveTo(0,-25);
-    ctx.lineTo(-24,10);
-    ctx.lineTo(-8,6);
-    ctx.lineTo(0,20);
-    ctx.lineTo(8,6);
-    ctx.lineTo(24,10);
+    ctx.moveTo(
+        0,
+        -25
+    );
+
+    ctx.lineTo(
+        -24,
+        10
+    );
+
+    ctx.lineTo(
+        -8,
+        6
+    );
+
+    ctx.lineTo(
+        0,
+        20
+    );
+
+    ctx.lineTo(
+        8,
+        6
+    );
+
+    ctx.lineTo(
+        24,
+        10
+    );
+
     ctx.closePath();
 
     ctx.fill();
@@ -1681,7 +3827,9 @@ function drawEnemy(e){
 
     // Body
 
-    ctx.fillStyle="#d7c9ff";
+    ctx.fillStyle=
+        "#d7c9ff";
+
 
     ctx.beginPath();
 
@@ -1698,9 +3846,11 @@ function drawEnemy(e){
     ctx.fill();
 
 
-    // Alien glass
+    // Glass
 
-    ctx.fillStyle="#2d103e";
+    ctx.fillStyle=
+        "#2d103e";
+
 
     ctx.beginPath();
 
@@ -1719,34 +3869,72 @@ function drawEnemy(e){
 
     // Eyes
 
-    ctx.fillStyle="#ff4cff";
+    ctx.fillStyle=
+        "#ff4cff";
+
 
     ctx.beginPath();
 
-    ctx.arc(-3,-8,2,0,Math.PI*2);
-    ctx.arc(3,-8,2,0,Math.PI*2);
+    ctx.arc(
+        -3,
+        -8,
+        2,
+        0,
+        Math.PI*2
+    );
+
+    ctx.arc(
+        3,
+        -8,
+        2,
+        0,
+        Math.PI*2
+    );
 
     ctx.fill();
 
 
     // HP
 
-    if(e.hp<e.maxHp){
+    if(
+        e.hp<
+        e.maxHp
+    ){
 
-        ctx.fillStyle="#300";
+        ctx.fillStyle=
+            "#300";
 
-        ctx.fillRect(-20,-35,40,4);
-
-        ctx.fillStyle="#ff3838";
 
         ctx.fillRect(
             -20,
             -35,
-            40*(e.hp/e.maxHp),
+            40,
             4
         );
 
+
+        ctx.fillStyle=
+            "#ff3838";
+
+
+        ctx.fillRect(
+
+            -20,
+
+            -35,
+
+            40*
+            (
+                e.hp/
+                e.maxHp
+            ),
+
+            4
+
+        );
+
     }
+
 
     ctx.restore();
 
@@ -1754,38 +3942,86 @@ function drawEnemy(e){
 
 
 // ============================================================
-// DRAW BOSS
+// BOSS DRAW
 // ============================================================
 
 function drawBoss(){
 
-    if(!boss) return;
+    if(!boss)
+        return;
+
 
     ctx.save();
 
-    ctx.translate(boss.x,boss.y);
 
-    ctx.shadowBlur=35;
-    ctx.shadowColor="#ff2020";
+    ctx.translate(
+        boss.x,
+        boss.y
+    );
 
 
-    // Outer wings
+    const ratio=
+        boss.hp/
+        boss.maxHp;
 
-    ctx.fillStyle="#4d0b15";
+
+    ctx.shadowBlur=
+        ratio<.25
+        ? 55
+        : 35;
+
+
+    ctx.shadowColor=
+        "#ff2020";
+
+
+    // Wings
+
+    ctx.fillStyle=
+        "#4d0b15";
+
 
     ctx.beginPath();
 
-    ctx.moveTo(0,-65);
+    ctx.moveTo(
+        0,
+        -65
+    );
 
-    ctx.lineTo(-85,20);
-    ctx.lineTo(-105,55);
-    ctx.lineTo(-55,43);
+    ctx.lineTo(
+        -90,
+        20
+    );
 
-    ctx.lineTo(0,70);
+    ctx.lineTo(
+        -110,
+        58
+    );
 
-    ctx.lineTo(55,43);
-    ctx.lineTo(105,55);
-    ctx.lineTo(85,20);
+    ctx.lineTo(
+        -55,
+        43
+    );
+
+    ctx.lineTo(
+        0,
+        72
+    );
+
+    ctx.lineTo(
+        55,
+        43
+    );
+
+    ctx.lineTo(
+        110,
+        58
+    );
+
+    ctx.lineTo(
+        90,
+        20
+    );
 
     ctx.closePath();
 
@@ -1794,15 +4030,19 @@ function drawBoss(){
 
     // Body
 
-    ctx.fillStyle="#9b1720";
+    ctx.fillStyle=
+        ratio<.25
+        ? "#d30d1c"
+        : "#9b1720";
+
 
     ctx.beginPath();
 
     ctx.ellipse(
         0,
         0,
-        62,
-        65,
+        64,
+        67,
         0,
         0,
         Math.PI*2
@@ -1813,15 +4053,17 @@ function drawBoss(){
 
     // Head
 
-    ctx.fillStyle="#d64242";
+    ctx.fillStyle=
+        "#d64242";
+
 
     ctx.beginPath();
 
     ctx.ellipse(
         0,
         -18,
-        34,
-        32,
+        35,
+        33,
         0,
         0,
         Math.PI*2
@@ -1832,13 +4074,37 @@ function drawBoss(){
 
     // Eyes
 
-    ctx.fillStyle="#ffff5b";
-    ctx.shadowColor="#fff600";
+    ctx.fillStyle=
+        ratio<.25
+        ? "#ffffff"
+        : "#ffff5b";
+
+
+    ctx.shadowColor=
+        "#fff600";
+
 
     ctx.beginPath();
 
-    ctx.ellipse(-13,-20,7,11,0,0,Math.PI*2);
-    ctx.ellipse(13,-20,7,11,0,0,Math.PI*2);
+    ctx.ellipse(
+        -13,
+        -20,
+        7,
+        11,
+        0,
+        0,
+        Math.PI*2
+    );
+
+    ctx.ellipse(
+        13,
+        -20,
+        7,
+        11,
+        0,
+        0,
+        Math.PI*2
+    );
 
     ctx.fill();
 
@@ -1847,15 +4113,17 @@ function drawBoss(){
 
     ctx.shadowBlur=0;
 
-    ctx.fillStyle="#220308";
+    ctx.fillStyle=
+        "#220308";
+
 
     ctx.beginPath();
 
     ctx.ellipse(
         0,
         5,
-        20,
-        10,
+        21,
+        11,
         0,
         0,
         Math.PI*2
@@ -1866,17 +4134,42 @@ function drawBoss(){
 
     // Horns
 
-    ctx.fillStyle="#ff9c43";
+    ctx.fillStyle=
+        "#ff9c43";
+
 
     ctx.beginPath();
 
-    ctx.moveTo(-28,-40);
-    ctx.lineTo(-48,-70);
-    ctx.lineTo(-20,-48);
+    ctx.moveTo(
+        -28,
+        -40
+    );
 
-    ctx.moveTo(28,-40);
-    ctx.lineTo(48,-70);
-    ctx.lineTo(20,-48);
+    ctx.lineTo(
+        -48,
+        -70
+    );
+
+    ctx.lineTo(
+        -20,
+        -48
+    );
+
+
+    ctx.moveTo(
+        28,
+        -40
+    );
+
+    ctx.lineTo(
+        48,
+        -70
+    );
+
+    ctx.lineTo(
+        20,
+        -48
+    );
 
     ctx.fill();
 
@@ -1887,26 +4180,45 @@ function drawBoss(){
 
 
 // ============================================================
-// DRAW BULLETS
+// BULLETS DRAW
 // ============================================================
 
 function drawBullets(){
 
-    for(const b of bullets){
+    for(
+        const b of bullets
+    ){
 
         ctx.save();
 
-        ctx.shadowBlur=20;
-        ctx.shadowColor=powers[powerLevel].color;
 
-        ctx.fillStyle=powers[powerLevel].color;
+        ctx.shadowBlur=20;
+
+
+        ctx.shadowColor=
+            powers[
+                powerLevel
+            ].color;
+
+
+        ctx.fillStyle=
+            powers[
+                powerLevel
+            ].color;
+
 
         ctx.fillRect(
+
             b.x-3,
+
             b.y-12,
+
             6,
+
             24
+
         );
+
 
         ctx.restore();
 
@@ -1916,31 +4228,54 @@ function drawBullets(){
 
 
 // ============================================================
-// DRAW ENEMY BULLETS
+// ENEMY BULLETS DRAW
 // ============================================================
 
 function drawEnemyBullets(){
 
-    for(const b of enemyBullets){
+    for(
+        const b of enemyBullets
+    ){
 
         ctx.save();
 
-        ctx.shadowBlur=18;
-        ctx.shadowColor="#ff2a2a";
 
-        ctx.fillStyle=b.fire?"#ff5a00":"#ff3030";
+        ctx.shadowBlur=
+            b.fire
+            ? 22
+            : 16;
+
+
+        ctx.shadowColor=
+            "#ff2a2a";
+
+
+        ctx.fillStyle=
+            b.fire
+            ? "#ff5a00"
+            : "#ff3030";
+
 
         ctx.beginPath();
 
+
         ctx.arc(
+
             b.x,
+
             b.y,
+
             b.r||7,
+
             0,
+
             Math.PI*2
+
         );
 
+
         ctx.fill();
+
 
         ctx.restore();
 
@@ -1950,51 +4285,101 @@ function drawEnemyBullets(){
 
 
 // ============================================================
-// DRAW POWERUPS
+// POWERUP DRAW
 // ============================================================
 
 function drawPowerups(){
 
-    for(const p of powerups){
+    for(
+        const p of powerups
+    ){
 
-        const power=powers[p.level];
+        const power=
+            powers[
+                p.level
+            ];
+
 
         ctx.save();
 
-        ctx.translate(p.x,p.y);
-        ctx.rotate(p.rotation);
+
+        ctx.translate(
+            p.x,
+            p.y
+        );
+
+
+        ctx.rotate(
+            p.rotation
+        );
+
 
         ctx.shadowBlur=25;
-        ctx.shadowColor=power.color;
 
-        ctx.strokeStyle=power.color;
+
+        ctx.shadowColor=
+            power.color;
+
+
+        ctx.strokeStyle=
+            power.color;
+
+
         ctx.lineWidth=4;
+
 
         ctx.beginPath();
 
+
         ctx.arc(
+
             0,
+
             0,
+
             p.r,
+
             0,
+
             Math.PI*2
+
         );
+
 
         ctx.stroke();
 
-        ctx.rotate(-p.rotation);
 
-        ctx.fillStyle=power.color;
+        ctx.rotate(
+            -p.rotation
+        );
 
-        ctx.font="bold 11px Arial";
-        ctx.textAlign="center";
-        ctx.textBaseline="middle";
+
+        ctx.fillStyle=
+            power.color;
+
+
+        ctx.font=
+            "bold 11px Arial";
+
+
+        ctx.textAlign=
+            "center";
+
+
+        ctx.textBaseline=
+            "middle";
+
 
         ctx.fillText(
+
             power.name,
+
             0,
+
             0
+
         );
+
 
         ctx.restore();
 
@@ -2004,30 +4389,124 @@ function drawPowerups(){
 
 
 // ============================================================
-// DRAW PARTICLES
+// SWARM DRAW
+// ============================================================
+
+function drawSwarms(){
+
+    for(
+        const s of swarms
+    ){
+
+        ctx.save();
+
+
+        ctx.globalAlpha=
+            .65;
+
+
+        ctx.strokeStyle=
+            "#ffd84d";
+
+
+        ctx.lineWidth=2;
+
+
+        ctx.setLineDash(
+            [8,8]
+        );
+
+
+        ctx.beginPath();
+
+
+        if(
+            s.horizontal
+        ){
+
+            ctx.moveTo(
+                0,
+                s.y
+            );
+
+            ctx.lineTo(
+                W,
+                s.y
+            );
+
+        }
+
+        else{
+
+            ctx.moveTo(
+                s.x,
+                0
+            );
+
+            ctx.lineTo(
+                s.x,
+                H
+            );
+
+        }
+
+
+        ctx.stroke();
+
+
+        ctx.setLineDash([]);
+
+
+        ctx.restore();
+
+    }
+
+}
+
+
+// ============================================================
+// PARTICLES DRAW
 // ============================================================
 
 function drawParticles(){
 
-    for(const p of particles){
+    for(
+        const p of particles
+    ){
 
-        ctx.globalAlpha=Math.max(0,p.life/50);
+        ctx.globalAlpha=
+            Math.max(
+                0,
+                p.life/50
+            );
 
-        ctx.fillStyle=p.color;
+
+        ctx.fillStyle=
+            p.color;
+
 
         ctx.beginPath();
 
+
         ctx.arc(
+
             p.x,
+
             p.y,
+
             p.size,
+
             0,
+
             Math.PI*2
+
         );
+
 
         ctx.fill();
 
     }
+
 
     ctx.globalAlpha=1;
 
@@ -2035,37 +4514,55 @@ function drawParticles(){
 
 
 // ============================================================
-// DRAW FLOATING TEXTS
+// FLOATING TEXT DRAW
 // ============================================================
 
 function drawFloatingTexts(){
 
-    for(const t of floatingTexts){
+    for(
+        const t of floatingTexts
+    ){
 
         ctx.save();
 
-        ctx.globalAlpha=Math.min(
-            1,
-            t.life/40
-        );
 
-        ctx.fillStyle=t.color;
+        ctx.globalAlpha=
+            Math.min(
+                1,
+                t.life/40
+            );
+
+
+        ctx.fillStyle=
+            t.color;
+
 
         ctx.shadowBlur=10;
-        ctx.shadowColor="#000";
+
+        ctx.shadowColor=
+            "#000";
+
 
         ctx.font=
-            "bold " +
-            (t.size||18) +
+            "bold "+
+            (t.size||18)+
             "px Arial";
 
-        ctx.textAlign="center";
+
+        ctx.textAlign=
+            "center";
+
 
         ctx.fillText(
+
             t.text,
+
             t.x,
+
             t.y
+
         );
+
 
         ctx.restore();
 
@@ -2075,46 +4572,81 @@ function drawFloatingTexts(){
 
 
 // ============================================================
-// COLLISION / UPDATE
+// UPDATE
 // ============================================================
 
 function update(){
 
     frame++;
 
+
     movePlayer();
 
-    if(player.fireCooldown>0)
+
+    if(
+        player.fireCooldown>0
+    ){
+
         player.fireCooldown--;
 
-    if(shootHeld)
+    }
+
+
+    if(shootHeld){
+
         shoot();
+
+    }
+
 
     spawnLogic();
 
+
     updateBullets();
+
     updateEnemies();
+
     updateEnemyBullets();
+
     updatePowerups();
+
+    updateSwarms();
+
     updateParticles();
+
     updateFloatingTexts();
+
     updateBoss();
 
-    if(messageTimer>0){
+
+    if(
+        messageTimer>0
+    ){
 
         messageTimer--;
 
-        if(messageTimer<25){
 
-            document.getElementById("message").style.opacity=
-                messageTimer/25;
+        if(
+            messageTimer<25
+        ){
+
+            document
+                .getElementById(
+                    "message"
+                )
+                .style.opacity=
+                    messageTimer/25;
 
         }
 
     }
 
-    if(shake>0)
+
+    if(shake>0){
+
         shake*=.86;
+
+    }
 
 }
 
@@ -2127,16 +4659,33 @@ function draw(){
 
     ctx.save();
 
-    if(shake>0){
+
+    if(
+        shake>0
+    ){
 
         ctx.translate(
-            (Math.random()-.5)*shake,
-            (Math.random()-.5)*shake
+
+            (
+                Math.random()-
+                .5
+            )*
+            shake,
+
+            (
+                Math.random()-
+                .5
+            )*
+            shake
+
         );
 
     }
 
+
     drawBackground();
+
+    drawSwarms();
 
     drawPowerups();
 
@@ -2144,8 +4693,15 @@ function draw(){
 
     drawEnemyBullets();
 
-    for(const e of enemies)
+
+    for(
+        const e of enemies
+    ){
+
         drawEnemy(e);
+
+    }
+
 
     drawBoss();
 
@@ -2154,6 +4710,7 @@ function draw(){
     drawParticles();
 
     drawFloatingTexts();
+
 
     ctx.restore();
 
@@ -2166,12 +4723,18 @@ function draw(){
 
 function gameLoop(){
 
-    if(!running) return;
+    if(!running)
+        return;
+
 
     update();
+
     draw();
 
-    requestAnimationFrame(gameLoop);
+
+    requestAnimationFrame(
+        gameLoop
+    );
 
 }
 
@@ -2184,13 +4747,37 @@ function endGame(reason){
 
     running=false;
 
-    document.getElementById("finalReason").textContent=reason;
 
-    document.getElementById("finalScore").textContent=score;
+    document
+        .getElementById(
+            "finalReason"
+        )
+        .textContent=
+            reason;
 
-    document.getElementById("finalKills").textContent=kills;
 
-    document.getElementById("gameOver").classList.remove("hidden");
+    document
+        .getElementById(
+            "finalScore"
+        )
+        .textContent=
+            score;
+
+
+    document
+        .getElementById(
+            "finalKills"
+        )
+        .textContent=
+            kills;
+
+
+    document
+        .getElementById(
+            "gameOver"
+        )
+        .classList
+        .remove("hidden");
 
 }
 
@@ -2199,15 +4786,24 @@ function endGame(reason){
 // BUTTONS
 // ============================================================
 
-document.getElementById("startBtn").addEventListener(
-    "click",
-    startGame
-);
+document
+    .getElementById(
+        "startBtn"
+    )
+    .addEventListener(
+        "click",
+        startGame
+    );
 
-document.getElementById("restartBtn").addEventListener(
-    "click",
-    startGame
-);
+
+document
+    .getElementById(
+        "restartBtn"
+    )
+    .addEventListener(
+        "click",
+        startGame
+    );
 
 
 // ============================================================
@@ -2219,5 +4815,6 @@ updateHUD();
 </script>
 
 </body>
+
 </html>
 ```
