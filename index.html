@@ -1,0 +1,3178 @@
+```html
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>D2D Hunter — v0.3</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  user-select:none;
+}
+
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#07101b;
+  color:#eef6ff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+canvas{
+  display:block;
+}
+
+#game{
+  position:fixed;
+  inset:0;
+}
+
+#hud{
+  position:fixed;
+  left:16px;
+  top:16px;
+  width:300px;
+  z-index:10;
+}
+
+.panel{
+  background:rgba(5,13,24,.88);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:15px;
+  padding:13px;
+  box-shadow:0 15px 45px rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);
+}
+
+.logo{
+  font-size:19px;
+  font-weight:900;
+  letter-spacing:2px;
+}
+
+.sub{
+  color:#7389a5;
+  font-size:10px;
+  margin-top:2px;
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+  font-size:12px;
+}
+
+.bar{
+  height:6px;
+  margin-top:5px;
+  background:#17263a;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0;
+}
+
+.hp{background:#5be4a3}
+.sta{background:#54c9ff}
+.xp{background:#bd85ff}
+.heat{background:#ff756e}
+
+#bonus{
+  margin-top:9px;
+  color:#71e5ad;
+  font-weight:900;
+}
+
+#mission{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  width:370px;
+  z-index:10;
+  text-align:center;
+}
+
+#missionTitle{
+  font-weight:900;
+}
+
+#missionText{
+  margin-top:4px;
+  font-size:12px;
+  color:#aebed2;
+}
+
+#buttons{
+  position:fixed;
+  right:16px;
+  top:16px;
+  z-index:20;
+  display:flex;
+  gap:6px;
+}
+
+button{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(7,18,32,.9);
+  color:white;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:800;
+}
+
+button:hover{
+  background:#18304a;
+}
+
+#minimap{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  width:210px;
+  height:150px;
+  background:#07111d;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:14px;
+  z-index:10;
+}
+
+#location{
+  position:fixed;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+  background:rgba(5,13,24,.85);
+  border:1px solid rgba(255,255,255,.1);
+  padding:9px 15px;
+  border-radius:12px;
+  font-size:12px;
+  color:#b9c9db;
+}
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:70px;
+  transform:translateX(-50%);
+  background:rgba(5,13,24,.96);
+  border:1px solid rgba(255,255,255,.13);
+  padding:11px 17px;
+  border-radius:12px;
+  z-index:30;
+  opacity:0;
+  transition:.2s;
+  pointer-events:none;
+  font-weight:700;
+}
+
+#center{
+  position:fixed;
+  left:50%;
+  top:43%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:50;
+  pointer-events:none;
+  opacity:0;
+  transition:.2s;
+}
+
+#center h1{
+  margin:0;
+  font-size:43px;
+  text-shadow:0 10px 35px black;
+}
+
+#center p{
+  color:#b7c7da;
+}
+
+#help{
+  position:fixed;
+  left:16px;
+  bottom:16px;
+  z-index:10;
+  font-size:10px;
+  color:#6e849f;
+}
+
+@media(max-width:800px){
+  #mission{display:none}
+  #hud{width:235px}
+  #help{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="game"></canvas>
+<canvas id="minimap"></canvas>
+
+<div id="hud">
+  <div class="panel">
+
+    <div class="logo">D2D HUNTER</div>
+    <div class="sub">CITY PURSUIT // v0.3</div>
+
+    <div class="row">
+      <span>LEVEL</span>
+      <b id="level">1</b>
+    </div>
+
+    <div class="row">
+      <span>HP</span>
+      <b id="hp">100 / 100</b>
+    </div>
+
+    <div class="bar">
+      <div id="hpBar" class="fill hp"></div>
+    </div>
+
+    <div class="row">
+      <span>STAMINA</span>
+      <b id="stamina">100</b>
+    </div>
+
+    <div class="bar">
+      <div id="staBar" class="fill sta"></div>
+    </div>
+
+    <div class="row">
+      <span>XP</span>
+      <b id="xp">0 / 100</b>
+    </div>
+
+    <div class="bar">
+      <div id="xpBar" class="fill xp"></div>
+    </div>
+
+    <div class="row">
+      <span>COMBO</span>
+      <b id="combo">0</b>
+    </div>
+
+    <div class="row">
+      <span>CASH</span>
+      <b id="cash">€0</b>
+    </div>
+
+    <div class="row">
+      <span>HEAT</span>
+      <b id="heat">0%</b>
+    </div>
+
+    <div class="bar">
+      <div id="heatBar" class="fill heat"></div>
+    </div>
+
+    <div id="bonus"></div>
+
+  </div>
+</div>
+
+<div id="mission" class="panel">
+  <div style="font-size:10px;color:#7087a2">CURRENT MISSION</div>
+  <div id="missionTitle">PATROL</div>
+  <div id="missionText">Find sellers.</div>
+
+  <div class="bar">
+    <div id="missionBar" class="fill xp"></div>
+  </div>
+</div>
+
+<div id="buttons">
+  <button onclick="saveGame()">SAVE</button>
+  <button onclick="loadGame()">LOAD</button>
+  <button onclick="newGame()">NEW RUN</button>
+</div>
+
+<div id="minimap"></div>
+
+<div id="location">
+  STREET
+</div>
+
+<div id="toast"></div>
+
+<div id="center">
+  <h1 id="centerTitle"></h1>
+  <p id="centerText"></p>
+</div>
+
+<div id="help">
+  WASD / ARROWS Move • SHIFT Sprint • SPACE / CLICK Attack • E Enter / Interact
+</div>
+
+<script>
+
+/* ==========================================================
+   CANVAS
+========================================================== */
+
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
+
+const mini=document.getElementById("minimap");
+const mctx=mini.getContext("2d");
+
+let W=innerWidth;
+let H=innerHeight;
+
+function resize(){
+
+  W=innerWidth;
+  H=innerHeight;
+
+  const d=Math.min(devicePixelRatio||1,2);
+
+  canvas.width=W*d;
+  canvas.height=H*d;
+
+  canvas.style.width=W+"px";
+  canvas.style.height=H+"px";
+
+  ctx.setTransform(d,0,0,d,0,0);
+
+}
+
+addEventListener("resize",resize);
+resize();
+
+
+/* ==========================================================
+   INPUT
+========================================================== */
+
+const keys={};
+
+const mouse={
+  x:W/2,
+  y:H/2,
+  down:false
+};
+
+addEventListener("keydown",e=>{
+
+  keys[e.key.toLowerCase()]=true;
+
+  if(e.key===" "){
+    e.preventDefault();
+    attack();
+  }
+
+  if(e.key.toLowerCase()==="e"){
+    interact();
+  }
+
+});
+
+addEventListener("keyup",e=>{
+  keys[e.key.toLowerCase()]=false;
+});
+
+canvas.addEventListener("mousemove",e=>{
+  mouse.x=e.clientX;
+  mouse.y=e.clientY;
+});
+
+canvas.addEventListener("mousedown",()=>{
+  mouse.down=true;
+  attack();
+});
+
+addEventListener("mouseup",()=>{
+  mouse.down=false;
+});
+
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+const TAU=Math.PI*2;
+
+function rand(a,b){
+  return a+Math.random()*(b-a);
+}
+
+function clamp(v,a,b){
+  return Math.max(a,Math.min(b,v));
+}
+
+function distance(a,b){
+  return Math.hypot(a.x-b.x,a.y-b.y);
+}
+
+function randomChoice(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
+
+
+/* ==========================================================
+   WORLD
+========================================================== */
+
+const WORLD={
+  width:3600,
+  height:2800
+};
+
+let buildings=[];
+let sellers=[];
+let civilians=[];
+let particles=[];
+
+let currentInterior=null;
+
+const buildingTypes=[
+  "APARTMENT",
+  "HOUSE",
+  "SHOP",
+  "OFFICE"
+];
+
+function generateWorld(){
+
+  buildings=[];
+  sellers=[];
+  civilians=[];
+  particles=[];
+
+  const cols=9;
+  const rows=7;
+
+  const cellW=400;
+  const cellH=400;
+
+  for(let y=0;y<rows;y++){
+
+    for(let x=0;x<cols;x++){
+
+      const bx=x*cellW+65;
+      const by=y*cellH+70;
+
+      const type=randomChoice(buildingTypes);
+
+      buildings.push({
+
+        id:buildings.length,
+
+        x:bx,
+        y:by,
+
+        w:290,
+        h:255,
+
+        type,
+
+        door:{
+          x:bx+145,
+          y:by+255
+        },
+
+        interiorSeller:null
+
+      });
+
+    }
+
+  }
+
+
+  /* Sellers outside */
+
+  for(let i=0;i<18;i++){
+
+    const p=randomStreetPoint();
+
+    sellers.push(createSeller(p.x,p.y,false));
+
+  }
+
+
+  /* Every building gets a chance of an interior seller */
+
+  for(const b of buildings){
+
+    if(Math.random()<.48){
+
+      const s=createSeller(
+        b.w/2,
+        b.h/2,
+        true
+      );
+
+      s.buildingId=b.id;
+
+      b.interiorSeller=s.id;
+
+    }
+
+  }
+
+
+  /* civilians */
+
+  for(let i=0;i<55;i++){
+
+    const p=randomStreetPoint();
+
+    civilians.push({
+
+      x:p.x,
+      y:p.y,
+
+      tx:p.x,
+      ty:p.y,
+
+      speed:rand(28,52)
+
+    });
+
+  }
+
+}
+
+
+function randomStreetPoint(){
+
+  for(let i=0;i<500;i++){
+
+    const p={
+      x:rand(35,WORLD.width-35),
+      y:rand(35,WORLD.height-35)
+    };
+
+    if(!blocked(p.x,p.y,12)){
+      return p;
+    }
+
+  }
+
+  return {
+    x:100,
+    y:100
+  };
+
+}
+
+
+function createSeller(x,y,inside){
+
+  const type=randomChoice([
+    "rookie",
+    "experienced",
+    "veteran"
+  ]);
+
+  return {
+
+    id:sellers.length,
+
+    x,
+    y,
+
+    tx:x,
+    ty:y,
+
+    type,
+
+    inside,
+
+    buildingId:null,
+
+    state:inside ? "inside" : "wander",
+
+    alert:0,
+
+    stun:0,
+
+    say:0,
+
+    communication:0,
+
+    fleeing:false,
+
+    bonus:false,
+
+    hidden:false,
+
+    lastSeen:0
+
+  };
+
+}
+
+
+/* ==========================================================
+   PLAYER
+========================================================== */
+
+let player;
+
+function createPlayer(){
+
+  player={
+
+    x:210,
+    y:190,
+
+    radius:15,
+
+    hp:100,
+    maxHp:100,
+
+    stamina:100,
+
+    level:1,
+
+    xp:0,
+
+    cash:0,
+
+    combo:0,
+
+    heat:0,
+
+    disguise:0,
+
+    attackCooldown:0,
+
+    invincible:0,
+
+    sellerHits:new Set(),
+
+    buildingId:null,
+
+    indoors:false
+
+  };
+
+}
+
+
+/* ==========================================================
+   MISSIONS
+========================================================== */
+
+let mission;
+
+const missionPool=[
+
+  {
+    title:"PATROL",
+    text:"Neutralize 5 sellers.",
+    target:5,
+    kind:"kill"
+  },
+
+  {
+    title:"BUILDING SWEEP",
+    text:"Enter 3 buildings.",
+    target:3,
+    kind:"enter"
+  },
+
+  {
+    title:"INFILTRATION",
+    text:"Talk to 3 sellers while disguised.",
+    target:3,
+    kind:"talk"
+  },
+
+  {
+    title:"NETWORK DISRUPTION",
+    text:"Neutralize 3 experienced sellers.",
+    target:3,
+    kind:"experienced"
+  },
+
+  {
+    title:"CITY CLEANUP",
+    text:"Neutralize 8 sellers.",
+    target:8,
+    kind:"kill"
+  }
+
+];
+
+function newMission(){
+
+  mission={
+    ...randomChoice(missionPool),
+    progress:0
+  };
+
+}
+
+
+/* ==========================================================
+   COLLISION
+========================================================== */
+
+function blocked(x,y,r=10){
+
+  if(player && player.indoors){
+    return false;
+  }
+
+  return buildings.some(b=>{
+
+    return(
+      x+r>b.x &&
+      x-r<b.x+b.w &&
+      y+r>b.y &&
+      y-r<b.y+b.h
+    );
+
+  });
+
+}
+
+
+function moveObject(o,dx,dy){
+
+  const r=o.radius||8;
+
+  if(player && player.indoors){
+
+    o.x=clamp(
+      o.x+dx,
+      25,
+      575
+    );
+
+    o.y=clamp(
+      o.y+dy,
+      25,
+      425
+    );
+
+    return;
+  }
+
+  const nx=o.x+dx;
+
+  if(
+    nx>r &&
+    nx<WORLD.width-r &&
+    !blocked(nx,o.y,r)
+  ){
+
+    o.x=nx;
+
+  }
+
+  const ny=o.y+dy;
+
+  if(
+    ny>r &&
+    ny<WORLD.height-r &&
+    !blocked(o.x,ny,r)
+  ){
+
+    o.y=ny;
+
+  }
+
+}
+
+
+/* ==========================================================
+   INTERIORS
+========================================================== */
+
+function enterBuilding(building){
+
+  if(player.indoors)return;
+
+  const d=distance(
+    player,
+    building.door
+  );
+
+  if(d>70)return;
+
+  currentInterior=building;
+
+  player.indoors=true;
+
+  player.buildingId=building.id;
+
+  player.x=300;
+  player.y=360;
+
+  document.getElementById(
+    "location"
+  ).textContent=
+    building.type+" • INTERIOR";
+
+  if(mission.kind==="enter"){
+    mission.progress++;
+  }
+
+  showToast(
+    "Μπήκες στο "+building.type
+  );
+
+}
+
+
+function exitBuilding(){
+
+  if(!player.indoors)return;
+
+  const b=currentInterior;
+
+  player.indoors=false;
+
+  player.buildingId=null;
+
+  player.x=b.door.x;
+  player.y=b.door.y+45;
+
+  currentInterior=null;
+
+  document.getElementById(
+    "location"
+  ).textContent=
+    "STREET";
+
+  showToast(
+    "Βγήκες στον δρόμο."
+  );
+
+}
+
+
+function interact(){
+
+  if(player.hp<=0)return;
+
+  if(player.indoors){
+
+    const b=currentInterior;
+
+    const s=sellers.find(
+      x=>
+        x.buildingId===b.id &&
+        x.inside
+    );
+
+    if(
+      s &&
+      distance(player,s)<100
+    ){
+
+      if(player.disguise>0){
+
+        s.say=3;
+
+        if(mission.kind==="talk"){
+          mission.progress++;
+        }
+
+        showToast(
+          randomChoice([
+            "«Ο κυνηγός είναι κοντά.»",
+            "«Μην βγεις από την πίσω πόρτα.»",
+            "«Οι άλλοι είναι στο διπλανό τετράγωνο.»",
+            "«Πρόσεχε, σε ψάχνουν.»"
+          ])
+        );
+
+      }
+      else{
+
+        showToast(
+          "Ο πωλητής σε αναγνώρισε!"
+        );
+
+        s.alert=4;
+        s.fleeing=true;
+
+      }
+
+      return;
+
+    }
+
+    if(player.y>350){
+
+      exitBuilding();
+
+    }
+
+    return;
+
+  }
+
+
+  for(const b of buildings){
+
+    if(
+      distance(
+        player,
+        b.door
+      )<70
+    ){
+
+      enterBuilding(b);
+      return;
+
+    }
+
+  }
+
+  showToast(
+    "Πλησίασε μια είσοδο."
+  );
+
+}
+
+
+/* ==========================================================
+   ATTACK
+========================================================== */
+
+function attack(){
+
+  if(
+    !player ||
+    player.hp<=0 ||
+    player.attackCooldown>0
+  )return;
+
+  player.attackCooldown=.27;
+
+  let target=null;
+  let best=72;
+
+  for(const s of sellers){
+
+    if(s.stun>0 || s.hidden)continue;
+
+    if(player.indoors){
+
+      if(
+        !s.inside ||
+        s.buildingId!==player.buildingId
+      )continue;
+
+    }
+    else{
+
+      if(s.inside)continue;
+
+    }
+
+    const d=distance(
+      player,
+      s
+    );
+
+    if(d<best){
+
+      best=d;
+      target=s;
+
+    }
+
+  }
+
+  if(!target){
+
+    player.combo=0;
+    return;
+
+  }
+
+  target.stun=1.4;
+  target.state="stunned";
+  target.fleeing=false;
+
+  player.combo++;
+
+  player.xp+=30;
+  player.cash+=15;
+
+  player.heat=
+    clamp(
+      player.heat+9,
+      0,
+      100
+    );
+
+
+  if(
+    mission.kind==="kill"
+  ){
+
+    mission.progress++;
+
+  }
+
+  if(
+    mission.kind==="experienced" &&
+    target.type==="experienced"
+  ){
+
+    mission.progress++;
+
+  }
+
+
+  burst(
+    target.x,
+    target.y,
+    "#9fe9ff",
+    18
+  );
+
+
+  if(player.disguise>0){
+
+    player.disguise=0;
+
+    scatterNearby(
+      target
+    );
+
+    showToast(
+      "ΑΙΦΝΙΔΙΑΣΜΟΣ! Οι κοντινοί πωλητές έφυγαν."
+    );
+
+  }
+
+
+  if(
+    player.combo>=3 &&
+    player.disguise<=0
+  ){
+
+    player.disguise=15;
+
+    showCenter(
+      "SELLER DISGUISE",
+      "Οι πωλητές νομίζουν ότι είσαι δικός τους.",
+      1700
+    );
+
+  }
+
+
+  levelCheck();
+
+}
+
+
+/* ==========================================================
+   SCATTER
+========================================================== */
+
+function scatterNearby(hit){
+
+  for(const s of sellers){
+
+    if(s===hit)continue;
+
+    if(
+      s.inside &&
+      player.indoors &&
+      s.buildingId!==player.buildingId
+    )continue;
+
+    if(
+      !s.inside &&
+      player.indoors
+    )continue;
+
+    if(
+      distance(s,hit)<340
+    ){
+
+      s.fleeing=true;
+      s.state="flee";
+
+      s.tx=clamp(
+        s.x+rand(-650,650),
+        30,
+        player.indoors?575:WORLD.width-30
+      );
+
+      s.ty=clamp(
+        s.y+rand(-650,650),
+        30,
+        player.indoors?425:WORLD.height-30
+      );
+
+    }
+
+  }
+
+}
+
+
+/* ==========================================================
+   SELLER NETWORK
+========================================================== */
+
+function sellerCommunication(){
+
+  const active=sellers.filter(s=>
+
+    s.stun<=0 &&
+    !s.hidden &&
+    !s.fleeing
+
+  );
+
+  for(const s of active){
+
+    if(s.alert<=0)continue;
+
+    for(const other of active){
+
+      if(other===s)continue;
+
+      if(
+        s.inside!==other.inside
+      )continue;
+
+      if(
+        s.inside &&
+        s.buildingId!==other.buildingId
+      )continue;
+
+      if(
+        !s.inside &&
+        distance(s,other)<440
+      ){
+
+        other.alert=
+          Math.max(
+            other.alert,
+            2.5
+          );
+
+        other.communication=2;
+
+        other.state="flee";
+
+        other.fleeing=true;
+
+        other.tx=
+          clamp(
+            other.x+
+            (other.x-player.x)*1.4+
+            rand(-100,100),
+            30,
+            WORLD.width-30
+          );
+
+        other.ty=
+          clamp(
+            other.y+
+            (other.y-player.y)*1.4+
+            rand(-100,100),
+            30,
+            WORLD.height-30
+          );
+
+      }
+
+    }
+
+  }
+
+}
+
+
+/* ==========================================================
+   SELLER BONUS
+========================================================== */
+
+let sellerBonusCooldown=0;
+
+function sellerBonusCheck(dt){
+
+  sellerBonusCooldown-=dt;
+
+  if(sellerBonusCooldown>0)return;
+
+  if(player.indoors)return;
+
+  const nearby=sellers.filter(s=>
+
+    !s.inside &&
+    s.stun<=0 &&
+    !s.fleeing &&
+    distance(s,player)<600
+
+  );
+
+  if(
+    nearby.length>=4 &&
+    !sellers.some(s=>s.bonus)
+  ){
+
+    nearby.forEach(s=>{
+
+      s.bonus=true;
+      s.state="hunt";
+
+    });
+
+    player.sellerHits.clear();
+
+    showCenter(
+      "SELLER MOB",
+      "Οι πωλητές συντονίστηκαν και σε κυνηγούν!",
+      1700
+    );
+
+    sellerBonusCooldown=9;
+
+  }
+
+}
+
+
+/* ==========================================================
+   DAMAGE
+========================================================== */
+
+function damagePlayer(s){
+
+  if(player.invincible>0)return;
+
+  player.invincible=.65;
+
+  player.hp-=15;
+
+  burst(
+    player.x,
+    player.y,
+    "#ff7b75",
+    13
+  );
+
+  if(s.bonus){
+
+    player.sellerHits.add(
+      s.id
+    );
+
+    showToast(
+      "Χτύπημα από διαφορετικό πωλητή: "+
+      player.sellerHits.size+
+      " / 3"
+    );
+
+  }
+
+  if(
+    player.sellerHits.size>=3
+  ){
+
+    for(const x of sellers){
+
+      if(x.bonus){
+
+        x.bonus=false;
+        x.fleeing=true;
+        x.state="flee";
+
+        x.tx=
+          clamp(
+            x.x+rand(-600,600),
+            30,
+            WORLD.width-30
+          );
+
+        x.ty=
+          clamp(
+            x.y+rand(-600,600),
+            30,
+            WORLD.height-30
+          );
+
+      }
+
+    }
+
+    player.sellerHits.clear();
+
+    showCenter(
+      "MOB BROKEN",
+      "Οι πωλητές έχασαν το bonus.",
+      1500
+    );
+
+  }
+
+  if(player.hp<=0){
+
+    player.hp=0;
+
+    showCenter(
+      "RUN OVER",
+      "Πάτησε LOAD ή NEW RUN.",
+      999999
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   LEVEL
+========================================================== */
+
+function levelCheck(){
+
+  const need=
+    player.level*100;
+
+  if(player.xp>=need){
+
+    player.xp-=need;
+
+    player.level++;
+
+    player.maxHp+=10;
+
+    player.hp=player.maxHp;
+
+    showCenter(
+      "LEVEL UP!",
+      "MAX HP +10",
+      1200
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   AI
+========================================================== */
+
+function updateAI(dt){
+
+  /* civilians */
+
+  if(!player.indoors){
+
+    for(const n of civilians){
+
+      if(
+        distance(n,{
+          x:n.tx,
+          y:n.ty
+        })<18
+      ){
+
+        n.tx=
+          clamp(
+            n.x+rand(-350,350),
+            30,
+            WORLD.width-30
+          );
+
+        n.ty=
+          clamp(
+            n.y+rand(-350,350),
+            30,
+            WORLD.height-30
+          );
+
+      }
+
+      const a=Math.atan2(
+        n.ty-n.y,
+        n.tx-n.x
+      );
+
+      moveObject(
+        n,
+        Math.cos(a)*n.speed*dt,
+        Math.sin(a)*n.speed*dt
+      );
+
+    }
+
+  }
+
+
+  /* sellers */
+
+  for(const s of sellers){
+
+    if(s.stun>0){
+
+      s.stun-=dt;
+
+      continue;
+
+    }
+
+    if(s.inside){
+
+      if(
+        !player.indoors ||
+        player.buildingId!==s.buildingId
+      ){
+
+        continue;
+
+      }
+
+    }
+    else{
+
+      if(player.indoors)continue;
+
+    }
+
+
+    const d=distance(
+      s,
+      player
+    );
+
+
+    /* seller bonus */
+
+    if(s.bonus){
+
+      s.state="hunt";
+
+      s.tx=player.x;
+      s.ty=player.y;
+
+      if(d<42){
+
+        damagePlayer(s);
+
+      }
+
+    }
+
+
+    /* player disguised */
+
+    else if(
+      player.disguise>0 &&
+      !s.fleeing
+    ){
+
+      if(d<230){
+
+        s.state="friendly";
+
+        s.tx=player.x;
+        s.ty=player.y;
+
+        if(
+          d<105 &&
+          s.say<=0
+        ){
+
+          s.say=rand(2,4);
+
+          showToast(
+            randomChoice([
+              "«Τους είδα στο επόμενο τετράγωνο.»",
+              "«Ο κυνηγός είναι κοντά.»",
+              "«Μην κινηθείς από τον κεντρικό δρόμο.»",
+              "«Κρύψου λίγο και μετά φύγε.»"
+            ])
+          );
+
+        }
+
+      }
+
+    }
+
+
+    /* normal */
+
+    else{
+
+      if(
+        d<250 &&
+        !s.fleeing
+      ){
+
+        s.alert=3;
+        s.lastSeen=3;
+        s.state="flee";
+        s.fleeing=true;
+
+        s.tx=
+          clamp(
+            s.x+
+            (s.x-player.x)*1.7+
+            rand(-150,150),
+            30,
+            s.inside?575:WORLD.width-30
+          );
+
+        s.ty=
+          clamp(
+            s.y+
+            (s.y-player.y)*1.7+
+            rand(-150,150),
+            30,
+            s.inside?425:WORLD.height-30
+          );
+
+      }
+      else{
+
+        s.alert=
+          Math.max(
+            0,
+            s.alert-dt
+          );
+
+        s.lastSeen=
+          Math.max(
+            0,
+            s.lastSeen-dt
+          );
+
+      }
+
+    }
+
+
+    if(s.say>0)
+      s.say-=dt;
+
+
+    if(
+      s.state==="wander" ||
+      s.state==="inside"
+    ){
+
+      if(
+        distance(
+          s,
+          {
+            x:s.tx,
+            y:s.ty
+          }
+        )<20
+      ){
+
+        if(s.inside){
+
+          s.tx=rand(70,530);
+          s.ty=rand(70,330);
+
+        }
+        else{
+
+          s.tx=
+            clamp(
+              s.x+rand(-450,450),
+              30,
+              WORLD.width-30
+            );
+
+          s.ty=
+            clamp(
+              s.y+rand(-450,450),
+              30,
+              WORLD.height-30
+            );
+
+        }
+
+      }
+
+    }
+
+
+    let speed=55;
+
+    if(s.type==="experienced")
+      speed=68;
+
+    if(s.type==="veteran")
+      speed=80;
+
+    if(s.state==="flee")
+      speed*=1.45;
+
+    if(s.state==="hunt")
+      speed*=1.1;
+
+    if(s.state==="friendly")
+      speed=42;
+
+
+    const a=Math.atan2(
+      s.ty-s.y,
+      s.tx-s.x
+    );
+
+
+    moveObject(
+      s,
+      Math.cos(a)*speed*dt,
+      Math.sin(a)*speed*dt
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   PLAYER UPDATE
+========================================================== */
+
+function update(dt){
+
+  if(!player)return;
+
+  if(player.hp<=0)return;
+
+
+  player.attackCooldown=
+    Math.max(
+      0,
+      player.attackCooldown-dt
+    );
+
+  player.invincible=
+    Math.max(
+      0,
+      player.invincible-dt
+    );
+
+
+  if(player.disguise>0){
+
+    player.disguise-=dt;
+
+    if(player.disguise<=0){
+
+      showToast(
+        "Η μεταμφίεση τελείωσε."
+      );
+
+    }
+
+  }
+
+
+  if(player.disguise<=0){
+
+    player.heat=
+      Math.max(
+        0,
+        player.heat-dt*1.15
+      );
+
+  }
+
+
+  let dx=0;
+  let dy=0;
+
+  if(keys["w"]||keys["arrowup"])dy--;
+  if(keys["s"]||keys["arrowdown"])dy++;
+  if(keys["a"]||keys["arrowleft"])dx--;
+  if(keys["d"]||keys["arrowright"])dx++;
+
+
+  if(dx||dy){
+
+    const len=Math.hypot(dx,dy);
+
+    dx/=len;
+    dy/=len;
+
+    const sprint=
+      keys["shift"] &&
+      player.stamina>0;
+
+    const speed=
+      sprint
+      ? player.indoors?210:250
+      : player.indoors?145:155;
+
+
+    if(sprint){
+
+      player.stamina=
+        Math.max(
+          0,
+          player.stamina-35*dt
+        );
+
+    }
+    else{
+
+      player.stamina=
+        Math.min(
+          100,
+          player.stamina+21*dt
+        );
+
+    }
+
+
+    moveObject(
+      player,
+      dx*speed*dt,
+      dy*speed*dt
+    );
+
+  }
+  else{
+
+    player.stamina=
+      Math.min(
+        100,
+        player.stamina+30*dt
+      );
+
+  }
+
+
+  sellerCommunication();
+
+  sellerBonusCheck(dt);
+
+  updateAI(dt);
+
+
+  /* particles */
+
+  for(
+    let i=particles.length-1;
+    i>=0;
+    i--
+  ){
+
+    const p=particles[i];
+
+    p.life-=dt;
+
+    p.x+=p.vx*dt;
+    p.y+=p.vy*dt;
+
+    p.vx*=.94;
+    p.vy*=.94;
+
+    if(p.life<=0)
+      particles.splice(i,1);
+
+  }
+
+
+  if(
+    mission.progress>=mission.target
+  ){
+
+    player.cash+=150;
+    player.xp+=100;
+
+    showCenter(
+      "MISSION COMPLETE",
+      "+€150 • +100 XP",
+      1700
+    );
+
+    newMission();
+
+  }
+
+
+  updateHUD();
+
+}
+
+
+/* ==========================================================
+   CAMERA
+========================================================== */
+
+function getCamera(){
+
+  if(player.indoors){
+
+    return {
+      x:0,
+      y:0
+    };
+
+  }
+
+  return {
+
+    x:clamp(
+      player.x-W/2,
+      0,
+      WORLD.width-W
+    ),
+
+    y:clamp(
+      player.y-H/2,
+      0,
+      WORLD.height-H
+    )
+
+  };
+
+}
+
+
+/* ==========================================================
+   DRAW WORLD
+========================================================== */
+
+function draw(){
+
+  ctx.clearRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  if(player.indoors){
+
+    drawInterior();
+
+  }
+  else{
+
+    drawStreet();
+
+  }
+
+
+  drawParticles();
+
+  drawHUDOverlay();
+
+  drawMinimap();
+
+}
+
+
+/* ==========================================================
+   STREET
+========================================================== */
+
+function drawStreet(){
+
+  const cam=getCamera();
+
+  ctx.save();
+
+  ctx.translate(
+    -cam.x,
+    -cam.y
+  );
+
+
+  ctx.fillStyle="#081624";
+
+  ctx.fillRect(
+    0,
+    0,
+    WORLD.width,
+    WORLD.height
+  );
+
+
+  /* roads */
+
+  ctx.fillStyle="#12283c";
+
+  for(
+    let x=0;
+    x<WORLD.width;
+    x+=400
+  ){
+
+    ctx.fillRect(
+      x,
+      0,
+      48,
+      WORLD.height
+    );
+
+  }
+
+  for(
+    let y=0;
+    y<WORLD.height;
+    y+=400
+  ){
+
+    ctx.fillRect(
+      0,
+      y,
+      WORLD.width,
+      48
+    );
+
+  }
+
+
+  /* road lines */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.045)";
+
+  ctx.lineWidth=2;
+
+  ctx.setLineDash([
+    18,
+    18
+  ]);
+
+
+  for(
+    let x=24;
+    x<WORLD.width;
+    x+=400
+  ){
+
+    ctx.beginPath();
+    ctx.moveTo(x,0);
+    ctx.lineTo(x,WORLD.height);
+    ctx.stroke();
+
+  }
+
+
+  for(
+    let y=24;
+    y<WORLD.height;
+    y+=400
+  ){
+
+    ctx.beginPath();
+    ctx.moveTo(0,y);
+    ctx.lineTo(WORLD.width,y);
+    ctx.stroke();
+
+  }
+
+  ctx.setLineDash([]);
+
+
+  /* buildings */
+
+  for(const b of buildings){
+
+    drawBuilding(b);
+
+  }
+
+
+  /* civilians */
+
+  for(const n of civilians){
+
+    drawCharacter(
+      n,
+      "#778ba4",
+      7
+    );
+
+  }
+
+
+  /* sellers */
+
+  for(const s of sellers){
+
+    if(s.inside)continue;
+
+    drawSeller(s);
+
+  }
+
+
+  drawPlayer();
+
+
+  ctx.restore();
+
+}
+
+
+/* ==========================================================
+   BUILDINGS
+========================================================== */
+
+function drawBuilding(b){
+
+  let color="#293d53";
+
+  if(b.type==="HOUSE")
+    color="#2d484b";
+
+  if(b.type==="SHOP")
+    color="#394d5b";
+
+  if(b.type==="OFFICE")
+    color="#303d52";
+
+
+  ctx.fillStyle=
+    "rgba(0,0,0,.38)";
+
+  ctx.fillRect(
+    b.x+9,
+    b.y+12,
+    b.w,
+    b.h
+  );
+
+
+  ctx.fillStyle=color;
+
+  ctx.fillRect(
+    b.x,
+    b.y,
+    b.w,
+    b.h
+  );
+
+
+  ctx.fillStyle=
+    "rgba(255,255,255,.045)";
+
+  ctx.fillRect(
+    b.x,
+    b.y,
+    b.w,
+    25
+  );
+
+
+  const cols=
+    b.type==="SHOP"
+    ?5
+    :4;
+
+  const rows=
+    b.type==="HOUSE"
+    ?2
+    :3;
+
+
+  for(let r=0;r<rows;r++){
+
+    for(let c=0;c<cols;c++){
+
+      ctx.fillStyle=
+        (r+c)%4===0
+        ?"#9bd8ff"
+        :"#526b81";
+
+      const xx=
+        b.x+35+
+        c*(b.w-70)/(cols-1);
+
+      const yy=
+        b.y+53+
+        r*52;
+
+      ctx.fillRect(
+        xx-6,
+        yy-8,
+        12,
+        16
+      );
+
+    }
+
+  }
+
+
+  /* door */
+
+  ctx.fillStyle="#101c29";
+
+  ctx.fillRect(
+    b.door.x-19,
+    b.door.y-29,
+    38,
+    29
+  );
+
+
+  /* door glow */
+
+  const d=distance(
+    player,
+    b.door
+  );
+
+  if(d<95){
+
+    ctx.strokeStyle=
+      "rgba(90,210,255,.55)";
+
+    ctx.lineWidth=2;
+
+    ctx.strokeRect(
+      b.door.x-25,
+      b.door.y-35,
+      50,
+      40
+    );
+
+  }
+
+
+  ctx.fillStyle=
+    "rgba(255,255,255,.22)";
+
+  ctx.font="9px Arial";
+
+  ctx.textAlign="center";
+
+  ctx.fillText(
+    b.type,
+    b.x+b.w/2,
+    b.y+17
+  );
+
+}
+
+
+/* ==========================================================
+   INTERIOR
+========================================================== */
+
+function drawInterior(){
+
+  const b=currentInterior;
+
+  ctx.fillStyle="#101a25";
+
+  ctx.fillRect(
+    0,
+    0,
+    W,
+    H
+  );
+
+
+  /* room */
+
+  ctx.fillStyle="#1c2b3a";
+
+  ctx.fillRect(
+    0,
+    0,
+    600,
+    460
+  );
+
+
+  /* floor */
+
+  ctx.fillStyle="#26384a";
+
+  ctx.fillRect(
+    28,
+    28,
+    544,
+    404
+  );
+
+
+  /* floor tiles */
+
+  ctx.strokeStyle=
+    "rgba(255,255,255,.035)";
+
+  ctx.lineWidth=1;
+
+  for(
+    let x=28;
+    x<572;
+    x+=45
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(x,28);
+    ctx.lineTo(x,432);
+
+    ctx.stroke();
+
+  }
+
+  for(
+    let y=28;
+    y<432;
+    y+=45
+  ){
+
+    ctx.beginPath();
+
+    ctx.moveTo(28,y);
+    ctx.lineTo(572,y);
+
+    ctx.stroke();
+
+  }
+
+
+  /* furniture */
+
+  ctx.fillStyle="#172330";
+
+  if(b.type==="APARTMENT"){
+
+    ctx.fillRect(
+      65,
+      75,
+      170,
+      65
+    );
+
+    ctx.fillRect(
+      410,
+      70,
+      100,
+      120
+    );
+
+  }
+
+  if(b.type==="HOUSE"){
+
+    ctx.fillRect(
+      70,
+      70,
+      140,
+      100
+    );
+
+    ctx.fillRect(
+      390,
+      70,
+      130,
+      70
+    );
+
+  }
+
+  if(b.type==="SHOP"){
+
+    for(let i=0;i<4;i++){
+
+      ctx.fillRect(
+        65,
+        65+i*70,
+        180,
+        38
+      );
+
+    }
+
+    ctx.fillRect(
+      365,
+      75,
+      150,
+      210
+    );
+
+  }
+
+  if(b.type==="OFFICE"){
+
+    for(let i=0;i<3;i++){
+
+      ctx.fillRect(
+        65,
+        70+i*85,
+        210,
+        48
+      );
+
+    }
+
+    ctx.fillRect(
+      365,
+      75,
+      150,
+      90
+    );
+
+  }
+
+
+  /* exit */
+
+  ctx.fillStyle="#0b141f";
+
+  ctx.fillRect(
+    270,
+    400,
+    60,
+    32
+  );
+
+
+  ctx.strokeStyle=
+    "rgba(90,210,255,.5)";
+
+  ctx.strokeRect(
+    265,
+    395,
+    70,
+    42
+  );
+
+
+  /* interior seller */
+
+  const s=sellers.find(
+    x=>
+      x.inside &&
+      x.buildingId===b.id
+  );
+
+  if(s){
+
+    drawSeller(s);
+
+  }
+
+
+  drawPlayer();
+
+
+  ctx.fillStyle=
+    "rgba(255,255,255,.25)";
+
+  ctx.font="11px Arial";
+
+  ctx.textAlign="left";
+
+  ctx.fillText(
+    b.type+" • INTERIOR",
+    35,
+    20
+  );
+
+}
+
+
+/* ==========================================================
+   SELLER
+========================================================== */
+
+function drawSeller(s){
+
+  let color="#ffbd68";
+
+  if(s.type==="experienced")
+    color="#ffc867";
+
+  if(s.type==="veteran")
+    color="#ff9874";
+
+  if(s.bonus)
+    color="#ff6862";
+
+  if(
+    player.disguise>0 &&
+    s.state==="friendly"
+  ){
+
+    color="#6fe0a8";
+
+  }
+
+  if(s.stun>0)
+    color="#d8eaff";
+
+
+  drawCharacter(
+    s,
+    color,
+    s.type==="veteran"?10:9
+  );
+
+
+  if(s.bonus){
+
+    ctx.strokeStyle=
+      "rgba(255,90,90,.55)";
+
+    ctx.lineWidth=2;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      s.x,
+      s.y,
+      18+
+      Math.sin(
+        performance.now()/100
+      )*3,
+      0,
+      TAU
+    );
+
+    ctx.stroke();
+
+  }
+
+
+  if(s.say>0){
+
+    ctx.fillStyle=
+      "rgba(5,12,22,.92)";
+
+    ctx.beginPath();
+
+    ctx.roundRect(
+      s.x-55,
+      s.y-43,
+      110,
+      23,
+      7
+    );
+
+    ctx.fill();
+
+
+    ctx.fillStyle="#fff";
+
+    ctx.font="10px Arial";
+
+    ctx.textAlign="center";
+
+    ctx.fillText(
+      "πληροφορία",
+      s.x,
+      s.y-27
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   CHARACTER
+========================================================== */
+
+function drawCharacter(o,color,r){
+
+  ctx.save();
+
+  ctx.translate(
+    o.x,
+    o.y
+  );
+
+
+  ctx.shadowBlur=12;
+
+  ctx.shadowColor=
+    "rgba(0,0,0,.65)";
+
+
+  ctx.fillStyle=color;
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    r,
+    0,
+    TAU
+  );
+
+  ctx.fill();
+
+
+  ctx.shadowBlur=0;
+
+
+  ctx.fillStyle="#07111d";
+
+  ctx.beginPath();
+
+  ctx.arc(
+    -3,
+    -2,
+    1.4,
+    0,
+    TAU
+  );
+
+  ctx.arc(
+    3,
+    -2,
+    1.4,
+    0,
+    TAU
+  );
+
+  ctx.fill();
+
+
+  ctx.restore();
+
+}
+
+
+/* ==========================================================
+   PLAYER
+========================================================== */
+
+function drawPlayer(){
+
+  ctx.save();
+
+  ctx.translate(
+    player.x,
+    player.y
+  );
+
+
+  const angle=
+    Math.atan2(
+      mouse.y-H/2,
+      mouse.x-W/2
+    );
+
+  ctx.rotate(angle);
+
+
+  ctx.shadowBlur=20;
+
+  ctx.shadowColor=
+    player.disguise>0
+    ?"#70e3aa"
+    :"#55d0ff";
+
+
+  ctx.fillStyle=
+    player.disguise>0
+    ?"#70e3aa"
+    :"#55d0ff";
+
+
+  ctx.beginPath();
+
+  ctx.arc(
+    0,
+    0,
+    player.radius,
+    0,
+    TAU
+  );
+
+  ctx.fill();
+
+
+  ctx.shadowBlur=0;
+
+
+  ctx.fillStyle="#07111d";
+
+  ctx.fillRect(
+    7,
+    -3,
+    12,
+    6
+  );
+
+
+  ctx.restore();
+
+
+  if(player.disguise>0){
+
+    ctx.strokeStyle=
+      "rgba(112,227,170,.7)";
+
+    ctx.lineWidth=3;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      player.x,
+      player.y,
+      25+
+      Math.sin(
+        performance.now()/120
+      )*3,
+      0,
+      TAU
+    );
+
+    ctx.stroke();
+
+  }
+
+}
+
+
+/* ==========================================================
+   PARTICLES
+========================================================== */
+
+function burst(x,y,color,amount){
+
+  for(let i=0;i<amount;i++){
+
+    const a=rand(0,TAU);
+    const speed=rand(50,180);
+
+    particles.push({
+
+      x,
+      y,
+
+      vx:
+        Math.cos(a)*speed,
+
+      vy:
+        Math.sin(a)*speed,
+
+      life:rand(.25,.7),
+      max:.7,
+
+      color
+
+    });
+
+  }
+
+}
+
+
+function drawParticles(){
+
+  for(const p of particles){
+
+    ctx.globalAlpha=
+      Math.max(
+        0,
+        p.life/p.max
+      );
+
+    ctx.fillStyle=p.color;
+
+    ctx.beginPath();
+
+    ctx.arc(
+      p.x,
+      p.y,
+      3,
+      0,
+      TAU
+    );
+
+    ctx.fill();
+
+  }
+
+  ctx.globalAlpha=1;
+
+}
+
+
+/* ==========================================================
+   OVERLAY
+========================================================== */
+
+function drawHUDOverlay(){
+
+  if(
+    player.invincible>0 &&
+    Math.floor(
+      performance.now()/80
+    )%2===0
+  ){
+
+    ctx.fillStyle=
+      "rgba(255,80,80,.06)";
+
+    ctx.fillRect(
+      0,
+      0,
+      W,
+      H
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   MINIMAP
+========================================================== */
+
+function drawMinimap(){
+
+  const mw=210;
+  const mh=150;
+
+  mctx.clearRect(
+    0,
+    0,
+    mw,
+    mh
+  );
+
+
+  mctx.fillStyle="#071321";
+
+  mctx.fillRect(
+    0,
+    0,
+    mw,
+    mh
+  );
+
+
+  if(player.indoors){
+
+    mctx.fillStyle="#1b2a39";
+
+    mctx.fillRect(
+      15,
+      15,
+      180,
+      120
+    );
+
+    mctx.fillStyle="#54d0ff";
+
+    mctx.beginPath();
+
+    mctx.arc(
+      105+
+      (player.x-300)*.25,
+      75+
+      (player.y-230)*.25,
+      4,
+      0,
+      TAU
+    );
+
+    mctx.fill();
+
+    return;
+
+  }
+
+
+  const sx=mw/WORLD.width;
+  const sy=mh/WORLD.height;
+
+
+  mctx.fillStyle="#26394c";
+
+  for(const b of buildings){
+
+    mctx.fillRect(
+      b.x*sx,
+      b.y*sy,
+      b.w*sx,
+      b.h*sy
+    );
+
+  }
+
+
+  for(const s of sellers){
+
+    if(s.inside)continue;
+
+    if(s.stun>0)continue;
+
+    mctx.fillStyle=
+      s.bonus
+      ?"#ff5e5e"
+      :player.disguise>0
+      ?"#65dda5"
+      :"#ffbd68";
+
+    mctx.beginPath();
+
+    mctx.arc(
+      s.x*sx,
+      s.y*sy,
+      2.5,
+      0,
+      TAU
+    );
+
+    mctx.fill();
+
+  }
+
+
+  mctx.fillStyle="#55d0ff";
+
+  mctx.beginPath();
+
+  mctx.arc(
+    player.x*sx,
+    player.y*sy,
+    4,
+    0,
+    TAU
+  );
+
+  mctx.fill();
+
+}
+
+
+/* ==========================================================
+   HUD
+========================================================== */
+
+function updateHUD(){
+
+  document.getElementById("level")
+    .textContent=player.level;
+
+  document.getElementById("hp")
+    .textContent=
+      Math.ceil(player.hp)+
+      " / "+
+      player.maxHp;
+
+  document.getElementById("hpBar")
+    .style.width=
+      player.hp/player.maxHp*100+"%";
+
+  document.getElementById("stamina")
+    .textContent=
+      Math.floor(player.stamina);
+
+  document.getElementById("staBar")
+    .style.width=
+      player.stamina+"%";
+
+  const needed=
+    player.level*100;
+
+  document.getElementById("xp")
+    .textContent=
+      Math.floor(player.xp)+
+      " / "+
+      needed;
+
+  document.getElementById("xpBar")
+    .style.width=
+      player.xp/needed*100+"%";
+
+  document.getElementById("combo")
+    .textContent=
+      player.combo;
+
+  document.getElementById("cash")
+    .textContent=
+      "€"+player.cash;
+
+  document.getElementById("heat")
+    .textContent=
+      Math.floor(player.heat)+"%";
+
+  document.getElementById("heatBar")
+    .style.width=
+      player.heat+"%";
+
+
+  let bonus="";
+
+  if(player.disguise>0){
+
+    bonus=
+      "🥸 DISGUISE "+
+      Math.ceil(player.disguise)+
+      "s";
+
+  }
+  else if(
+    sellers.some(s=>s.bonus)
+  ){
+
+    bonus=
+      "🚨 SELLER MOB";
+
+  }
+
+  document.getElementById("bonus")
+    .textContent=bonus;
+
+
+  document.getElementById("missionTitle")
+    .textContent=mission.title;
+
+  document.getElementById("missionText")
+    .textContent=mission.text;
+
+  document.getElementById("missionBar")
+    .style.width=
+      Math.min(
+        100,
+        mission.progress/
+        mission.target*100
+      )+"%";
+
+}
+
+
+/* ==========================================================
+   TOAST / CENTER
+========================================================== */
+
+let toastTimeout;
+let centerTimeout;
+
+function showToast(text){
+
+  const el=
+    document.getElementById("toast");
+
+  el.textContent=text;
+
+  el.style.opacity=1;
+
+  clearTimeout(
+    toastTimeout
+  );
+
+  toastTimeout=
+    setTimeout(()=>{
+      el.style.opacity=0;
+    },2200);
+
+}
+
+
+function showCenter(title,text,time){
+
+  document.getElementById(
+    "centerTitle"
+  ).textContent=title;
+
+  document.getElementById(
+    "centerText"
+  ).textContent=text;
+
+  const el=
+    document.getElementById("center");
+
+  el.style.opacity=1;
+
+  clearTimeout(centerTimeout);
+
+  centerTimeout=
+    setTimeout(()=>{
+      el.style.opacity=0;
+    },time);
+
+}
+
+
+/* ==========================================================
+   SAVE / LOAD
+========================================================== */
+
+const SAVE_KEY="D2D_HUNTER_V03";
+
+
+function saveGame(){
+
+  const data={
+
+    player:{
+      ...player,
+      sellerHits:[
+        ...player.sellerHits
+      ]
+    },
+
+    buildings,
+    sellers,
+    civilians,
+
+    mission
+
+  };
+
+
+  localStorage.setItem(
+    SAVE_KEY,
+    JSON.stringify(data)
+  );
+
+
+  showToast(
+    "GAME SAVED ✓"
+  );
+
+}
+
+
+function loadGame(){
+
+  const raw=
+    localStorage.getItem(
+      SAVE_KEY
+    );
+
+  if(!raw){
+
+    showToast(
+      "Δεν υπάρχει save."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const data=
+      JSON.parse(raw);
+
+    player=data.player;
+
+    player.sellerHits=
+      new Set(
+        data.player.sellerHits||[]
+      );
+
+    buildings=data.buildings;
+    sellers=data.sellers;
+    civilians=data.civilians;
+    mission=data.mission;
+
+    player.indoors=false;
+    player.buildingId=null;
+    currentInterior=null;
+
+    particles=[];
+
+    document.getElementById(
+      "location"
+    ).textContent="STREET";
+
+    showToast(
+      "GAME LOADED ✓"
+    );
+
+  }
+  catch(e){
+
+    console.error(e);
+
+    showToast(
+      "Το save είναι κατεστραμμένο."
+    );
+
+  }
+
+}
+
+
+/* ==========================================================
+   NEW RUN
+========================================================== */
+
+function newGame(){
+
+  generateWorld();
+
+  createPlayer();
+
+  newMission();
+
+  currentInterior=null;
+
+  document.getElementById(
+    "location"
+  ).textContent=
+    "STREET";
+
+  showToast(
+    "NEW RUN • Νέα πόλη • Νέα AI"
+  );
+
+}
+
+
+/* ==========================================================
+   GAME LOOP
+========================================================== */
+
+let last=performance.now();
+
+function loop(now){
+
+  const dt=
+    Math.min(
+      .033,
+      (now-last)/1000
+    );
+
+  last=now;
+
+  update(dt);
+
+  draw();
+
+  requestAnimationFrame(loop);
+
+}
+
+
+newGame();
+
+requestAnimationFrame(loop);
+
+</script>
+
+</body>
+</html>
+```
