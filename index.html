@@ -1,2501 +1,1521 @@
-```html
-<!DOCTYPE html>
-<html lang="el">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>HORECA 1942 — Sales Attack</title>
+<title>D2D Hunter — v0.3</title>
 
 <style>
-*{box-sizing:border-box;user-select:none}
+
+*{
+  box-sizing:border-box;
+  user-select:none;
+}
+
 html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#020611;
-    font-family:Arial,sans-serif;
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#07101b;
+  color:#eef6ff;
+  font-family:Arial,Helvetica,sans-serif;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
+
 canvas{
-    display:block;
-    width:100%;
-    height:100%;
-    cursor:crosshair;
+  display:block;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
-/* HUD */
+#game{
+  position:fixed;
+  inset:0;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
 #hud{
-    position:fixed;
-    top:9px;
-    left:9px;
-    right:9px;
-    display:flex;
-    justify-content:space-between;
-    z-index:20;
-    pointer-events:none;
+  position:fixed;
+  left:16px;
+  top:16px;
+  width:300px;
+  z-index:10;
 }
+
 .panel{
-    background:rgba(0,0,0,.16);
-    border:1px solid rgba(255,255,255,.07);
-    border-radius:10px;
-    padding:6px 10px;
-    color:#fff;
-    font-size:12px;
-    line-height:1.5;
-    text-shadow:0 2px 5px #000;
-    backdrop-filter:blur(2px);
-}
-.panel b{color:#65ddff}
-
-/* COMBO */
-#combo{
-    position:fixed;
-    right:10px;
-    top:93px;
-    z-index:19;
-    padding:3px 7px;
-    border-radius:7px;
-    color:rgba(255,255,255,.42);
-    background:rgba(0,0,0,.03);
-    border:1px solid rgba(255,255,255,.025);
-    font-size:9px;
-    text-shadow:0 2px 4px #000;
-    pointer-events:none;
-}
-#combo strong{
-    font-size:15px;
-    color:rgba(255,210,70,.7);
+  background:rgba(5,13,24,.88);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:15px;
+  padding:13px;
+  box-shadow:0 15px 45px rgba(0,0,0,.4);
+  backdrop-filter:blur(10px);
 }
 
-/* WAVE */
+.logo{
+  font-size:19px;
+  font-weight:900;
+  letter-spacing:2px;
+
+
+
+
+
+
+}
+
+.sub{
+  color:#7389a5;
+  font-size:10px;
+  margin-top:2px;
+
+
+
+
+}
+
+.row{
+  display:flex;
+  justify-content:space-between;
+  margin-top:8px;
+  font-size:12px;
+
+
+
+
+}
+
+.bar{
+  height:6px;
+  margin-top:5px;
+  background:#17263a;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0;
+}
+
+.hp{background:#5be4a3}
+.sta{background:#54c9ff}
+.xp{background:#bd85ff}
+.heat{background:#ff756e}
+
+
+
+
+#bonus{
+  margin-top:9px;
+  color:#71e5ad;
+  font-weight:900;
+}
+
+#mission{
+  position:fixed;
+  top:16px;
+  left:50%;
+  transform:translateX(-50%);
+  width:370px;
+  z-index:10;
+  text-align:center;
+
+
+
+}
+
+#missionTitle{
+  font-weight:900;
+
+
+
+}
+
+#missionText{
+  margin-top:4px;
+  font-size:12px;
+  color:#aebed2;
+}
+
+#buttons{
+  position:fixed;
+  right:16px;
+  top:16px;
+  z-index:20;
+  display:flex;
+  gap:6px;
+}
+
+button{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(7,18,32,.9);
+  color:white;
+  padding:9px 12px;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:800;
+
+
+
+
+
+
+
+}
+
+button:hover{
+  background:#18304a;
+}
+
+#minimap{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  width:210px;
+  height:150px;
+  background:#07111d;
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:14px;
+  z-index:10;
+}
+
+#location{
+  position:fixed;
+  bottom:16px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:10;
+  background:rgba(5,13,24,.85);
+  border:1px solid rgba(255,255,255,.1);
+  padding:9px 15px;
+  border-radius:12px;
+  font-size:12px;
+  color:#b9c9db;
+}
+
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:70px;
+  transform:translateX(-50%);
+  background:rgba(5,13,24,.96);
+  border:1px solid rgba(255,255,255,.13);
+  padding:11px 17px;
+  border-radius:12px;
+  z-index:30;
+  opacity:0;
+  transition:.2s;
+  pointer-events:none;
+  font-weight:700;
+}
+
 #center{
-    position:fixed;
-    top:10px;
-    left:50%;
-    transform:translateX(-50%);
-    text-align:center;
-    z-index:18;
-    pointer-events:none;
-    color:white;
-    text-shadow:0 3px 7px #000;
-}
-#wave{font-size:17px;font-weight:900}
-#sub{font-size:10px;opacity:.7}
-
-/* BOSS */
-#bossWrap{
-    display:none;
-    position:fixed;
-    top:88px;
-    left:50%;
-    transform:translateX(-50%);
-    width:min(720px,75vw);
-    z-index:30;
-}
-#bossName{
-    color:#ff5e5e;
-    text-align:center;
-    font-size:14px;
-    font-weight:900;
-    margin-bottom:5px;
-    text-shadow:0 3px 6px #000;
-}
-#bossBar{
-    height:18px;
-    background:rgba(0,0,0,.65);
-    border:1px solid rgba(255,255,255,.25);
-    border-radius:20px;
-    overflow:hidden;
-}
-#bossFill{
-    height:100%;
-    width:100%;
-    background:linear-gradient(90deg,#ff2626,#ffb52d);
+  position:fixed;
+  left:50%;
+  top:43%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:50;
+  pointer-events:none;
+  opacity:0;
+  transition:.2s;
 }
 
-/* MESSAGE */
-#message{
-    position:fixed;
-    left:50%;
-    bottom:70px;
-    transform:translate(-50%,12px) scale(.94);
-    max-width:90vw;
-    padding:9px 18px;
-    border-radius:15px;
-    background:rgba(0,0,0,.78);
-    border:1px solid rgba(255,255,255,.24);
-    color:#fff;
-    font-size:20px;
-    font-weight:900;
-    text-align:center;
-    text-shadow:0 3px 6px #000;
-    opacity:0;
-    pointer-events:none;
-    transition:.12s;
-    z-index:50;
+#center h1{
+  margin:0;
+  font-size:43px;
+  text-shadow:0 10px 35px black;
 }
-#message.show{
-    opacity:1;
-    transform:translate(-50%,0) scale(1);
+
+#center p{
+  color:#b7c7da;
 }
 
 #help{
-    position:fixed;
-    bottom:8px;
-    left:50%;
-    transform:translateX(-50%);
-    z-index:20;
-    color:rgba(255,255,255,.4);
-    font-size:10px;
-    pointer-events:none;
-    text-shadow:0 2px 4px #000;
+  position:fixed;
+  left:16px;
+  bottom:16px;
+  z-index:10;
+  font-size:10px;
+  color:#6e849f;
 }
 
-/* SCREENS */
-.screen{
-    position:fixed;
-    inset:0;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:100;
-    background:radial-gradient(circle,#10294a,#01030a 75%);
-    color:white;
-    text-align:center;
+@media(max-width:800px){
+  #mission{display:none}
+  #hud{width:235px}
+  #help{display:none}
+
 }
-.card{
-    width:min(760px,92vw);
-    padding:30px;
-    border-radius:22px;
-    background:rgba(4,10,22,.78);
-    border:1px solid rgba(255,255,255,.13);
-    box-shadow:0 20px 90px #000;
-}
-h1{
-    margin:0;
-    font-size:clamp(38px,8vw,70px);
-    letter-spacing:3px;
-}
-h2{margin:4px 0 15px}
-.muted{opacity:.7;line-height:1.55}
-button{
-    margin-top:18px;
-    padding:13px 32px;
-    border:0;
-    border-radius:30px;
-    background:linear-gradient(135deg,#16c9ff,#5655ff);
-    color:white;
-    font-size:16px;
-    font-weight:900;
-    cursor:pointer;
-}
-.row{
-    display:flex;
-    justify-content:space-between;
-    padding:8px;
-    border-bottom:1px solid rgba(255,255,255,.08);
-}
-.green{color:#65f3a0}
-.hidden{display:none!important}
+
 </style>
 </head>
 
 <body>
 
 <canvas id="game"></canvas>
+<canvas id="minimap"></canvas>
 
-<div id="hud">
-
-    <div class="panel">
-        ✈️ <b>ΠΩΛΗΤΗΣ</b><br>
-        DMG: <span id="damage">12.0</span>
-        • Power Apps: <span id="power">0</span>
-        <br>
-        Internet: <span id="internet">100</span>%
-        • Ζωές: <span id="lives">❤️❤️❤️</span>
-    </div>
 
-    <div class="panel" style="text-align:right">
-        💰 Sales: <span id="score">0</span><br>
-        💥 Kills: <b id="kills">0</b> / 50<br>
-        🚀 Όπλο: <span id="weapon">Standard</span>
-    </div>
 
-</div>
 
-<div id="combo">
-    COMBO <strong id="comboValue">x1</strong>
-</div>
 
-<div id="center">
-    <div id="wave">ΠΡΟΕΤΟΙΜΑΣΙΑ...</div>
-    <div id="sub"></div>
-</div>
 
-<div id="bossWrap">
-    <div id="bossName">
-        👹 FINAL CLIENT — MAXIMUM RESISTANCE
-    </div>
-    <div id="bossBar">
-        <div id="bossFill"></div>
-    </div>
-</div>
 
-<div id="message"></div>
 
-<div id="help">
-    🖱️ Κούνα το mouse / touch • Αυτόματο πυρ • Μάζεψε ⚡ POWER APPS
-</div>
 
-<!-- START -->
-<div id="startScreen" class="screen">
 
-<div class="card">
 
-    <h1>HORECA 1942</h1>
-    <h2>SALES ATTACK</h2>
 
-    <p class="muted">
-        Εσύ είσαι ο πωλητής.<br>
-        Οι αντίπαλοι είναι πελάτες.<br>
-        Το όπλο σου είναι το sales pitch.
-    </p>
 
-    <p>
-        ⚡ Power Apps → ισχυρότερο όπλο<br>
-        🔥 5 Apps → τετραπλό πυρ<br>
-        🚀 10 Apps → τηλεκατευθυνόμενη ρουκέτα<br>
-        ❤️ 3 ζωές + 2″ προστασία στο respawn<br>
-        👹 50 kills → Τελικός Πελάτης
-    </p>
 
-    <button onclick="startGame()">
-        ΞΕΚΙΝΑ ΤΗΝ ΠΩΛΗΣΗ
-    </button>
 
-</div>
-</div>
 
-<!-- GAME OVER -->
-<div id="gameOver" class="screen hidden">
 
-<div class="card">
 
-    <h1>💥 GAME OVER</h1>
 
-    <h2>Ο πελάτης άντεξε.</h2>
 
-    <div class="row">
-        <span>💥 Kills</span>
-        <b id="finalKills">0</b>
-    </div>
 
-    <div class="row">
-        <span>💰 Sales</span>
-        <b id="finalScore">0</b>
-    </div>
 
-    <div class="row">
-        <span>⚡ Power Apps</span>
-        <b id="finalPower">0</b>
-    </div>
 
-    <button onclick="location.reload()">
-        ΞΑΝΑΠΡΟΣΠΑΘΗΣΕ
-    </button>
 
-</div>
-</div>
 
-<!-- WIN -->
-<div id="winScreen" class="screen hidden">
 
-<div class="card">
 
-    <h1>🎉 ΕΚΛΕΙΣΕ!</h1>
 
-    <h2 class="green">
-        ΤΕΛΙΚΑ ΕΓΙΝΕ ΠΕΛΑΤΗΣ!
-    </h2>
 
-    <p class="muted">
-        Από το «δεν ενδιαφέρομαι»<br>
-        στο «στείλε μου τη σύμβαση».
-    </p>
 
-    <div class="row">
-        <span>💥 Kills</span>
-        <b id="winKills">0</b>
-    </div>
 
-    <div class="row">
-        <span>⚡ Power Apps</span>
-        <b id="winPower">0</b>
-    </div>
 
-    <button onclick="location.reload()">
-        ΝΕΑ ΠΩΛΗΣΗ
-    </button>
 
-</div>
-</div>
 
 
-<script>
 
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
 
-let W,H;
 
-function resize(){
-    W=canvas.width=innerWidth;
-    H=canvas.height=innerHeight;
-}
-resize();
-addEventListener("resize",resize);
 
 
-/* =====================================================
-   INPUT
-===================================================== */
 
-const mouse={
-    x:innerWidth/2,
-    y:innerHeight-110
-};
 
-canvas.addEventListener("mousemove",e=>{
-    mouse.x=e.clientX;
-    mouse.y=e.clientY;
-});
 
-canvas.addEventListener("touchmove",e=>{
-    const t=e.touches[0];
-    mouse.x=t.clientX;
-    mouse.y=t.clientY;
-},{passive:true});
 
 
-/* =====================================================
-   GAME
-===================================================== */
 
-let running=false;
-let lastTime=0;
 
-let player;
-
-let enemies=[];
-let bullets=[];
-let enemyBullets=[];
-let particles=[];
-let powerApps=[];
-let stations=[];
-let texts=[];
 
-let score=0;
-let kills=0;
 
-let damage=12;
-let power=0;
 
-let internet=100;
-let lives=3;
-
-let combo=1;
-let comboKills=0;
-
-let currentWave=0;
-
-let boss=null;
-let bossActive=false;
-
-let fireTimer=0;
-let rocketTimer=0;
-
-let respawnInvincible=0;
-let screenShake=0;
-
-
-/* =====================================================
-   COMPANIES
-===================================================== */
-
-const companies=[
-    "VODAFONE",
-    "OTE",
-    "NOVA",
-    "INALAN",
-    "HCN"
-];
-
-
-/* =====================================================
-   WAVE DATA
-===================================================== */
-
-const waves=[
-
-{
-    title:"ΗΛΙΚΙΩΜΕΝΟΙ ΕΥΚΟΛΟΠΙΣΤΟΙ ΠΕΛΑΤΕΣ",
-    sub:"«Δεν ξέρω τι είναι αυτό παιδί μου...»",
-    hp:25,
-    speed:.42,
-    count:12
-},
-
-{
-    title:"ΕΥΓΕΝΙΚΟΙ ΠΕΛΑΤΕΣ",
-    sub:"«Ευχαριστώ πολύ, θα το σκεφτώ...»",
-    hp:35,
-    speed:.48,
-    count:14
-},
-
-{
-    title:"ΗΡΕΜΟΙ ΠΕΛΑΤΕΣ",
-    sub:"«Έχω καλή ταχύτητα, δεν μου χρειάζεται.»",
-    hp:48,
-    speed:.54,
-    count:15
-},
-
-{
-    title:"ΔΥΣΚΟΛΟΙ ΠΕΛΑΤΕΣ",
-    sub:"«Όλοι τα ίδια λέτε!»",
-    hp:62,
-    speed:.59,
-    count:17
-},
-
-{
-    title:"ADVANCED ΠΕΛΑΤΕΣ — AI",
-    sub:"«Ξέρω ακριβώς τι πας να κάνεις.»",
-    hp:80,
-    speed:.63,
-    count:13,
-    ai:true
-},
-
-{
-    title:"ΤΕΛΕΥΤΑΙΑ ΓΡΑΜΜΗ — AI",
-    sub:"«ΔΕΝ ΑΓΟΡΑΖΩ ΤΙΠΟΤΑ!»",
-    hp:95,
-    speed:.67,
-    count:13,
-    ai:true
-}
-];
-
-
-/* =====================================================
-   QUOTES
-===================================================== */
-
-const quoteSets=[
-
-[
-"Δεν ξέρω τι είναι αυτό παιδί μου.",
-"Ο γιος μου ασχολείται με αυτά.",
-"Είμαι μεγάλος, ποιο ίντερνετ;",
-"Να ρωτήσω τον γιο μου πρώτα.",
-"Εγώ μόνο ειδήσεις και καφέ θέλω.",
-"Τι να την κάνω τόση ταχύτητα;",
-"Πού είναι το κουμπί του Wi-Fi;",
-"Μη μου μιλάς τόσο γρήγορα παιδί μου!",
-"Εγώ έχω ακόμα το παλιό τηλέφωνο."
-],
-
-[
-"Ευχαριστώ πολύ, αλλά θα το σκεφτώ.",
-"Πολύ ωραία προσφορά… θα σας καλέσω εγώ.",
-"Να το συζητήσω με τον συνέταιρο.",
-"Στείλε μου μια προσφορά και βλέπουμε.",
-"Πολύ ενδιαφέρον… κάπου εδώ θα σταματήσω να ενδιαφέρομαι.",
-"Θα κρατήσω το τηλέφωνό σας.",
-"Μπορούμε να το ξαναπούμε σε κάνα μήνα;"
-],
-
-[
-"Έχω καλή ταχύτητα, δεν μου χρειάζεται.",
-"Γιατί να αλλάξω αφού δουλεύει;",
-"Τι παραπάνω θα μου δώσεις;",
-"Έχω συμβόλαιο ακόμα.",
-"Το internet μου μια χαρά είναι.",
-"Αν δεν χαλάσει, μην το φτιάχνεις.",
-"Δεν καίγομαι κιόλας.",
-"Δεν βλέπω κάποιο σοβαρό λόγο."
-],
-
-[
-"Όλοι τα ίδια λέτε!",
-"Άσε μας ρε φίλε, δουλεύουμε εδώ!",
-"Πάλι πώληση; Δεν βαρεθήκατε;",
-"Δεν θα πληρώνω άλλα πάγια.",
-"Φύγε πριν σου κάνω review με τρία κεφαλαία!",
-"Μου έχεις κάνει το κεφάλι καζάνι!",
-"Δε θέλω, τελεία και παύλα.",
-"Πόσες φορές πρέπει να πω ΟΧΙ;",
-"Έχω δουλειά, όχι χρόνο για PowerPoint!",
-"Το budget μου έχει φύγει διακοπές."
-],
-
-[
-"ΔΕ ΘΕΛΩ, ΕΙΜΑΙ ΣΤΗ VODAFONE!",
-"Έχω καλή ταχύτητα, τι δεν καταλαβαίνεις;",
-"Μη μου πουλάς πράγματα που δεν ζήτησα.",
-"Το συμβόλαιό μου λήγει το 2029.",
-"Ξέρω τις τιμές καλύτερα από σένα.",
-"Θα το ψάξω μόνος μου.",
-"Θα μου κάνεις καλύτερη τιμή;",
-"Έχω ήδη κάνει έρευνα αγοράς.",
-"Δεν ψαρώνω με το Gbps.",
-"Πρώτα πες μου το πάγιο και μετά μιλάμε."
-],
-
-[
-"ΑΛΗΤΕΣ, ΜΑΣ ΤΑ ΕΧΕΤΕ ΦΑΕΙ ΤΑ ΛΕΦΤΑ ΜΕ ΤΟ ΡΕΥΜΑ!",
-"ΔΕΝ ΑΓΟΡΑΖΩ!",
-"ΦΥΓΕ ΑΠΟ ΕΔΩ!",
-"Έχω internet, κινητό, TV και χρέη!",
-"ΤΙ ΑΛΛΟ ΘΕΛΕΤΕ ΝΑ ΠΛΗΡΩΣΩ;",
-"ΘΑ ΠΑΡΩ ΤΗΛΕΦΩΝΟ ΤΗΝ ΕΞΥΠΗΡΕΤΗΣΗ!",
-"ΔΕΝ ΜΕ ΕΝΔΙΑΦΕΡΕΙ ΟΥΤΕ ΑΝ ΠΕΤΑΕΙ!",
-"Μου λες 1 Gbps και εγώ βλέπω ακόμα 720p!",
-"Το Wi-Fi μου δουλεύει καλύτερα από την υπομονή μου.",
-"ΜΗ ΜΟΥ ΠΕΙΣ ΑΛΛΟ UPSELL!",
-"Θέλω internet, όχι γάμο για 24 μήνες!"
-]
-
-];
-
-
-/* =====================================================
-   BOSS QUOTES
-===================================================== */
-
-const bossQuotes=[
-"ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
-"ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ!",
-"ΔΕΝ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ!",
-"ΦΥΓΕ ΑΠΟ ΕΔΩ!",
-"ΔΕΝ ΑΓΟΡΑΖΩ!",
-"ΔΕΝ ΘΑ ΜΕ ΨΗΣΕΙΣ!",
-"ΤΙΜΗ; ΟΥΤΕ ΝΑ ΤΗΝ ΑΚΟΥΣΩ!",
-"ΔΕ ΘΕΛΩ, ΕΙΜΑΙ ΣΤΗ VODAFONE!",
-"ΑΛΗΤΕΣ, ΜΑΣ ΤΑ ΕΧΕΤΕ ΦΑΕΙ ΤΑ ΛΕΦΤΑ ΜΕ ΤΟ ΡΕΥΜΑ!",
-"ΘΑ ΠΑΡΩ ΤΟΝ ΠΡΟΪΣΤΑΜΕΝΟ ΣΟΥ!",
-"ΜΗ ΜΟΥ ΞΑΝΑΠΕΙΣ ΠΡΟΣΦΟΡΑ!",
-"ΕΧΩ ΜΙΛΗΣΕΙ ΜΕ ΤΡΕΙΣ ΠΩΛΗΤΕΣ ΣΗΜΕΡΑ!",
-"ΔΕΝ ΕΧΩ ΧΡΟΝΟ ΓΙΑ ΠΩΛΗΣΕΙΣ!",
-"ΕΓΩ ΔΕΝ ΘΑ ΓΙΝΩ ΠΕΛΑΤΗΣ ΣΟΥ!",
-"ΤΟ OFFER ΣΟΥ ΕΙΝΑΙ ΠΙΟ ΑΡΓΟ ΑΠΟ INTERNET ΤΟΥ 2005!"
-];
-
-
-/* =====================================================
-   HELPERS
-===================================================== */
-
-function rand(a,b){
-    return Math.random()*(b-a)+a;
-}
-
-function pick(a){
-    return a[Math.floor(Math.random()*a.length)];
-}
-
-function clamp(v,a,b){
-    return Math.max(a,Math.min(b,v));
-}
-
-function distance(a,b){
-    return Math.hypot(a.x-b.x,a.y-b.y);
-}
-
-
-/* =====================================================
-   MESSAGE
-===================================================== */
 
-let messageTimeout;
 
-function say(text,big=false){
 
-    const el=document.getElementById("message");
 
-    el.textContent=text;
-    el.classList.add("show");
 
-    clearTimeout(messageTimeout);
 
-    messageTimeout=setTimeout(()=>{
-        el.classList.remove("show");
-    },big?2400:1300);
 
-}
 
 
-/* =====================================================
-   PLAYER
-===================================================== */
 
-function createPlayer(){
 
-    return {
-        x:W/2,
-        y:H-110
-    };
 
-}
 
 
-/* =====================================================
-   START
-===================================================== */
 
-function startGame(){
 
-    document.getElementById("startScreen")
-        .classList.add("hidden");
 
-    player=createPlayer();
 
-    running=true;
 
-    score=0;
-    kills=0;
-    damage=12;
-    power=0;
-    internet=100;
-    lives=3;
-    combo=1;
-    comboKills=0;
 
-    currentWave=0;
 
-    enemies=[];
-    bullets=[];
-    enemyBullets=[];
-    particles=[];
-    powerApps=[];
-    stations=[];
-    texts=[];
 
-    boss=null;
-    bossActive=false;
 
-    spawnWave();
 
-    lastTime=performance.now();
 
-    requestAnimationFrame(loop);
 
-}
 
 
-/* =====================================================
-   SPAWN WAVE
-===================================================== */
 
-function spawnWave(){
 
-    const w=waves[currentWave];
 
-    enemies=[];
 
-    for(let i=0;i<w.count;i++){
 
-        enemies.push(createEnemy(w));
 
-    }
 
-    document.getElementById("wave").textContent=
-        "WAVE "+(currentWave+1)+" — "+w.title;
 
-    document.getElementById("sub").textContent=w.sub;
 
-    say(w.title,true);
 
-}
 
 
-/* =====================================================
-   ENEMY
-===================================================== */
 
-function createEnemy(w){
 
-    return {
 
-        x:rand(35,W-35),
-        y:-rand(40,350),
 
-        w:rand(30,48),
-        h:rand(30,55),
 
-        hp:w.hp*rand(.85,1.15),
-        maxHp:w.hp,
 
-        speed:w.speed*rand(.85,1.12),
 
-        company:pick(companies),
 
-        shape:Math.floor(rand(0,5)),
 
-        quoteTimer:rand(1.5,4),
 
-        shootTimer:rand(3,7),
 
-        phase:rand(0,6),
 
-        ai:!!w.ai && Math.random()<.35,
 
-        vx:rand(-.5,.5),
 
-        dead:false
 
-    };
 
-}
 
 
-/* =====================================================
-   FIRE
-===================================================== */
 
-function fire(){
 
-    if(!player)return;
 
-    /*
-       ΑΠΛΟ ΠΥΡΟΒΟΛΟ ΟΠΩΣ ΠΡΙΝ.
-       Τα Power Apps αυξάνουν το damage.
-    */
 
-    bullets.push({
 
-        x:player.x,
-        y:player.y-32,
 
-        vx:0,
-        vy:-10,
 
-        damage:damage,
 
-        life:2
 
-    });
 
-}
 
 
-/* =====================================================
-   WEAPON LEVEL
-===================================================== */
 
-function weaponName(){
 
-    if(power>=10) return "ROCKET + POWER";
-    if(power>=7) return "HEAVY LASER";
-    if(power>=5) return "4-BEAM";
-    if(power>=3) return "DOUBLE POWER";
-    if(power>=1) return "POWER SHOT";
 
-    return "Standard";
-}
 
 
-/* =====================================================
-   POWER APP
-===================================================== */
 
-function spawnPower(){
 
-    powerApps.push({
 
-        x:rand(30,W-30),
-        y:-30,
 
-        vy:1.25,
 
-        rotation:0,
 
-        life:9
 
-    });
 
-}
 
 
-function collectPower(){
 
-    power++;
 
-    /*
-       Σταδιακή αύξηση damage
-    */
 
-    if(power<=2)
-        damage+=3;
 
-    else if(power<=4)
-        damage+=3.5;
 
-    else if(power<=9)
-        damage+=4.5;
 
-    else
-        damage+=6;
 
-    score+=250;
 
-    if(power===1)
-        say("⚡ POWER APP! Το sales pitch πήρε boost!");
 
-    else if(power===3)
-        say("⚡ POWER LEVEL 3! Τώρα αρχίζει να πονάει!");
 
-    else if(power===5)
-        say("🔥 5 POWER APPS! ΤΕΤΡΑΠΛΟ ΠΥΡ! Ο πελάτης ζήτησε δικηγόρο!");
 
-    else if(power===7)
-        say("🔥 HEAVY LASER! Το upsell έγινε επικίνδυνο!");
 
-    else if(power===10)
-        say("🚀 10 POWER APPS! ΤΗΛΕΚΑΤΕΥΘΥΝΟΜΕΝΗ ΡΟΥΚΕΤΑ ONLINE!");
 
-    updateHUD();
 
-}
 
 
-/* =====================================================
-   ROCKET
-===================================================== */
 
-function fireRocket(){
 
-    if(power<10)return;
-    if(rocketTimer>0)return;
 
-    rocketTimer=3.5;
 
-    let target=null;
-    let best=Infinity;
 
-    for(const e of enemies){
 
-        if(e.dead)continue;
 
-        const d=distance(player,e);
 
-        if(d<best){
 
-            best=d;
-            target=e;
 
-        }
 
-    }
 
-    if(bossActive && boss){
 
-        const d=distance(player,boss);
 
-        if(d<best)
-            target=boss;
 
-    }
 
-    bullets.push({
 
-        rocket:true,
 
-        x:player.x,
-        y:player.y-30,
 
-        vx:0,
-        vy:-4,
 
-        damage:damage*5,
 
-        target:target,
 
-        life:7
 
-    });
 
-}
 
 
-/* =====================================================
-   KILL
-===================================================== */
 
-function killEnemy(e){
 
-    e.dead=true;
 
-    kills++;
 
-    comboKills++;
 
-    if(comboKills%5===0)
-        combo++;
 
-    score+=100*combo;
 
-    explode(e.x,e.y,16);
 
-    /*
-       Power Apps εμφανίζονται αρκετά συχνά,
-       αλλά όχι υπερβολικά.
-    */
 
-    if(Math.random()<.18)
-        spawnPower();
 
-    if(kills===10)
-        say("💥 10 KILLS! Το CRM δεν έχει ξαναδεί τέτοιο pipeline.");
 
-    if(kills===20)
-        say("💥 20 KILLS! Ο επόμενος πελάτης ζητάει δικηγόρο.");
 
-    if(kills===30)
-        say("💥 30 KILLS! Η ομάδα πωλήσεων σε κοιτάει με δέος.");
 
-    if(kills===40)
-        say("💥 40 KILLS! Ο BOSS άκουσε ότι έρχεσαι.");
 
-    if(kills>=50 && !bossActive)
-        spawnBoss();
 
-}
 
 
-/* =====================================================
-   BOSS
-===================================================== */
 
-function spawnBoss(){
 
-    bossActive=true;
 
-    enemies=[];
 
-    /*
-       ΠΟΛΥ ΠΕΡΙΣΣΟΤΕΡΟ HP.
-       7500 HP ώστε να είναι κανονικό boss fight.
-    */
 
-    boss={
 
-        x:W/2,
-        y:145,
 
-        w:130,
-        h:110,
 
-        hp:7500,
-        maxHp:7500,
 
-        vx:1.35,
 
-        phase:0,
 
-        quoteTimer:1.2,
-        fireTimer:1.8
 
-    };
 
-    document.getElementById("bossWrap")
-        .style.display="block";
 
-    document.getElementById("bossFill")
-        .style.width="100%";
 
-    document.getElementById("wave").textContent=
-        "👹 FINAL BOSS — ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ";
 
-    document.getElementById("sub").textContent=
-        "50 KILLS — ΤΩΡΑ ΘΑ ΜΙΛΗΣΟΥΜΕ";
 
-    say(
-        "👹 50 KILLS! ΕΜΦΑΝΙΣΤΗΚΕ Ο ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ!",
-        true
-    );
 
-}
 
 
-/* =====================================================
-   BOSS DAMAGE
-===================================================== */
 
-function damageBoss(amount){
 
-    if(!boss)return;
 
-    boss.hp-=amount;
 
-    screenShake=4;
 
-    document.getElementById("bossFill")
-        .style.width=
-        Math.max(0,boss.hp/boss.maxHp*100)+"%";
 
-    if(boss.hp<=0)
-        win();
 
-}
 
 
-/* =====================================================
-   BOSS ATTACK
-===================================================== */
 
-function bossAttack(){
 
-    if(!boss)return;
 
-    const type=Math.floor(Math.random()*6);
 
-    if(type===0){
 
-        say("🔥 «ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!»",true);
 
-        for(let i=-2;i<=2;i++){
 
-            enemyBullets.push({
-                x:boss.x,
-                y:boss.y+45,
-                vx:i*.8,
-                vy:4.2,
-                r:7,
-                lethal:1
-            });
 
-        }
 
-    }
 
-    else if(type===1){
 
-        say("🔥 «ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ!»",true);
 
-        for(let i=0;i<8;i++){
 
-            const a=(Math.PI*2/8)*i;
 
-            enemyBullets.push({
-                x:boss.x,
-                y:boss.y,
-                vx:Math.cos(a)*3,
-                vy:Math.sin(a)*3,
-                r:6,
-                lethal:1.1
-            });
 
-        }
 
-    }
 
-    else if(type===2){
 
-        say("🔥 «ΔΕ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ!»",true);
 
-        for(let i=0;i<4;i++){
 
-            enemyBullets.push({
-                x:rand(20,W-20),
-                y:-20,
-                vx:rand(-.7,.7),
-                vy:5,
-                r:9,
-                lethal:1.25
-            });
 
-        }
 
-    }
 
-    else if(type===3){
 
-        say("🔥 «ΦΥΓΕ ΑΠΟ ΕΔΩ!»",true);
 
-        for(let i=-3;i<=3;i++){
 
-            enemyBullets.push({
-                x:boss.x,
-                y:boss.y+30,
-                vx:i*.6,
-                vy:4.8,
-                r:6,
-                lethal:1.3
-            });
 
-        }
 
-    }
 
-    else if(type===4){
 
-        say("🔥 «ΔΕ ΘΕΛΩ, ΕΙΜΑΙ ΣΤΗ VODAFONE!»",true);
 
-        for(let i=0;i<12;i++){
 
-            enemyBullets.push({
-                x:boss.x,
-                y:boss.y,
-                vx:rand(-3.5,3.5),
-                vy:rand(3,5.5),
-                r:6,
-                lethal:1.35
-            });
 
-        }
 
-    }
 
-    else{
 
-        say(
-            "🔥 «ΑΛΗΤΕΣ, ΜΑΣ ΤΑ ΕΧΕΤΕ ΦΑΕΙ ΤΑ ΛΕΦΤΑ ΜΕ ΤΟ ΡΕΥΜΑ!»",
-            true
-        );
 
-        for(let i=0;i<15;i++){
 
-            enemyBullets.push({
-                x:rand(0,W),
-                y:-10,
-                vx:rand(-1.2,1.2),
-                vy:rand(3.5,5.8),
-                r:7,
-                lethal:1.5
-            });
 
-        }
 
-    }
 
-}
 
 
-/* =====================================================
-   PLAYER DAMAGE
-===================================================== */
 
-function damagePlayer(amount,reason){
 
-    if(respawnInvincible>0)
-        return;
 
-    internet-=amount;
 
-    screenShake=8;
 
-    if(internet<=0){
 
-        lives--;
 
-        if(lives<=0){
 
-            lose(reason);
 
-            return;
 
-        }
 
-        internet=100;
 
-        respawnInvincible=2;
 
-        player.x=W/2;
-        player.y=H-110;
 
-        enemyBullets=[];
 
-        say(
-            "💥 ΕΧΕΙΣ ΑΚΟΜΑ "+lives+
-            " ΖΩΗ/ΕΣ! 2″ ΑΣΥΛΙΑ — ΞΑΝΑ ΣΤΗΝ ΠΩΛΗΣΗ!",
-            true
-        );
 
-    }
 
-}
 
 
-/* =====================================================
-   UPDATE
-===================================================== */
 
-function update(dt){
 
-    if(!running)return;
 
-    if(respawnInvincible>0)
-        respawnInvincible-=dt;
 
-    if(rocketTimer>0)
-        rocketTimer-=dt;
 
 
-    /* PLAYER */
 
-    player.x+=(mouse.x-player.x)*Math.min(1,dt*9);
-    player.y+=(mouse.y-player.y)*Math.min(1,dt*9);
 
-    player.x=clamp(player.x,25,W-25);
-    player.y=clamp(player.y,70,H-35);
 
 
-    /* FIRE */
 
-    fireTimer-=dt;
 
-    if(fireTimer<=0){
 
-        fire();
 
-        fireTimer=.23;
 
-    }
 
-    if(power>=10)
-        fireRocket();
 
 
-    /* BULLETS */
 
-    for(let i=bullets.length-1;i>=0;i--){
 
-        const b=bullets[i];
 
-        if(b.rocket && b.target){
 
-            const dx=b.target.x-b.x;
-            const dy=b.target.y-b.y;
-            const d=Math.hypot(dx,dy)||1;
 
-            b.vx+=(dx/d)*.32;
-            b.vy+=(dy/d)*.32;
 
-            const speed=Math.hypot(b.vx,b.vy);
 
-            if(speed>6){
 
-                b.vx=b.vx/speed*6;
-                b.vy=b.vy/speed*6;
 
-            }
 
-        }
 
-        b.x+=b.vx;
-        b.y+=b.vy;
 
-        b.life-=dt;
 
-        if(
-            b.life<=0 ||
-            b.y<-100 ||
-            b.y>H+100
-        ){
 
-            bullets.splice(i,1);
-            continue;
 
-        }
 
 
-        /* BOSS */
 
-        if(
-            bossActive &&
-            boss &&
-            Math.abs(b.x-boss.x)<65 &&
-            Math.abs(b.y-boss.y)<55
-        ){
 
-            damageBoss(b.damage);
 
-            explode(b.x,b.y,b.rocket?25:5);
 
-            bullets.splice(i,1);
 
-            continue;
 
-        }
 
 
-        /* ENEMIES */
 
-        for(const e of enemies){
 
-            if(e.dead)continue;
 
-            if(
-                Math.abs(b.x-e.x)<e.w*.65 &&
-                Math.abs(b.y-e.y)<e.h*.65
-            ){
 
-                e.hp-=b.damage;
 
-                explode(b.x,b.y,4);
 
-                if(e.hp<=0)
-                    killEnemy(e);
 
-                bullets.splice(i,1);
 
-                break;
 
-            }
 
-        }
 
-    }
 
 
-    /* ENEMIES */
 
-    for(let i=enemies.length-1;i>=0;i--){
 
-        const e=enemies[i];
 
-        if(e.dead){
 
-            enemies.splice(i,1);
-            continue;
 
-        }
 
-        e.phase+=dt;
 
-        e.quoteTimer-=dt;
-        e.shootTimer-=dt;
 
-        if(e.ai){
 
-            const dx=player.x-e.x;
 
-            e.vx+=Math.sign(dx)*.018;
 
-            e.vx=clamp(e.vx,-1.5,1.5);
 
-            e.x+=e.vx;
 
-        }else{
 
-            e.x+=Math.sin(e.phase*2)*.3;
 
-        }
 
-        e.y+=e.speed;
 
-        if(e.x<20 || e.x>W-20)
-            e.vx*=-1;
 
 
-        /* QUOTE */
 
-        if(e.quoteTimer<=0){
 
-            texts.push({
 
-                x:e.x,
-                y:e.y-38,
 
-                text:pick(
-                    quoteSets[
-                        Math.min(currentWave,5)
-                    ]
-                ),
 
-                life:2.4,
 
-                company:e.company
 
-            });
 
-            e.quoteTimer=rand(4,7);
 
-        }
 
 
-        /* SHOOT */
 
-        if(
-            e.shootTimer<=0 &&
-            Math.random()<.28
-        ){
 
-            enemyBullets.push({
 
-                x:e.x,
-                y:e.y+20,
 
-                vx:(player.x-e.x)*.0015,
 
-                vy:2.3+currentWave*.18,
 
-                r:4,
 
-                lethal:.4
 
-            });
 
-            e.shootTimer=rand(4,7);
 
-        }
 
 
-        if(e.y>H+80){
 
-            enemies.splice(i,1);
 
-            damagePlayer(
-                7,
-                "Οι πελάτες πέρασαν τη γραμμή!"
-            );
 
-        }
 
-    }
 
 
-    /* NEXT WAVE */
 
-    if(
-        !bossActive &&
-        enemies.length===0 &&
-        currentWave<waves.length-1 &&
-        kills<50
-    ){
 
-        currentWave++;
 
-        setTimeout(()=>{
 
-            if(running && !bossActive)
-                spawnWave();
 
-        },1000);
 
-    }
 
 
-    /* POWER APPS */
 
-    for(let i=powerApps.length-1;i>=0;i--){
 
-        const p=powerApps[i];
 
-        p.y+=p.vy;
-        p.rotation+=dt*4;
-        p.life-=dt;
 
-        if(
-            Math.abs(p.x-player.x)<32 &&
-            Math.abs(p.y-player.y)<35
-        ){
 
-            collectPower();
 
-            powerApps.splice(i,1);
 
-            continue;
 
-        }
 
-        if(p.y>H+50 || p.life<=0)
-            powerApps.splice(i,1);
 
-    }
 
 
-    /* RANDOM POWER DURING FIGHT */
 
-    if(
-        !bossActive &&
-        enemies.length>0 &&
-        Math.random()<dt*.012
-    ){
 
-        spawnPower();
 
-    }
 
 
-    /* STATIONS */
 
-    if(
-        !bossActive &&
-        currentWave>=2 &&
-        Math.random()<dt*.004
-    ){
 
-        stations.push({
 
-            x:rand(40,W-40),
-            y:rand(180,H*.6),
 
-            timer:rand(3,5),
-            life:12
 
-        });
 
-    }
 
-    for(let i=stations.length-1;i>=0;i--){
 
-        const s=stations[i];
 
-        s.timer-=dt;
-        s.life-=dt;
 
-        if(s.timer<=0){
 
-            enemyBullets.push({
 
-                x:s.x,
-                y:s.y,
 
-                vx:(player.x-s.x)*.001,
 
-                vy:2.2,
 
-                r:5,
 
-                lethal:.35
 
-            });
 
-            s.timer=rand(4.5,6);
 
-        }
 
-        if(s.life<=0)
-            stations.splice(i,1);
 
-    }
 
 
-    /* ENEMY BULLETS */
 
-    for(let i=enemyBullets.length-1;i>=0;i--){
 
-        const b=enemyBullets[i];
 
-        b.x+=b.vx;
-        b.y+=b.vy;
 
-        if(
-            b.x<-70 ||
-            b.x>W+70 ||
-            b.y>H+70
-        ){
 
-            enemyBullets.splice(i,1);
-            continue;
 
-        }
 
-        if(
-            Math.abs(b.x-player.x)<24 &&
-            Math.abs(b.y-player.y)<30
-        ){
 
-            damagePlayer(
-                9*(b.lethal||1),
-                "Ο πελάτης απάντησε με αντίρρηση!"
-            );
 
-            enemyBullets.splice(i,1);
 
-        }
 
-    }
 
 
-    /* BOSS */
 
-    if(bossActive && boss){
 
-        boss.phase+=dt;
 
-        boss.x+=boss.vx;
 
-        if(
-            boss.x<90 ||
-            boss.x>W-90
-        )
-            boss.vx*=-1;
 
-        boss.quoteTimer-=dt;
-        boss.fireTimer-=dt;
 
-        if(boss.quoteTimer<=0){
 
-            say(pick(bossQuotes),true);
 
-            boss.quoteTimer=rand(2.8,4.7);
 
-        }
 
-        if(boss.fireTimer<=0){
 
-            bossAttack();
 
-            boss.fireTimer=rand(2.2,3.8);
 
-        }
 
-    }
 
 
-    /* PARTICLES */
 
-    for(let i=particles.length-1;i>=0;i--){
 
-        const p=particles[i];
 
-        p.x+=p.vx;
-        p.y+=p.vy;
 
-        p.vx*=.97;
-        p.vy*=.97;
 
-        p.life-=dt;
 
-        if(p.life<=0)
-            particles.splice(i,1);
 
-    }
 
 
-    /* TEXTS */
 
-    for(let i=texts.length-1;i>=0;i--){
 
-        const t=texts[i];
 
-        t.y-=dt*8;
-        t.life-=dt;
 
-        if(t.life<=0)
-            texts.splice(i,1);
 
-    }
 
 
-    if(screenShake>0)
-        screenShake*=.87;
 
 
-    updateHUD();
 
-}
 
 
-/* =====================================================
-   EXPLOSION
-===================================================== */
 
-function explode(x,y,count){
 
-    for(let i=0;i<count;i++){
 
-        particles.push({
 
-            x:x,
-            y:y,
 
-            vx:rand(-3.5,3.5),
-            vy:rand(-3.5,3.5),
 
-            size:rand(2,6),
 
-            life:rand(.35,1)
 
-        });
 
-    }
 
-}
 
 
-/* =====================================================
-   DRAW
-===================================================== */
 
-function draw(){
 
-    ctx.save();
 
-    if(screenShake>1){
 
-        ctx.translate(
-            rand(-screenShake,screenShake),
-            rand(-screenShake,screenShake)
-        );
 
-    }
 
 
-    /* SPACE */
 
-    ctx.fillStyle="#020611";
-    ctx.fillRect(0,0,W,H);
 
 
-    /* STARS */
 
-    for(let i=0;i<110;i++){
 
-        const x=(i*97)%W;
-        const y=(i*53+performance.now()*.015*(i%3+1))%H;
 
-        ctx.fillStyle=
-            `rgba(255,255,255,${.15+(i%4)*.08})`;
 
-        ctx.fillRect(x,y,1+(i%2),1+(i%2));
 
-    }
 
 
-    for(const s of stations)
-        drawStation(s);
 
-    for(const p of powerApps)
-        drawPower(p);
 
-    for(const e of enemies)
-        drawEnemy(e);
 
-    if(bossActive && boss)
-        drawBoss(boss);
 
-    for(const b of bullets)
-        drawBullet(b);
 
-    for(const b of enemyBullets)
-        drawEnemyBullet(b);
 
-    if(player)
-        drawPlayer();
 
 
-    /* PARTICLES */
 
-    for(const p of particles){
 
-        ctx.globalAlpha=Math.max(0,p.life);
 
-        ctx.fillStyle="#ffd34d";
 
-        ctx.beginPath();
 
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
 
-        ctx.fill();
 
-    }
 
-    ctx.globalAlpha=1;
 
 
-    /* SPEECH */
 
-    for(const t of texts){
 
-        ctx.globalAlpha=Math.min(1,t.life);
 
-        ctx.textAlign="center";
 
-        ctx.font="900 12px Arial";
 
-        ctx.fillStyle="#fff";
 
-        ctx.shadowColor="#000";
-        ctx.shadowBlur=7;
 
-        ctx.fillText(
-            t.text,
-            t.x,
-            t.y
-        );
 
-        ctx.font="900 9px Arial";
 
-        ctx.fillStyle="#63ddff";
 
-        ctx.fillText(
-            t.company,
-            t.x,
-            t.y+13
-        );
 
-        ctx.shadowBlur=0;
 
-    }
 
-    ctx.globalAlpha=1;
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   PLAYER DRAW
-===================================================== */
 
-function drawPlayer(){
 
-    ctx.save();
 
-    ctx.translate(player.x,player.y);
 
-    if(respawnInvincible>0){
 
-        ctx.globalAlpha=
-            .55+
-            Math.sin(performance.now()/70)*.35;
 
-    }
 
 
-    /* WINGS */
 
-    ctx.fillStyle="#49d8ff";
 
-    ctx.beginPath();
 
-    ctx.moveTo(-5,-10);
-    ctx.lineTo(-31,20);
-    ctx.lineTo(-10,17);
-    ctx.lineTo(-5,34);
-    ctx.lineTo(0,10);
 
-    ctx.fill();
 
-    ctx.beginPath();
 
-    ctx.moveTo(5,-10);
-    ctx.lineTo(31,20);
-    ctx.lineTo(10,17);
-    ctx.lineTo(5,34);
-    ctx.lineTo(0,10);
 
-    ctx.fill();
 
 
-    /* BODY */
 
-    ctx.fillStyle="#e3edff";
 
-    ctx.beginPath();
 
-    ctx.moveTo(0,-36);
-    ctx.lineTo(12,23);
-    ctx.lineTo(0,35);
-    ctx.lineTo(-12,23);
 
-    ctx.closePath();
 
-    ctx.fill();
 
 
-    /* COCKPIT */
 
-    ctx.fillStyle="#142d55";
 
-    ctx.beginPath();
 
-    ctx.ellipse(
-        0,-12,
-        7,12,
-        0,0,Math.PI*2
-    );
 
-    ctx.fill();
 
 
-    /* ENGINE */
 
-    ctx.fillStyle="#ff9825";
 
-    ctx.beginPath();
 
-    ctx.moveTo(-6,28);
-    ctx.lineTo(0,47+Math.random()*5);
-    ctx.lineTo(6,28);
 
-    ctx.fill();
 
 
-    /* EXTRA WEAPON VISUALS */
 
-    if(power>=3){
 
-        ctx.strokeStyle="rgba(70,220,255,.7)";
-        ctx.lineWidth=2;
 
-        ctx.beginPath();
-        ctx.moveTo(-9,-32);
-        ctx.lineTo(-14,-62);
-        ctx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(9,-32);
-        ctx.lineTo(14,-62);
-        ctx.stroke();
 
-    }
 
-    if(power>=5){
 
-        ctx.strokeStyle="rgba(255,215,80,.7)";
-        ctx.lineWidth=2;
 
-        ctx.beginPath();
-        ctx.moveTo(-4,-34);
-        ctx.lineTo(-5,-72);
-        ctx.stroke();
 
-        ctx.beginPath();
-        ctx.moveTo(4,-34);
-        ctx.lineTo(5,-72);
-        ctx.stroke();
 
-    }
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   ENEMY DRAW
-===================================================== */
 
-function drawEnemy(e){
 
-    ctx.save();
 
-    ctx.translate(e.x,e.y);
 
 
-    /* DIFFERENT SHAPES */
 
-    if(e.shape===0){
 
-        ctx.fillStyle="#55a3c9";
 
-        ctx.beginPath();
 
-        ctx.moveTo(0,-25);
-        ctx.lineTo(27,20);
-        ctx.lineTo(0,11);
-        ctx.lineTo(-27,20);
 
-        ctx.closePath();
 
-        ctx.fill();
 
-    }
 
-    else if(e.shape===1){
 
-        ctx.fillStyle="#cf654b";
 
-        ctx.beginPath();
 
-        ctx.arc(0,0,22,0,Math.PI*2);
 
-        ctx.fill();
 
-    }
 
-    else if(e.shape===2){
 
-        ctx.fillStyle="#8c54c8";
 
-        ctx.rotate(Math.PI/4);
 
-        ctx.fillRect(-17,-17,34,34);
 
-    }
 
-    else if(e.shape===3){
 
-        ctx.fillStyle="#4bbd8c";
 
-        ctx.beginPath();
 
-        ctx.moveTo(0,-28);
-        ctx.lineTo(29,25);
-        ctx.lineTo(0,13);
-        ctx.lineTo(-29,25);
 
-        ctx.closePath();
 
-        ctx.fill();
 
-    }
 
-    else{
 
-        ctx.fillStyle="#a52d3d";
 
-        ctx.beginPath();
 
-        ctx.moveTo(0,-30);
-        ctx.lineTo(33,23);
-        ctx.lineTo(9,15);
-        ctx.lineTo(0,29);
-        ctx.lineTo(-9,15);
-        ctx.lineTo(-33,23);
 
-        ctx.closePath();
 
-        ctx.fill();
 
-    }
 
 
-    /* COMPANY LABEL */
 
-    ctx.fillStyle="#fff";
 
-    ctx.font="900 8px Arial";
 
-    ctx.textAlign="center";
 
-    ctx.fillText(
-        e.company,
-        0,
-        3
-    );
 
 
-    /* HP */
 
-    ctx.fillStyle="rgba(0,0,0,.6)";
-    ctx.fillRect(-22,-37,44,4);
 
-    ctx.fillStyle="#62ef9d";
 
-    ctx.fillRect(
-        -22,
-        -37,
-        44*Math.max(0,e.hp/e.maxHp),
-        4
-    );
 
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   BOSS DRAW
-===================================================== */
 
-function drawBoss(b){
 
-    ctx.save();
 
-    ctx.translate(b.x,b.y);
 
-    const pulse=
-        1+Math.sin(b.phase*3)*.035;
 
-    ctx.scale(pulse,pulse);
 
 
-    /* AURA */
 
-    ctx.strokeStyle="rgba(255,30,30,.35)";
-    ctx.lineWidth=9;
 
-    ctx.beginPath();
 
-    ctx.arc(
-        0,
-        0,
-        72+Math.sin(b.phase*2)*8,
-        0,
-        Math.PI*2
-    );
 
-    ctx.stroke();
 
 
-    /* WINGS */
 
-    ctx.fillStyle="#55121d";
 
-    ctx.beginPath();
 
-    ctx.moveTo(-20,-15);
-    ctx.lineTo(-88,30);
-    ctx.lineTo(-45,37);
-    ctx.lineTo(-72,65);
-    ctx.lineTo(-5,32);
 
-    ctx.fill();
 
-    ctx.beginPath();
 
-    ctx.moveTo(20,-15);
-    ctx.lineTo(88,30);
-    ctx.lineTo(45,37);
-    ctx.lineTo(72,65);
-    ctx.lineTo(5,32);
 
-    ctx.fill();
 
 
-    /* BODY */
 
-    ctx.fillStyle="#c72e36";
 
-    ctx.beginPath();
 
-    ctx.moveTo(0,-53);
-    ctx.lineTo(37,40);
-    ctx.lineTo(0,59);
-    ctx.lineTo(-37,40);
 
-    ctx.closePath();
 
-    ctx.fill();
 
 
-    /* COCKPIT */
 
-    ctx.fillStyle="#070a14";
 
-    ctx.beginPath();
 
-    ctx.ellipse(
-        0,-19,
-        18,25,
-        0,0,Math.PI*2
-    );
 
-    ctx.fill();
 
 
-    /* EYES */
 
-    ctx.fillStyle="#ffdc45";
 
-    ctx.fillRect(-21,-4,14,5);
-    ctx.fillRect(7,-4,14,5);
 
 
-    /* FIRE */
 
-    ctx.fillStyle="#ff7920";
 
-    ctx.beginPath();
 
-    ctx.moveTo(-11,52);
-    ctx.lineTo(0,85+Math.random()*10);
-    ctx.lineTo(11,52);
 
-    ctx.fill();
 
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   BULLET DRAW
-===================================================== */
 
-function drawBullet(b){
 
-    ctx.save();
 
-    ctx.translate(b.x,b.y);
 
-    if(b.rocket){
 
-        ctx.fillStyle="#ff9229";
 
-        ctx.beginPath();
 
-        ctx.moveTo(0,-16);
-        ctx.lineTo(8,8);
-        ctx.lineTo(0,15);
-        ctx.lineTo(-8,8);
 
-        ctx.closePath();
 
-        ctx.fill();
 
-        ctx.fillStyle="#fff";
 
-        ctx.font="900 8px Arial";
 
-        ctx.textAlign="center";
 
-        ctx.fillText(
-            kills,
-            0,
-            -20
-        );
 
-    }else{
 
-        /*
-          ΤΟ ΚΛΑΣΙΚΟ ΠΥΡΟΒΟΛΟ
-        */
 
-        ctx.strokeStyle="#63e6ff";
-        ctx.lineWidth=3;
 
-        ctx.beginPath();
 
-        ctx.moveTo(0,7);
-        ctx.lineTo(0,-10);
 
-        ctx.stroke();
 
-    }
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   ENEMY BULLET
-===================================================== */
 
-function drawEnemyBullet(b){
 
-    ctx.save();
 
-    ctx.translate(b.x,b.y);
 
-    ctx.fillStyle="#ff493f";
 
-    ctx.shadowColor="#ff2929";
-    ctx.shadowBlur=10;
 
-    ctx.beginPath();
 
-    ctx.arc(
-        0,
-        0,
-        b.r||5,
-        0,
-        Math.PI*2
-    );
 
-    ctx.fill();
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   POWER DRAW
-===================================================== */
 
-function drawPower(p){
 
-    ctx.save();
 
-    ctx.translate(p.x,p.y);
 
-    ctx.rotate(p.rotation);
 
-    ctx.shadowColor="#38e7ff";
-    ctx.shadowBlur=18;
 
-    ctx.fillStyle="#21cfff";
 
-    ctx.fillRect(-15,-15,30,30);
 
-    ctx.fillStyle="#fff";
 
-    ctx.font="900 18px Arial";
 
-    ctx.textAlign="center";
-    ctx.textBaseline="middle";
 
-    ctx.fillText("⚡",0,1);
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   STATION DRAW
-===================================================== */
 
-function drawStation(s){
 
-    ctx.save();
 
-    ctx.translate(s.x,s.y);
 
-    ctx.fillStyle="#29394c";
 
-    ctx.fillRect(-18,-18,36,36);
 
-    ctx.strokeStyle="#8295ab";
 
-    ctx.strokeRect(-18,-18,36,36);
 
-    ctx.fillStyle="#ff4d45";
 
-    ctx.beginPath();
 
-    ctx.arc(0,0,7,0,Math.PI*2);
 
-    ctx.fill();
 
-    ctx.restore();
 
-}
 
 
-/* =====================================================
-   HUD
-===================================================== */
 
-function updateHUD(){
 
-    document.getElementById("damage")
-        .textContent=damage.toFixed(1);
 
-    document.getElementById("power")
-        .textContent=power;
 
-    document.getElementById("internet")
-        .textContent=Math.max(
-            0,
-            Math.ceil(internet)
-        );
 
-    document.getElementById("score")
-        .textContent=score;
 
-    document.getElementById("kills")
-        .textContent=kills;
 
-    document.getElementById("lives")
-        .textContent=
-            "❤️".repeat(Math.max(0,lives))+
-            "🖤".repeat(3-lives);
 
-    document.getElementById("comboValue")
-        .textContent="x"+combo;
 
-    document.getElementById("weapon")
-        .textContent=weaponName();
 
-}
 
 
-/* =====================================================
-   LOSE
-===================================================== */
 
-function lose(reason){
 
-    running=false;
 
-    document.getElementById("gameOver")
-        .classList.remove("hidden");
 
-    document.getElementById("finalKills")
-        .textContent=kills;
 
-    document.getElementById("finalScore")
-        .textContent=score;
 
-    document.getElementById("finalPower")
-        .textContent=power;
 
-}
 
 
-/* =====================================================
-   WIN
-===================================================== */
 
-function win(){
 
-    running=false;
 
-    bossActive=false;
 
-    document.getElementById("bossWrap")
-        .style.display="none";
 
-    if(boss)
-        explode(boss.x,boss.y,100);
 
-    document.getElementById("winScreen")
-        .classList.remove("hidden");
 
-    document.getElementById("winKills")
-        .textContent=kills;
 
-    document.getElementById("winPower")
-        .textContent=power;
 
-}
 
 
-/* =====================================================
-   LOOP
-===================================================== */
 
-function loop(time){
 
-    if(!running)return;
 
-    const dt=
-        Math.min(
-            .033,
-            (time-lastTime)/1000
-        );
 
-    lastTime=time;
 
-    update(dt);
-    draw();
 
-    requestAnimationFrame(loop);
 
-}
 
-</script>
 
-</body>
-</html>
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
