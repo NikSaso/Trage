@@ -3,220 +3,227 @@
 <html lang="el">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Sales Fighter 1942 - AI Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HORECA 1942 - Sales Attack</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    user-select:none;
+* {
+    box-sizing: border-box;
+    user-select: none;
 }
 
-html,body{
-    margin:0;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#02050d;
-    font-family:Arial,Helvetica,sans-serif;
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #020611;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-canvas{
-    display:block;
-    width:100vw;
-    height:100vh;
-    cursor:crosshair;
+canvas {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    cursor: crosshair;
 }
 
-#hud{
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    padding:10px 14px;
-    display:flex;
-    justify-content:space-between;
-    z-index:20;
-    pointer-events:none;
-    color:#fff;
-    text-shadow:0 2px 4px #000;
+#hud {
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 10;
 }
 
-.panel{
-    background:rgba(0,10,25,.82);
-    border:1px solid rgba(100,220,255,.35);
-    border-radius:10px;
-    padding:8px 13px;
-    backdrop-filter:blur(5px);
+.panel {
+    color: white;
+    background: rgba(5, 12, 25, 0.38);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    padding: 10px 15px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    text-shadow: 0 2px 3px #000;
+    min-width: 185px;
 }
 
-#stats{
-    font-size:14px;
-    line-height:1.55;
+.panel b {
+    color: #6ee7ff;
 }
 
-#weapon{
-    text-align:right;
-    font-size:14px;
+#centerInfo {
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    color: white;
+    pointer-events: none;
+    z-index: 11;
 }
 
-#powerText{
-    font-size:18px;
-    font-weight:bold;
+#waveTitle {
+    font-size: 22px;
+    font-weight: bold;
+    text-shadow: 0 2px 5px #000;
 }
 
-#waveName{
-    color:#ffd84d;
-    font-weight:bold;
+#waveSub {
+    font-size: 13px;
+    opacity: .8;
+    margin-top: 3px;
 }
 
-#aiStatus{
-    color:#65ffb0;
-    font-size:12px;
+#bossBarWrap {
+    display: none;
+    position: fixed;
+    top: 78px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(600px, 70vw);
+    z-index: 12;
 }
 
-#bossBar{
-    position:fixed;
-    top:82px;
-    left:50%;
-    transform:translateX(-50%);
-    width:min(700px,82vw);
-    display:none;
-    z-index:25;
+#bossName {
+    color: #ff6464;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 4px;
+    text-shadow: 0 2px 4px #000;
 }
 
-#bossName{
-    color:#ff5c5c;
-    text-align:center;
-    font-size:18px;
-    font-weight:bold;
-    margin-bottom:6px;
-    text-shadow:0 0 8px #000,0 0 15px red;
+#bossBar {
+    height: 18px;
+    border: 2px solid rgba(255,255,255,.7);
+    border-radius: 20px;
+    overflow: hidden;
+    background: rgba(0,0,0,.5);
 }
 
-.bar{
-    height:22px;
-    background:#180505;
-    border:2px solid #ff4141;
-    border-radius:12px;
-    overflow:hidden;
+#bossFill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg,#ff3131,#ff9b3d);
+    transition: width .15s;
 }
 
-#bossHp{
-    height:100%;
-    width:100%;
-    background:linear-gradient(90deg,#ff1111,#ff6500,#ffd000);
+#message {
+    position: fixed;
+    left: 50%;
+    bottom: 70px;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 22px;
+    font-weight: bold;
+    text-align: center;
+    text-shadow: 0 3px 6px #000;
+    pointer-events: none;
+    z-index: 20;
+    opacity: 0;
+    transition: opacity .15s;
+    max-width: 85vw;
 }
 
-#message{
-    position:fixed;
-    left:50%;
-    top:40%;
-    transform:translate(-50%,-50%);
-    color:#fff;
-    font-weight:bold;
-    font-size:30px;
-    text-align:center;
-    line-height:1.3;
-    text-shadow:0 0 6px #000,0 0 18px #00c8ff;
-    pointer-events:none;
-    z-index:50;
-    opacity:0;
-    white-space:nowrap;
+#message.show {
+    opacity: 1;
+}
+
+#controls {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255,255,255,.75);
+    font-size: 13px;
+    text-align: center;
+    z-index: 10;
+    pointer-events: none;
+    text-shadow: 0 2px 4px #000;
 }
 
 #startScreen,
-#gameOver{
-    position:fixed;
-    inset:0;
+#gameOverScreen,
+#winScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
     background:
-        radial-gradient(circle at center,
-        rgba(0,90,150,.25),
-        rgba(0,0,0,.97)),
-        #020611;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    z-index:100;
-    color:#fff;
-    text-align:center;
+        radial-gradient(circle at center, rgba(15,35,65,.8), rgba(1,4,12,.97));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    text-align: center;
 }
 
-.menu{
-    width:min(760px,94vw);
-    max-height:90vh;
-    overflow:auto;
-    padding:32px;
-    border-radius:20px;
-    border:1px solid rgba(100,220,255,.4);
-    background:rgba(2,12,30,.93);
-    box-shadow:0 0 60px rgba(0,150,255,.2);
+.screenBox {
+    width: min(700px, 92vw);
+    padding: 32px;
+    border-radius: 22px;
+    background: rgba(5,12,25,.68);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 20px 80px rgba(0,0,0,.5);
+    backdrop-filter: blur(10px);
 }
 
-h1{
-    margin:0 0 8px;
-    font-size:46px;
-    color:#62e9ff;
-    text-shadow:0 0 20px #00bfff;
+h1 {
+    font-size: clamp(35px,7vw,70px);
+    margin: 0 0 8px;
+    letter-spacing: 3px;
 }
 
-.subtitle{
-    color:#aaa;
-    margin-bottom:20px;
+h2 {
+    margin-top: 0;
 }
 
-.instructions{
-    text-align:left;
-    line-height:1.6;
-    color:#d4e0ec;
-    margin:18px 0 25px;
+.subtitle {
+    opacity: .8;
+    line-height: 1.6;
 }
 
-.waveList{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:7px;
-    margin:18px 0;
-    text-align:left;
+button {
+    margin-top: 20px;
+    padding: 14px 35px;
+    border: 0;
+    border-radius: 30px;
+    background: linear-gradient(135deg,#22c1ff,#5865f2);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(0,150,255,.3);
 }
 
-.waveCard{
-    padding:9px;
-    border-radius:8px;
-    background:rgba(255,255,255,.05);
-    border:1px solid rgba(255,255,255,.08);
-    font-size:13px;
+button:hover {
+    transform: scale(1.04);
 }
 
-button{
-    border:0;
-    border-radius:12px;
-    padding:14px 30px;
-    font-size:18px;
-    font-weight:bold;
-    color:#fff;
-    background:linear-gradient(135deg,#0077ff,#00c8ff);
-    cursor:pointer;
-    box-shadow:0 0 20px rgba(0,190,255,.35);
+.hidden {
+    display: none !important;
 }
 
-button:hover{
-    transform:scale(1.05);
+.statLine {
+    display: flex;
+    justify-content: space-between;
+    margin: 8px 0;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,.08);
 }
 
-.hidden{
-    display:none !important;
+.good {
+    color: #67f5a5;
 }
 
-#mobileHint{
-    position:fixed;
-    bottom:10px;
-    left:50%;
-    transform:translateX(-50%);
-    color:#7992a8;
-    font-size:12px;
-    z-index:10;
-    pointer-events:none;
+.bad {
+    color: #ff7373;
+}
+
+.gold {
+    color: #ffd45c;
 }
 </style>
 </head>
@@ -226,2763 +233,1558 @@ button:hover{
 <canvas id="game"></canvas>
 
 <div id="hud">
-
-    <div class="panel" id="stats">
-        💰 Sales:
-        <span id="score">0</span><br>
-
-        ☠️ Kills:
-        <span id="kills">0</span><br>
-
-        🔥 Combo:
-        <span id="combo">0</span><br>
-
-        🌊 Wave:
-        <span id="wave">1</span><br>
-
-        <span id="waveName">
-            Ηλικιωμένοι ευκολόπιστοι πελάτες
-        </span>
-
-        <br>
-
-        <span id="aiStatus"></span>
+    <div class="panel">
+        <div><b>ΠΩΛΗΤΗΣ</b></div>
+        <div>DMG: <span id="damage">12.0</span></div>
+        <div>Ταχύτητα: <span id="speed">1.0</span>x</div>
+        <div>Internet: <span id="internet">100</span>%</div>
     </div>
 
-    <div class="panel" id="weapon">
-        📡 Σύνδεση<br>
-        <span id="powerText">500 Mbps</span><br>
-        DMG:
-        <span id="damage">17.9</span>
+    <div class="panel">
+        <div>💰 Πωλήσεις: <span id="score">0</span></div>
+        <div>💥 Kills: <span id="kills">0</span> / 50</div>
+        <div>⚡ Bonus: <span id="bonus">100 Mbps</span></div>
+        <div>🎯 Accuracy: <span id="accuracy">100</span>%</div>
     </div>
-
 </div>
 
-<div id="bossBar">
-    <div id="bossName">
-        👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ — ΑΝΤΙΣΤΑΣΗ ΣΤΗΝ ΠΩΛΗΣΗ
-    </div>
-    <div class="bar">
-        <div id="bossHp"></div>
+<div id="centerInfo">
+    <div id="waveTitle">ΠΡΟΕΤΟΙΜΑΣΙΑ...</div>
+    <div id="waveSub"></div>
+</div>
+
+<div id="bossBarWrap">
+    <div id="bossName">👹 ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ — ΑΝΤΙΣΤΑΣΗ ΠΩΛΗΣΗΣ</div>
+    <div id="bossBar">
+        <div id="bossFill"></div>
     </div>
 </div>
 
 <div id="message"></div>
 
-<div id="mobileHint">
-    🖱️ Mouse / Touch για κίνηση • Space / Click για πυρ
+<div id="controls">
+    🖱️ Κίνηση με mouse / touch &nbsp; | &nbsp; 🔫 Αυτόματο fire &nbsp; | &nbsp; 🎁 Μάζεψε τα bonuses
 </div>
-
-
-<!-- START -->
 
 <div id="startScreen">
+    <div class="screenBox">
+        <h1>HORECA 1942</h1>
+        <h2>SALES ATTACK</h2>
 
-    <div class="menu">
-
-        <h1>SALES FIGHTER</h1>
-
-        <div class="subtitle">
-            1942 — HORECA SALES EDITION — AI CAMPAIGN
-        </div>
-
-        <div class="instructions">
-
-            ✈️ Είσαι το μαχητικό του πωλητή.
-
-            <br>
-            👽 Οι εχθροί είναι πελάτες που αντιστέκονται
-            στην πώληση.
-
-            <br><br>
-
-            Κάθε wave έχει διαφορετικούς πελάτες,
-            διαφορετική συμπεριφορά και διαφορετικό
-            επίπεδο αντίστασης.
-
-        </div>
-
-        <div class="waveList">
-
-            <div class="waveCard">
-                <b>WAVE 1</b><br>
-                👴 Ηλικιωμένοι ευκολόπιστοι πελάτες
-            </div>
-
-            <div class="waveCard">
-                <b>WAVE 2</b><br>
-                🙂 Ευγενικοί πελάτες
-            </div>
-
-            <div class="waveCard">
-                <b>WAVE 3</b><br>
-                😐 Ήρεμοι δύσπιστοι πελάτες
-            </div>
-
-            <div class="waveCard">
-                <b>WAVE 4</b><br>
-                😤 Αντιρρησίες
-            </div>
-
-            <div class="waveCard">
-                <b>WAVE 5</b><br>
-                🤖 AI πελάτες
-            </div>
-
-            <div class="waveCard">
-                <b>WAVE 6</b><br>
-                🧠 Elite AI πελάτες
-            </div>
-
-        </div>
-
-        <div class="instructions">
-
-            📡 <b>500 Mbps</b> → 17.9 DMG<br>
-            📡 <b>1000 Mbps</b> → 19.9 DMG<br>
-            🚀 <b>2.5 Gbps</b> → 52.9 DMG
-
-            <br><br>
-
-            🐝 Αν ένα wave κρατήσει πολύ,
-            εμφανίζονται σμήνη.
-
-            <br><br>
-
-            👹 Στα <b>50 kills</b> εμφανίζεται
-            ο Μεγάλος Πελάτης.
-
-            <br>
-
-            🧠 Το Boss διαθέτει δικό του AI
-            και αλλάζει συμπεριφορά όσο χάνει HP.
-
-        </div>
-
-        <button id="startBtn">
-            ▶ ΕΝΑΡΞΗ ΠΩΛΗΣΗΣ
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- GAME OVER -->
-
-<div id="gameOver" class="hidden">
-
-    <div class="menu">
-
-        <h1>GAME OVER</h1>
-
-        <p id="finalReason"></p>
+        <p class="subtitle">
+            Είσαι ο πωλητής.<br>
+            Τα εξωγήινα αεροπλάνα είναι... πελάτες.<br>
+            Η αποστολή σου: να τους κάνεις πελάτες με το ζόρι.
+        </p>
 
         <p>
-            💰 Sales:
+            <span class="good">50 kills → ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ</span>
+        </p>
+
+        <button onclick="startGame()">ΞΕΚΙΝΑ ΤΗΝ ΠΩΛΗΣΗ</button>
+    </div>
+</div>
+
+<div id="gameOverScreen" class="hidden">
+    <div class="screenBox">
+        <h1>💥 Η ΠΩΛΗΣΗ ΑΠΕΤΥΧΕ</h1>
+        <h2 id="loseReason"></h2>
+
+        <div class="statLine">
+            <span>Πωλήσεις</span>
             <b id="finalScore">0</b>
-        </p>
+        </div>
 
-        <p>
-            ☠️ Kills:
+        <div class="statLine">
+            <span>Kills</span>
             <b id="finalKills">0</b>
-        </p>
+        </div>
 
-        <button id="restartBtn">
-            🔄 ΞΑΝΑ
-        </button>
-
+        <button onclick="location.reload()">ΞΑΝΑΠΡΟΣΠΑΘΗΣΕ</button>
     </div>
-
 </div>
 
+<div id="winScreen" class="hidden">
+    <div class="screenBox">
+        <h1>🎉 ΠΕΛΑΤΗΣ ΚΛΕΙΣΤΗΚΕ!</h1>
+
+        <h2 class="good">
+            ΤΕΛΙΚΑ ΕΓΙΝΕ ΠΕΛΑΤΗΣ!
+        </h2>
+
+        <p class="subtitle">
+            Μετά από αμέτρητες αντιρρήσεις,<br>
+            άμυνα, αδιαφορία, νεύρα και απειλές...
+            η πώληση ολοκληρώθηκε.
+        </p>
+
+        <div class="statLine">
+            <span>Τελικές πωλήσεις</span>
+            <b id="winScore">0</b>
+        </div>
+
+        <div class="statLine">
+            <span>Τελικό Damage</span>
+            <b id="winDamage">0</b>
+        </div>
+
+        <button onclick="location.reload()">ΝΕΑ ΠΩΛΗΣΗ</button>
+    </div>
+</div>
 
 <script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
 
-/* ============================================================
-   CANVAS
-============================================================ */
+let W, H;
 
-const canvas=document.getElementById("game");
-const ctx=canvas.getContext("2d");
-
-let W=innerWidth;
-let H=innerHeight;
-
-function resize(){
-    W=canvas.width=innerWidth;
-    H=canvas.height=innerHeight;
+function resize() {
+    W = canvas.width = innerWidth;
+    H = canvas.height = innerHeight;
 }
-
-window.addEventListener("resize",resize);
 resize();
+window.addEventListener("resize", resize);
 
+// --------------------------------------------------
+// GAME STATE
+// --------------------------------------------------
 
-/* ============================================================
-   STATE
-============================================================ */
+let running = false;
+let gameOver = false;
+let victory = false;
 
-let running=false;
+let player;
+let enemies = [];
+let bullets = [];
+let enemyBullets = [];
+let particles = [];
+let bonuses = [];
+let texts = [];
 
-let score=0;
-let kills=0;
-let combo=0;
-let wave=1;
-let frame=0;
+let kills = 0;
+let score = 0;
+let damage = 12;
+let internet = 100;
+let shots = 0;
+let hits = 0;
 
-let damage=17.9;
-let powerLevel=0;
+let wave = 0;
+let waveTimer = 0;
+let waveStartTime = 0;
+let swarmTimer = 0;
+let lastTime = 0;
+let boss = null;
+let bossActive = false;
 
-let boss=null;
-let bossActive=false;
-
-let bullets=[];
-let enemies=[];
-let enemyBullets=[];
-let particles=[];
-let powerups=[];
-let floatingTexts=[];
-let swarms=[];
-let stars=[];
-
-let spawnTimer=0;
-
-let mouseX=W/2;
-let mouseY=H-130;
-
-let shootHeld=false;
-
-let shake=0;
-
-let messageTimer=0;
-
-let waveStartTime=0;
-let swarmCountThisWave=0;
-
-let waveCountdown=60;
-
-let lastBossObjection="";
-
-
-/* ============================================================
-   PLAYER
-============================================================ */
-
-const player={
-
-    x:W/2,
-    y:H-130,
-
-    w:48,
-    h:70,
-
-    speed:5.2,
-
-    fireCooldown:0,
-
-    strikes:0
-
+let mouse = {
+    x: innerWidth / 2,
+    y: innerHeight - 120,
+    active: false
 };
 
-
-/* ============================================================
-   POWER
-============================================================ */
-
-const powers=[
-
+const waveData = [
     {
-        name:"500 Mbps",
-        damage:17.9,
-        color:"#42e8ff"
+        name: "ΗΛΙΚΙΩΜΕΝΟΙ ΕΥΚΟΛΟΠΙΣΤΟΙ ΠΕΛΑΤΕΣ",
+        subtitle: "Εύκολη πώληση • χαμηλή αντίσταση",
+        color: "#b8a27a",
+        enemyTypes: ["old1","old2","old3"],
+        count: 14,
+        hp: 18,
+        speed: .45,
+        swarmAfter: 27000
     },
-
     {
-        name:"1000 Mbps",
-        damage:19.9,
-        color:"#fff15a"
+        name: "ΕΥΓΕΝΙΚΟΙ ΠΕΛΑΤΕΣ",
+        subtitle: "«Ευχαριστώ πολύ, αλλά...»",
+        color: "#63d7ff",
+        enemyTypes: ["polite1","polite2","polite3"],
+        count: 17,
+        hp: 28,
+        speed: .55,
+        swarmAfter: 25000
     },
-
     {
-        name:"2.5 Gbps",
-        damage:52.9,
-        color:"#ff62ff"
+        name: "ΗΡΕΜΟΙ / ΕΠΙΦΥΛΑΚΤΙΚΟΙ",
+        subtitle: "Αρχίζουν οι αντιρρήσεις...",
+        color: "#7ef29a",
+        enemyTypes: ["calm1","calm2","calm3","calm4"],
+        count: 19,
+        hp: 40,
+        speed: .65,
+        swarmAfter: 23000
+    },
+    {
+        name: "ΔΥΣΚΟΛΟΙ ΠΕΛΑΤΕΣ",
+        subtitle: "«Δεν χρειάζομαι κάτι τέτοιο.»",
+        color: "#ffcc5c",
+        enemyTypes: ["hard1","hard2","hard3","hard4"],
+        count: 21,
+        hp: 58,
+        speed: .72,
+        swarmAfter: 21000
+    },
+    {
+        name: "ADVANCED ΠΕΛΑΤΕΣ — AI",
+        subtitle: "Λίγοι αλλά έξυπνοι • προβλέπουν την κίνησή σου",
+        color: "#ff78e1",
+        enemyTypes: ["ai1","ai2","hard2"],
+        count: 18,
+        hp: 78,
+        speed: .78,
+        swarmAfter: 19000,
+        ai: true
+    },
+    {
+        name: "ΤΕΛΕΥΤΑΙΟ ΚΥΜΑ — ΑΝΤΙΣΤΑΣΗ",
+        subtitle: "Η τελευταία γραμμή άμυνας πριν τον τελικό πελάτη",
+        color: "#ff6666",
+        enemyTypes: ["elite1","elite2","elite3"],
+        count: 16,
+        hp: 95,
+        speed: .82,
+        swarmAfter: 17000,
+        ai: true
     }
-
 ];
 
-
-/* ============================================================
-   WAVE DATA
-============================================================ */
-
-const waveData={
-
-    1:{
-        name:"ΗΛΙΚΙΩΜΕΝΟΙ ΕΥΚΟΛΟΠΙΣΤΟΙ ΠΕΛΑΤΕΣ",
-        short:"Εύκολοι",
-        speed:.95,
-        hp:.65,
-        spawn:78,
-        ai:false,
-        types:["grandpa","grandma","walker"],
-        color:"#74c69d"
-    },
-
-    2:{
-        name:"ΕΥΓΕΝΙΚΟΙ ΠΕΛΑΤΕΣ",
-        short:"Ευγενικοί",
-        speed:1.2,
-        hp:.85,
-        spawn:68,
-        ai:false,
-        types:["office","family","smiler"],
-        color:"#5dade2"
-    },
-
-    3:{
-        name:"ΗΡΕΜΟΙ ΔΥΣΠΙΣΤΟΙ ΠΕΛΑΤΕΣ",
-        short:"Δύσπιστοι",
-        speed:1.5,
-        hp:1.05,
-        spawn:58,
-        ai:false,
-        types:["skeptic","business","slowtank"],
-        color:"#b084cc"
-    },
-
-    4:{
-        name:"ΑΝΤΙΡΡΗΣΙΕΣ ΠΕΛΑΤΕΣ",
-        short:"Αντιρρησίες",
-        speed:1.9,
-        hp:1.35,
-        spawn:50,
-        ai:false,
-        types:["angry","runner","shield"],
-        color:"#ff8c42"
-    },
-
-    5:{
-        name:"AI ΠΕΛΑΤΕΣ",
-        short:"AI",
-        speed:2.15,
-        hp:1.65,
-        spawn:44,
-        ai:true,
-        types:["ai","hunter","dodger","tactician"],
-        color:"#ff4dff"
-    },
-
-    6:{
-        name:"ELITE AI ΠΕΛΑΤΕΣ",
-        short:"ELITE AI",
-        speed:2.45,
-        hp:2.0,
-        spawn:39,
-        ai:true,
-        types:["elite","hunter","dodger","tactician","commander"],
-        color:"#ff3333"
-    }
-
-};
-
-
-/* ============================================================
-   CUSTOMER PHRASES
-============================================================ */
-
-const phrases={
-
-    grandpa:[
-        "ΤΙ ΜΟΥ ΛΕΣ ΠΑΙΔΙ ΜΟΥ;",
-        "ΕΓΩ ΔΕΝ ΞΕΡΩ ΑΠΟ ΑΥΤΑ...",
-        "ΚΑΛΑ ΑΚΟΥΓΕΤΑΙ!",
-        "ΠΟΣΟ ΕΙΠΕΣ;",
-        "ΝΑ ΤΟ ΔΟΥΜΕ..."
-    ],
-
-    grandma:[
-        "ΑΧ, ΝΑΙ ΝΑΙ...",
-        "ΕΓΩ ΣΕ ΕΜΠΙΣΤΕΥΟΜΑΙ!",
-        "ΠΕΣ ΜΟΥ ΤΗΝ ΤΙΜΗ",
-        "ΚΑΤΣΕ ΝΑ ΤΟ ΣΚΕΦΤΩ",
-        "ΜΑΛΙΣΤΑ ΠΑΙΔΙ ΜΟΥ"
-    ],
-
-    walker:[
-        "ΠΕΡΙΜΕΝΕ ΛΙΓΟ...",
-        "ΠΟΥ ΠΑΣ ΤΟΣΟ ΓΡΗΓΟΡΑ;",
-        "ΝΑ ΣΕ ΑΚΟΥΣΩ",
-        "ΔΕΝ ΚΑΤΑΛΑΒΑ",
-        "ΞΑΝΑΠΕΣ ΤΟ"
-    ],
-
-    office:[
-        "ΕΥΧΑΡΙΣΤΩ ΠΟΛΥ",
-        "ΘΑ ΤΟ ΔΩ",
-        "ΣΤΕΙΛΕ ΜΟΥ ΠΡΟΣΦΟΡΑ",
-        "ΠΟΛΥ ΕΥΓΕΝΙΚΑ",
-        "ΘΑ ΕΠΙΚΟΙΝΩΝΗΣΟΥΜΕ"
-    ],
-
-    family:[
-        "ΝΑ ΤΟ ΣΥΖΗΤΗΣΟΥΜΕ",
-        "ΘΑ ΡΩΤΗΣΩ ΤΟ ΣΠΙΤΙ",
-        "ΔΕΝ ΞΕΡΩ ΑΚΟΜΑ",
-        "ΜΠΟΡΕΙ",
-        "ΑΣ ΤΟ ΔΟΥΜΕ"
-    ],
-
-    smiler:[
-        "ΧΑΧΑ, ΕΝΤΑΞΕΙ!",
-        "ΝΑΙ, ΣΕ ΑΚΟΥΩ",
-        "ΚΑΛΗ ΠΡΟΣΠΑΘΕΙΑ",
-        "ΜΠΟΡΕΙ",
-        "ΘΑ ΔΟΥΜΕ"
-    ],
-
-    skeptic:[
-        "ΔΕΝ ΜΕ ΠΕΙΘΕΙΣ",
-        "ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ",
-        "ΔΕΝ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ",
-        "ΤΙ ΚΕΡΔΙΖΩ;",
-        "ΠΟΙΑ ΕΙΝΑΙ Η ΠΑΓΙΔΑ;"
-    ],
-
-    business:[
-        "ΕΧΩ ΗΔΗ ΠΑΡΟΧΟ",
-        "ΣΥΓΚΡΙΝΩ ΠΡΟΣΦΟΡΕΣ",
-        "ΣΤΕΙΛΕ EMAIL",
-        "ΔΕΝ ΑΠΟΦΑΣΙΖΩ ΕΓΩ",
-        "ΘΑ ΤΟ ΔΟΥΜΕ"
-    ],
-
-    slowtank:[
-        "ΔΕΝ ΑΛΛΑΖΩ",
-        "ΕΙΜΑΙ ΙΚΑΝΟΠΟΙΗΜΕΝΟΣ",
-        "ΔΕΝ ΜΕ ΕΝΔΙΑΦΕΡΕΙ",
-        "ΕΙΝΑΙ ΑΚΡΙΒΟ",
-        "ΑΣΕ ΜΕ"
-    ],
-
-    angry:[
-        "ΔΕΝ ΑΓΟΡΑΖΩ!",
-        "ΣΤΑΜΑΤΑ!",
-        "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
-        "ΦΥΓΕ!",
-        "ΠΟΣΕΣ ΦΟΡΕΣ ΘΑ ΤΟ ΠΩ;"
-    ],
-
-    runner:[
-        "ΜΗΝ ΜΕ ΠΡΟΛΑΒΕΙΣ!",
-        "ΔΕΝ ΕΧΩ ΧΡΟΝΟ!",
-        "ΤΡΕΧΩ!",
-        "ΑΡΓΗΣΕΣ!",
-        "ΦΕΥΓΩ!"
-    ],
-
-    shield:[
-        "ΕΧΩ ΑΜΥΝΑ!",
-        "ΔΕΝ ΠΕΡΝΑΣ!",
-        "ΔΕΝ ΘΑ ΜΕ ΠΕΙΣΕΙΣ!",
-        "ΕΧΩ ΗΔΗ ΛΥΣΗ!",
-        "ΟΧΙ!"
-    ],
-
-    ai:[
-        "ΥΠΟΛΟΓΙΣΑ ΤΗΝ ΚΙΝΗΣΗ ΣΟΥ.",
-        "ΑΠΟΡΡΙΨΗ ΠΡΟΣΦΟΡΑΣ.",
-        "ΑΝΙΧΝΕΥΣΗ ΠΩΛΗΤΗ.",
-        "ΠΡΟΒΛΕΨΗ ΘΕΣΗΣ.",
-        "ΑΡΝΗΣΗ."
-    ],
-
-    hunter:[
-        "ΣΕ ΒΛΕΠΩ.",
-        "ΠΡΟΒΛΕΠΩ ΤΗΝ ΠΟΡΕΙΑ ΣΟΥ.",
-        "ΔΕΝ ΘΑ ΜΟΥ ΞΕΦΥΓΕΙΣ.",
-        "ΚΛΕΙΝΩ ΤΗ ΓΩΝΙΑ.",
-        "ΑΝΤΙΡΡΗΣΗ!"
-    ],
-
-    dodger:[
-        "ΑΣΕ ΜΕ ΝΑ ΠΕΡΑΣΩ!",
-        "ΑΠΟΦΕΥΓΩ ΤΗΝ ΠΡΟΣΦΟΡΑ!",
-        "ΔΕΝ ΘΑ ΜΕ ΧΤΥΠΗΣΕΙΣ!",
-        "ΑΛΛΑΖΩ ΠΟΡΕΙΑ!",
-        "ΟΧΙ, ΕΥΧΑΡΙΣΤΩ!"
-    ],
-
-    tactician:[
-        "ΣΤΡΑΤΗΓΙΚΗ ΑΜΥΝΑ.",
-        "ΠΕΡΙΜΕΝΩ ΤΟΝ ΠΩΛΗΤΗ.",
-        "ΑΝΑΔΙΠΛΩΣΗ.",
-        "ΕΠΙΘΕΣΗ ΣΕ ΣΧΗΜΑ.",
-        "ΑΡΝΗΣΗ ΜΕ ΣΧΕΔΙΟ."
-    ],
-
-    elite:[
-        "AI: ΠΛΗΡΗΣ ΑΠΟΡΡΙΨΗ.",
-        "AI: ΑΝΤΙΡΡΗΣΗ ΕΝΕΡΓΗ.",
-        "AI: ΕΠΙΘΕΤΙΚΗ ΑΜΥΝΑ.",
-        "AI: ΠΡΟΒΛΕΨΗ 97%.",
-        "AI: ΔΕΝ ΑΓΟΡΑΖΩ."
-    ],
-
-    commander:[
-        "ΟΜΑΔΑ, ΚΛΕΙΣΤΕ ΤΟΝ ΠΩΛΗΤΗ!",
-        "ΣΧΗΜΑ ΑΜΥΝΑΣ!",
-        "ΜΗΝ ΤΟΝ ΑΦΗΣΕΤΕ ΝΑ ΠΕΡΑΣΕΙ!",
-        "ΟΛΟΙ ΜΑΖΙ!",
-        "ΑΝΤΕΠΙΘΕΣΗ!"
-    ]
-
-};
-
-
-/* ============================================================
-   STARS
-============================================================ */
-
-function createStars(){
-
-    stars=[];
-
-    for(let i=0;i<180;i++){
-
-        stars.push({
-
-            x:Math.random()*W,
-            y:Math.random()*H,
-            speed:.5+Math.random()*2.5,
-            size:Math.random()*2
-
-        });
-
-    }
-
-}
-
-createStars();
-
-
-/* ============================================================
-   START
-============================================================ */
-
-function startGame(){
-
-    running=true;
-
-    score=0;
-    kills=0;
-    combo=0;
-    wave=1;
-
-    frame=0;
-
-    powerLevel=0;
-    damage=17.9;
-
-    boss=null;
-    bossActive=false;
-
-    bullets=[];
-    enemies=[];
-    enemyBullets=[];
-    particles=[];
-    powerups=[];
-    floatingTexts=[];
-    swarms=[];
-
-    spawnTimer=0;
-
-    shake=0;
-
-    player.strikes=0;
-
-    player.x=W/2;
-    player.y=H-130;
-
-    waveStartTime=performance.now();
-
-    swarmCountThisWave=0;
-
-    waveCountdown=60;
-
-    document.getElementById("startScreen")
-        .classList.add("hidden");
-
-    document.getElementById("gameOver")
-        .classList.add("hidden");
-
-    document.getElementById("bossBar")
-        .style.display="none";
-
-    updateHUD();
-
-    showMessage(
-        "WAVE 1<br>👴 ΗΛΙΚΙΩΜΕΝΟΙ ΕΥΚΟΛΟΠΙΣΤΟΙ ΠΕΛΑΤΕΣ<br>ΕΤΟΙΜΑΣΟΥ ΤΗΝ ΠΩΛΗΣΗ!",
-        "#ffd84d"
-    );
-
-    requestAnimationFrame(gameLoop);
-}
-
-
-/* ============================================================
-   INPUT
-============================================================ */
-
-window.addEventListener("keydown",e=>{
-
-    keys[e.key.toLowerCase()]=true;
-
-    if(e.code==="Space"){
-        shootHeld=true;
-        e.preventDefault();
-    }
-
+const oldQuotes = [
+    "Δεν ξέρω τι είναι αυτό παιδί μου.",
+    "Ο γιος μου ασχολείται με αυτά.",
+    "Είμαι μεγάλος, ποιο ίντερνετ;",
+    "Εγώ ακόμα έχω το παλιό τηλέφωνο.",
+    "Δεν τα καταλαβαίνω αυτά.",
+    "Να ρωτήσω πρώτα τον γιο μου.",
+    "Εμείς μια χαρά είμαστε έτσι.",
+    "Τι να την κάνω τόση ταχύτητα;",
+    "Εγώ θέλω μόνο να βλέπω ειδήσεις.",
+    "Δεν ξέρω καν πώς ανοίγει το Wi-Fi."
+];
+
+const politeQuotes = [
+    "Ευχαριστώ πολύ, αλλά θα το σκεφτώ.",
+    "Πολύ ενδιαφέρον αυτό.",
+    "Να το συζητήσουμε κάποια άλλη στιγμή;",
+    "Δεν είναι κακή πρόταση.",
+    "Θα ήθελα πρώτα να δω τιμές.",
+    "Ευχαριστώ, αλλά έχω ήδη πάροχο.",
+    "Θα το κρατήσω στο μυαλό μου.",
+    "Να ρωτήσω και τον συνέταιρο."
+];
+
+const calmQuotes = [
+    "Έχω καλή ταχύτητα ήδη.",
+    "Δεν μου χρειάζεται.",
+    "Για τη δουλειά μου είμαι καλυμμένος.",
+    "Δεν βλέπω λόγο να αλλάξω.",
+    "Τι παραπάνω θα κερδίσω;",
+    "Δεν είμαι σίγουρος ότι το χρειάζομαι.",
+    "Έχω συμβόλαιο ακόμα.",
+    "Θα περιμένω να λήξει."
+];
+
+const hardQuotes = [
+    "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ.",
+    "Δεν αγοράζω τίποτα.",
+    "Έχω καλή ταχύτητα!",
+    "Μη μου πουλάς άλλο.",
+    "Δεν χρειάζομαι αναβάθμιση.",
+    "Μου τα έχουν ξαναπεί αυτά.",
+    "Όλοι τα ίδια λέτε.",
+    "Δεν πρόκειται να αλλάξω.",
+    "Δεν έχω χρόνο για αυτά."
+];
+
+const aiQuotes = [
+    "Ξέρω ακριβώς τι προσπαθείς να κάνεις.",
+    "Δεν θα με πείσεις τόσο εύκολα.",
+    "Η προσφορά σου δεν με καλύπτει.",
+    "Έχω ήδη καλύτερη λύση.",
+    "Υπολόγισα το κόστος.",
+    "Θα περιμένω καλύτερη προσφορά.",
+    "Δεν πέφτω στην παγίδα.",
+    "Πρέπει να μου αποδείξεις την αξία."
+];
+
+const bossQuotes = [
+    {text:"ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!", type:"ignore"},
+    {text:"ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ!", type:"defense"},
+    {text:"ΔΕΝ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ!", type:"defense"},
+    {text:"ΦΥΓΕ ΑΠΟ ΕΔΩ!", type:"anger"},
+    {text:"ΔΕΝ ΑΓΟΡΑΖΩ!", type:"anger"},
+    {text:"ΜΗ ΜΟΥ ΞΑΝΑΠΟΥΛΗΣΕΙΣ!", type:"anger"},
+    {text:"ΣΟΥ ΕΙΠΑ ΟΧΙ!", type:"anger"},
+    {text:"ΘΑ ΚΑΛΕΣΩ ΤΟΝ ΥΠΕΥΘΥΝΟ!", type:"threat"},
+    {text:"ΔΕΝ ΘΕΛΩ ΝΑ ΑΚΟΥΣΩ ΑΛΛΗ ΠΡΟΣΦΟΡΑ!", type:"threat"},
+    {text:"ΤΕΛΕΙΩΣΕ Η ΣΥΖΗΤΗΣΗ!", type:"threat"},
+    {text:"ΔΕΝ ΘΑ ΜΕ ΚΕΡΔΙΣΕΙΣ!", type:"rage"}
+];
+
+// --------------------------------------------------
+// INPUT
+// --------------------------------------------------
+
+canvas.addEventListener("mousemove", e => {
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+    mouse.active = true;
 });
 
-window.addEventListener("keyup",e=>{
+canvas.addEventListener("touchmove", e => {
+    const t = e.touches[0];
+    mouse.x = t.clientX;
+    mouse.y = t.clientY;
+    mouse.active = true;
+}, {passive:true});
 
-    keys[e.key.toLowerCase()]=false;
-
-    if(e.code==="Space"){
-        shootHeld=false;
-    }
-
+canvas.addEventListener("click", () => {
+    if (running) fire();
 });
 
-let keys={};
-
-canvas.addEventListener("mousemove",e=>{
-
-    mouseX=e.clientX;
-    mouseY=e.clientY;
-
-});
-
-canvas.addEventListener("mousedown",()=>{
-    shootHeld=true;
-});
-
-window.addEventListener("mouseup",()=>{
-    shootHeld=false;
-});
-
-
-canvas.addEventListener("touchmove",e=>{
-
-    const t=e.touches[0];
-
-    mouseX=t.clientX;
-    mouseY=t.clientY;
-
-    e.preventDefault();
-
-},{passive:false});
-
-
-canvas.addEventListener("touchstart",e=>{
-
-    const t=e.touches[0];
-
-    mouseX=t.clientX;
-    mouseY=t.clientY;
-
-    shootHeld=true;
-
-    e.preventDefault();
-
-},{passive:false});
-
-
-canvas.addEventListener("touchend",()=>{
-    shootHeld=false;
-});
-
-
-/* ============================================================
-   PLAYER MOVEMENT
-============================================================ */
-
-function movePlayer(){
-
-    if(
-        keys["arrowleft"] ||
-        keys["a"]
-    ){
-        player.x-=player.speed;
-    }
-
-    if(
-        keys["arrowright"] ||
-        keys["d"]
-    ){
-        player.x+=player.speed;
-    }
-
-    if(
-        keys["arrowup"] ||
-        keys["w"]
-    ){
-        player.y-=player.speed;
-    }
-
-    if(
-        keys["arrowdown"] ||
-        keys["s"]
-    ){
-        player.y+=player.speed;
-    }
-
-    const keyboard=
-        keys["arrowleft"] ||
-        keys["a"] ||
-        keys["arrowright"] ||
-        keys["d"] ||
-        keys["arrowup"] ||
-        keys["w"] ||
-        keys["arrowdown"] ||
-        keys["s"];
-
-    if(!keyboard){
-
-        player.x+=(mouseX-player.x)*.075;
-        player.y+=(mouseY-player.y)*.075;
-
-    }
-
-    player.x=Math.max(30,Math.min(W-30,player.x));
-    player.y=Math.max(70,Math.min(H-45,player.y));
-
-}
-
-
-/* ============================================================
-   SHOOT
-============================================================ */
-
-function shoot(){
-
-    if(player.fireCooldown>0)return;
-
-    player.fireCooldown=8;
-
-    if(powerLevel===2){
-
-        bullets.push(
-            {
-                x:player.x-13,
-                y:player.y-35,
-                vx:-.45,
-                vy:-12,
-                damage
-            },
-            {
-                x:player.x,
-                y:player.y-38,
-                vx:0,
-                vy:-13,
-                damage
-            },
-            {
-                x:player.x+13,
-                y:player.y-35,
-                vx:.45,
-                vy:-12,
-                damage
-            }
-        );
-
-    }else{
-
-        bullets.push({
-
-            x:player.x,
-            y:player.y-35,
-            vx:0,
-            vy:-12,
-            damage
-
-        });
-
-    }
-
-}
-
-
-/* ============================================================
-   GET RANDOM PHRASE
-============================================================ */
-
-function randomPhrase(type){
-
-    const arr=phrases[type] || phrases.ai;
-
-    return arr[
-        Math.floor(Math.random()*arr.length)
-    ];
-
-}
-
-
-/* ============================================================
-   SPAWN ENEMY
-============================================================ */
-
-function spawnEnemy(){
-
-    if(bossActive)return;
-
-    const data=
-        waveData[
-            Math.min(wave,6)
-        ];
-
-    const type=
-        data.types[
-            Math.floor(
-                Math.random()*data.types.length
-            )
-        ];
-
-    let hp=24*data.hp;
-
-    let speed=data.speed;
-
-    let w=42;
-    let h=55;
-
-    if(type==="grandpa"){
-        hp*=.8;
-        speed*=.75;
-    }
-
-    if(type==="grandma"){
-        hp*=.75;
-        speed*=.7;
-    }
-
-    if(type==="walker"){
-        hp*=1.1;
-        speed*=.55;
-    }
-
-    if(type==="office"){
-        hp*=1.0;
-    }
-
-    if(type==="family"){
-        hp*=.9;
-    }
-
-    if(type==="smiler"){
-        speed*=1.1;
-    }
-
-    if(type==="skeptic"){
-        hp*=1.3;
-    }
-
-    if(type==="business"){
-        hp*=1.45;
-        speed*=.85;
-    }
-
-    if(type==="slowtank"){
-        hp*=2.1;
-        speed*=.55;
-        w=55;
-        h=65;
-    }
-
-    if(type==="angry"){
-        hp*=1.4;
-        speed*=1.15;
-    }
-
-    if(type==="runner"){
-        hp*=.7;
-        speed*=1.7;
-    }
-
-    if(type==="shield"){
-        hp*=2;
-        speed*=.75;
-    }
-
-    if(type==="ai"){
-        hp*=1.2;
-    }
-
-    if(type==="hunter"){
-        hp*=1.4;
-        speed*=1.1;
-    }
-
-    if(type==="dodger"){
-        hp*=1.1;
-        speed*=1.25;
-    }
-
-    if(type==="tactician"){
-        hp*=1.6;
-        speed*=.9;
-    }
-
-    if(type==="elite"){
-        hp*=1.8;
-        speed*=1.15;
-    }
-
-    if(type==="commander"){
-        hp*=2.4;
-        speed*=.8;
-        w=62;
-        h=70;
-    }
-
-    const e={
-
-        x:45+Math.random()*(W-90),
-
-        y:-80-Math.random()*120,
-
-        w,
-        h,
-
-        type,
-
-        hp,
-        maxHp:hp,
-
-        speed,
-
-        phraseTimer:
-            50+Math.random()*120,
-
-        shootTimer:
-            100+Math.random()*180,
-
-        ai:data.ai,
-
-        aiTimer:0,
-
-        targetX:player.x,
-
-        vx:0,
-
-        shield:
-            type==="shield"
-            ? 1
-            : 0,
-
-        angle:0
-
+// --------------------------------------------------
+// PLAYER
+// --------------------------------------------------
+
+function createPlayer() {
+    return {
+        x: W / 2,
+        y: H - 100,
+        targetX: W / 2,
+        targetY: H - 100,
+        cooldown: 0,
+        invincible: 0,
+        angle: 0
     };
-
-    enemies.push(e);
-
 }
 
+function drawPlayer() {
+    ctx.save();
 
-/* ============================================================
-   AI ENEMY
-============================================================ */
+    ctx.translate(player.x, player.y);
 
-function updateEnemyAI(e){
+    // glow
+    ctx.shadowBlur = 20;
+    ctx.shadowColor = "#42d9ff";
 
-    if(!e.ai)return;
+    // wings
+    ctx.fillStyle = "#4bc7ff";
+    ctx.beginPath();
+    ctx.moveTo(-7, 3);
+    ctx.lineTo(-34, 18);
+    ctx.lineTo(-25, -5);
+    ctx.lineTo(-8, -10);
+    ctx.closePath();
+    ctx.fill();
 
-    e.aiTimer--;
+    ctx.beginPath();
+    ctx.moveTo(7, 3);
+    ctx.lineTo(34, 18);
+    ctx.lineTo(25, -5);
+    ctx.lineTo(8, -10);
+    ctx.closePath();
+    ctx.fill();
 
-    if(e.aiTimer<=0){
+    // body
+    ctx.fillStyle = "#e8faff";
+    ctx.beginPath();
+    ctx.moveTo(0,-30);
+    ctx.lineTo(10,10);
+    ctx.lineTo(6,24);
+    ctx.lineTo(0,31);
+    ctx.lineTo(-6,24);
+    ctx.lineTo(-10,10);
+    ctx.closePath();
+    ctx.fill();
 
-        e.aiTimer=
-            25+
-            Math.random()*50;
+    // cockpit
+    ctx.fillStyle = "#13324d";
+    ctx.beginPath();
+    ctx.ellipse(0,-10,5,9,0,0,Math.PI*2);
+    ctx.fill();
 
-        /*
-         * AI prediction:
-         * εκτιμά πού θα βρίσκεται ο παίκτης
-         * λίγο αργότερα.
-         */
-
-        const predictedX=
-            player.x+
-            (
-                mouseX-player.x
-            )*.35;
-
-        e.targetX=predictedX;
-
-    }
-
-    const dx=e.targetX-e.x;
-
-    if(Math.abs(dx)>10){
-
-        e.vx+=
-            Math.sign(dx)*
-            .08;
-
-    }
-
-    e.vx*=.94;
-
-    e.x+=e.vx;
-
-
-    /*
-     * Dodger:
-     * αποφεύγει τα bullets.
-     */
-
-    if(e.type==="dodger"){
-
-        for(const b of bullets){
-
-            if(
-                Math.abs(b.x-e.x)<70 &&
-                b.y<e.y &&
-                b.y>e.y-220
-            ){
-
-                e.x+=
-                    b.x<e.x
-                    ? 3.5
-                    : -3.5;
-
-            }
-
-        }
-
-    }
-
-
-    /*
-     * Hunter:
-     * προσπαθεί να ευθυγραμμιστεί
-     * με τον παίκτη.
-     */
-
-    if(e.type==="hunter"){
-
-        if(
-            Math.abs(player.x-e.x)<100
-        ){
-
-            e.y+=.3;
-
-        }
-
-    }
-
-
-    /*
-     * Commander:
-     * κινείται περισσότερο πλευρικά.
-     */
-
-    if(e.type==="commander"){
-
-        e.x+=
-            Math.sin(frame*.025)*1.4;
-
-    }
-
-
-    e.x=Math.max(
-        30,
-        Math.min(
-            W-30,
-            e.x
-        )
-    );
-
+    ctx.restore();
 }
 
+// --------------------------------------------------
+// ENEMY
+// --------------------------------------------------
 
-/* ============================================================
-   ENEMY UPDATE
-============================================================ */
+function randomQuote(type) {
 
-function updateEnemies(){
+    let arr = oldQuotes;
 
-    for(
-        let i=enemies.length-1;
-        i>=0;
-        i--
-    ){
+    if (type.startsWith("polite")) arr = politeQuotes;
+    if (type.startsWith("calm")) arr = calmQuotes;
+    if (type.startsWith("hard")) arr = hardQuotes;
+    if (type.startsWith("ai")) arr = aiQuotes;
+    if (type.startsWith("elite")) arr = aiQuotes;
 
-        const e=enemies[i];
+    return arr[Math.floor(Math.random()*arr.length)];
+}
 
-        e.y+=e.speed;
+function createEnemy(type, x, y, data) {
 
-        e.angle+=.035;
+    return {
+        type,
+        x: x ?? Math.random()*(W-80)+40,
+        y: y ?? -60,
+        hp: data.hp * (0.85 + Math.random()*0.35),
+        maxHp: data.hp,
+        speed: data.speed * (0.85 + Math.random()*.3),
+        phase: Math.random()*Math.PI*2,
+        quote: randomQuote(type),
+        quoteTimer: 180 + Math.random()*300,
+        ai: data.ai && Math.random() < .22,
+        shootTimer: 150 + Math.random()*250,
+        vx: 0,
+        vy: 0,
+        radius: 20,
+        alive: true
+    };
+}
 
-        updateEnemyAI(e);
+function spawnWave() {
 
-        e.phraseTimer--;
+    enemies = [];
 
-        if(e.phraseTimer<=0){
+    const data = waveData[wave];
 
-            e.phraseTimer=
-                100+
-                Math.random()*160;
+    for (let i=0; i<data.count; i++) {
 
-            floatingTexts.push({
+        setTimeout(() => {
 
-                x:e.x,
+            if (!running || bossActive) return;
 
-                y:e.y-35,
+            const type =
+                data.enemyTypes[
+                    Math.floor(Math.random()*data.enemyTypes.length)
+                ];
 
-                text:randomPhrase(e.type),
+            enemies.push(
+                createEnemy(type, null, -50 - Math.random()*300, data)
+            );
 
-                life:120,
+        }, i*420);
+    }
 
-                color:
-                    wave>=5
-                    ? "#ff6bff"
-                    : wave>=4
-                    ? "#ff9955"
-                    : "#ffffff",
+    swarmTimer = 0;
+}
 
-                size:
-                    wave>=5
-                    ? 13
-                    : 12
+function drawEnemy(e) {
 
-            });
+    ctx.save();
+    ctx.translate(e.x,e.y);
 
-        }
+    ctx.shadowBlur = 12;
 
+    let color = "#8aa";
 
-        /*
-         * AI shooting.
-         */
+    if (e.type.startsWith("old")) color = "#b99b67";
+    if (e.type.startsWith("polite")) color = "#56d8ff";
+    if (e.type.startsWith("calm")) color = "#6ee995";
+    if (e.type.startsWith("hard")) color = "#ffca55";
+    if (e.type.startsWith("ai")) color = "#ff69df";
+    if (e.type.startsWith("elite")) color = "#ff5555";
 
-        e.shootTimer--;
+    ctx.shadowColor = color;
 
-        const data=
-            waveData[
-                Math.min(wave,6)
-            ];
+    // Different silhouettes
+    if (e.type === "old1") {
+        ctx.fillStyle=color;
+        ctx.beginPath();
+        ctx.arc(0,0,20,0,Math.PI*2);
+        ctx.fill();
 
+        ctx.fillStyle="#333";
+        ctx.fillRect(-14,-3,28,6);
+    }
 
-        if(
-            e.shootTimer<=0 &&
-            (
-                data.ai ||
-                Math.random()<.35
-            )
-        ){
+    else if (e.type === "old2") {
+        ctx.fillStyle=color;
+        ctx.beginPath();
+        ctx.moveTo(0,-23);
+        ctx.lineTo(24,12);
+        ctx.lineTo(0,8);
+        ctx.lineTo(-24,12);
+        ctx.closePath();
+        ctx.fill();
+    }
 
-            e.shootTimer=
-                data.ai
-                ? 75+Math.random()*90
-                : 150+Math.random()*180;
+    else if (e.type === "old3") {
+        ctx.fillStyle=color;
+        ctx.fillRect(-20,-10,40,20);
+        ctx.beginPath();
+        ctx.moveTo(-8,-10);
+        ctx.lineTo(0,-28);
+        ctx.lineTo(8,-10);
+        ctx.fill();
+    }
 
-            fireEnemyAtPlayer(e);
+    else if (e.type.startsWith("polite")) {
+        ctx.fillStyle=color;
 
-        }
+        ctx.beginPath();
+        ctx.moveTo(0,-24);
+        ctx.lineTo(25,15);
+        ctx.lineTo(0,8);
+        ctx.lineTo(-25,15);
+        ctx.closePath();
+        ctx.fill();
 
+        ctx.fillStyle="#fff";
+        ctx.beginPath();
+        ctx.arc(0,-4,5,0,Math.PI*2);
+        ctx.fill();
+    }
 
-        if(e.y>H+90){
+    else if (e.type.startsWith("calm")) {
+        ctx.fillStyle=color;
 
-            enemies.splice(i,1);
+        ctx.beginPath();
+        ctx.moveTo(-26,8);
+        ctx.lineTo(-9,-4);
+        ctx.lineTo(-3,-24);
+        ctx.lineTo(5,-4);
+        ctx.lineTo(26,8);
+        ctx.lineTo(6,12);
+        ctx.lineTo(0,25);
+        ctx.lineTo(-6,12);
+        ctx.closePath();
+        ctx.fill();
+    }
 
-            combo=0;
+    else if (e.type.startsWith("hard")) {
+        ctx.fillStyle=color;
 
+        ctx.beginPath();
+        ctx.moveTo(0,-27);
+        ctx.lineTo(30,0);
+        ctx.lineTo(0,24);
+        ctx.lineTo(-30,0);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle="#441010";
+        ctx.fillRect(-7,-7,14,14);
+    }
+
+    else if (e.type.startsWith("ai")) {
+        ctx.fillStyle=color;
+
+        ctx.beginPath();
+        ctx.moveTo(0,-30);
+        ctx.lineTo(14,-6);
+        ctx.lineTo(30,0);
+        ctx.lineTo(14,9);
+        ctx.lineTo(0,30);
+        ctx.lineTo(-14,9);
+        ctx.lineTo(-30,0);
+        ctx.lineTo(-14,-6);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.strokeStyle="#fff";
+        ctx.lineWidth=2;
+        ctx.stroke();
+    }
+
+    else {
+        ctx.fillStyle=color;
+        ctx.beginPath();
+        ctx.arc(0,0,25,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle="#111";
+        ctx.fillRect(-17,-4,34,8);
+    }
+
+    ctx.restore();
+
+    // HP
+    const hpPercent = Math.max(0,e.hp/e.maxHp);
+
+    ctx.fillStyle="rgba(0,0,0,.5)";
+    ctx.fillRect(e.x-20,e.y+27,40,4);
+
+    ctx.fillStyle="#72f29b";
+    ctx.fillRect(e.x-20,e.y+27,40*hpPercent,4);
+}
+
+// --------------------------------------------------
+// BULLETS
+// --------------------------------------------------
+
+function fire() {
+
+    if (!running || bossActive === false && gameOver) return;
+
+    shots++;
+
+    bullets.push({
+        x: player.x,
+        y: player.y-28,
+        vy: -10,
+        damage
+    });
+}
+
+function updateBullets(dt) {
+
+    for (let i=bullets.length-1;i>=0;i--) {
+
+        const b=bullets[i];
+
+        b.y += b.vy * dt;
+
+        if (b.y < -30) {
+            bullets.splice(i,1);
             continue;
-
         }
 
+        // enemies
+        for (let j=enemies.length-1;j>=0;j--) {
 
-        if(
-            Math.hypot(
-                e.x-player.x,
-                e.y-player.y
-            )<40
-        ){
+            const e=enemies[j];
 
-            enemies.splice(i,1);
+            if (
+                Math.hypot(b.x-e.x,b.y-e.y) <
+                e.radius+6
+            ) {
 
-            playerHit();
+                e.hp -= b.damage;
+                hits++;
 
+                createExplosion(b.x,b.y,4);
+
+                bullets.splice(i,1);
+
+                if (e.hp <= 0) {
+
+                    killEnemy(e,j);
+
+                }
+
+                break;
+            }
         }
 
+        // boss
+        if (bossActive && boss) {
+
+            if (
+                Math.hypot(b.x-boss.x,b.y-boss.y)
+                < boss.radius+6
+            ) {
+
+                boss.hp -= b.damage;
+                hits++;
+
+                createExplosion(b.x,b.y,6);
+
+                bullets.splice(i,1);
+
+                if (boss.hp <= 0) {
+                    winGame();
+                }
+            }
+        }
     }
-
 }
 
+function drawBullets() {
 
-/* ============================================================
-   ENEMY FIRE
-============================================================ */
+    ctx.save();
 
-function fireEnemyAtPlayer(e){
+    for (const b of bullets) {
 
-    const dx=
-        player.x-e.x;
+        ctx.strokeStyle="#8ef4ff";
+        ctx.lineWidth=3;
+        ctx.shadowBlur=12;
+        ctx.shadowColor="#4deaff";
 
-    const dy=
-        player.y-e.y;
+        ctx.beginPath();
+        ctx.moveTo(b.x,b.y+10);
+        ctx.lineTo(b.x,b.y-10);
+        ctx.stroke();
+    }
 
-    const len=
-        Math.hypot(dx,dy)||1;
+    ctx.restore();
+}
 
-    const speed=
-        wave>=6
-        ? 3.8
-        : wave>=5
-        ? 3.2
-        : 2.5;
+// --------------------------------------------------
+// ENEMY BULLETS
+// --------------------------------------------------
+
+function fireEnemyBullet(x,y,targetX,targetY,heavy=false) {
+
+    const dx=targetX-x;
+    const dy=targetY-y;
+    const len=Math.hypot(dx,dy);
 
     enemyBullets.push({
-
-        x:e.x,
-        y:e.y+20,
-
-        vx:dx/len*speed,
-        vy:dy/len*speed,
-
-        r:
-            wave>=6
-            ? 7
-            : 5,
-
-        fire:true
-
+        x,y,
+        vx:dx/len*(heavy?3.4:2.2),
+        vy:dy/len*(heavy?3.4:2.2),
+        damage:heavy?7:3,
+        life:500,
+        heavy
     });
-
 }
 
+function updateEnemyBullets(dt) {
 
-/* ============================================================
-   DESTROY ENEMY
-============================================================ */
+    for(let i=enemyBullets.length-1;i>=0;i--) {
 
-function destroyEnemy(index){
+        const b=enemyBullets[i];
 
-    const e=enemies[index];
+        b.x += b.vx*dt;
+        b.y += b.vy*dt;
+        b.life -= dt;
 
-    enemies.splice(index,1);
-
-    kills++;
-
-    combo++;
-
-    score+=
-        100+
-        combo*12;
-
-    createExplosion(e.x,e.y);
-
-
-    /*
-     * Power-up chance.
-     */
-
-    if(
-        combo>=4 &&
-        Math.random()<.25
-    ){
-
-        spawnPowerup(
-            e.x,
-            e.y
-        );
-
-    }
-
-
-    /*
-     * Waves:
-     *
-     * 1 = kills 1-8
-     * 2 = 9-16
-     * 3 = 17-24
-     * 4 = 25-32
-     * 5 = 33-41
-     * 6 = 42-49
-     *
-     * Boss = 50
-     */
-
-    if(kills<50){
-
-        const newWave=
-            Math.min(
-                6,
-                Math.floor(
-                    kills/8
-                )+1
-            );
-
-        if(newWave!==wave){
-
-            wave=newWave;
-
-            waveStartTime=
-                performance.now();
-
-            swarmCountThisWave=0;
-
-            showWaveMessage();
-
-        }
-
-    }
-
-    updateHUD();
-
-}
-
-
-/* ============================================================
-   WAVE MESSAGE
-============================================================ */
-
-function showWaveMessage(){
-
-    const data=
-        waveData[
-            Math.min(wave,6)
-        ];
-
-    showMessage(
-        "🌊 WAVE "+wave+
-        "<br>"+
-        data.name,
-        data.ai
-        ? "#ff58ff"
-        : "#ffd84d"
-    );
-
-}
-
-
-/* ============================================================
-   POWERUPS
-============================================================ */
-
-function spawnPowerup(x,y){
-
-    const next=
-        Math.min(
-            2,
-            powerLevel+1
-        );
-
-    powerups.push({
-
-        x,
-        y,
-        r:23,
-
-        level:next,
-
-        vy:1.15,
-
-        life:550,
-
-        rotation:0
-
-    });
-
-}
-
-
-function updatePowerups(){
-
-    for(
-        let i=powerups.length-1;
-        i>=0;
-        i--
-    ){
-
-        const p=powerups[i];
-
-        p.y+=p.vy;
-
-        p.rotation+=.05;
-
-        p.life--;
-
-        if(
-            Math.hypot(
-                p.x-player.x,
-                p.y-player.y
-            )<45
-        ){
-
-            powerLevel=p.level;
-
-            damage=
-                powers[
-                    powerLevel
-                ].damage;
-
-            score+=250;
-
-            combo+=2;
-
-            showMessage(
-                "📡 "+
-                powers[
-                    powerLevel
-                ].name+
-                "<br>DMG "+
-                powers[
-                    powerLevel
-                ].damage,
-                powers[
-                    powerLevel
-                ].color
-            );
-
-            powerups.splice(i,1);
-
+        if(b.life<=0 || b.x<-50 || b.x>W+50 || b.y>H+50) {
+            enemyBullets.splice(i,1);
             continue;
-
         }
 
         if(
-            p.y>H+50 ||
-            p.life<=0
-        ){
+            Math.hypot(b.x-player.x,b.y-player.y)<18
+        ) {
 
-            powerups.splice(i,1);
+            internet -= b.damage;
 
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-   SWARMS
-============================================================ */
-
-function spawnSwarm(){
-
-    if(
-        bossActive ||
-        swarmCountThisWave>=3
-    )return;
-
-    swarmCountThisWave++;
-
-    const horizontal=
-        Math.random()<.5;
-
-    swarms.push({
-
-        horizontal,
-
-        x:
-            horizontal
-            ? -200
-            : Math.random()*W,
-
-        y:
-            horizontal
-            ? 130+
-              Math.random()*(H-250)
-            : -200,
-
-        speed:
-            2.5+
-            wave*.25,
-
-        life:520
-
-    });
-
-    showMessage(
-        horizontal
-        ? "🐝 ΟΡΙΖΟΝΤΙΟ ΣΜΗΝΟΣ!"
-        : "🐝 ΚΑΘΕΤΟ ΣΜΗΝΟΣ!",
-        "#ffd84d"
-    );
-
-}
-
-
-function updateSwarms(){
-
-    for(
-        let i=swarms.length-1;
-        i>=0;
-        i--
-    ){
-
-        const s=swarms[i];
-
-        if(s.horizontal){
-            s.x+=s.speed;
-        }else{
-            s.y+=s.speed;
-        }
-
-        s.life--;
-
-        if(s.life%16===0){
-
-            enemies.push({
-
-                x:
-                    s.horizontal
-                    ? s.x
-                    : s.x+
-                      (Math.random()*100-50),
-
-                y:
-                    s.horizontal
-                    ? s.y+
-                      (Math.random()*90-45)
-                    : s.y,
-
-                w:30,
-                h:38,
-
-                type:"swarm",
-
-                hp:10+wave*2,
-                maxHp:10+wave*2,
-
-                speed:1.8+wave*.2,
-
-                phraseTimer:999,
-                shootTimer:999,
-
-                ai:false,
-
-                vx:0,
-
-                angle:0
-
-            });
-
-        }
-
-        if(
-            s.life<=0 ||
-            s.x>W+220 ||
-            s.y>H+220
-        ){
-
-            swarms.splice(i,1);
-
-        }
-
-    }
-
-}
-
-
-/* ============================================================
-   SPAWN LOGIC
-============================================================ */
-
-function spawnLogic(){
-
-    if(bossActive)return;
-
-
-    /*
-     * First wave has an actual 60-second intro.
-     *
-     * During this time there are very few enemies.
-     */
-
-    if(
-        wave===1 &&
-        performance.now()-waveStartTime<60000
-    ){
-
-        spawnTimer--;
-
-        if(spawnTimer<=0){
-
-            spawnTimer=110;
-
-            if(
-                Math.random()<.45
-            ){
-                spawnEnemy();
-            }
-
-        }
-
-    }else{
-
-        spawnTimer--;
-
-        const data=
-            waveData[
-                Math.min(wave,6)
-            ];
-
-        if(spawnTimer<=0){
-
-            spawnTimer=
-                data.spawn;
-
-            spawnEnemy();
-
-            /*
-             * Later waves spawn groups.
-             */
-
-            if(
-                wave>=3 &&
-                Math.random()<.30
-            ){
-
-                spawnEnemy();
-
-            }
-
-            if(
-                wave>=5 &&
-                Math.random()<.25
-            ){
-
-                spawnEnemy();
-
-            }
-
-        }
-
-    }
-
-
-    /*
-     * Long wave swarm system.
-     */
-
-    const elapsed=
-        performance.now()-
-        waveStartTime;
-
-
-    if(
-        elapsed>18000 &&
-        swarmCountThisWave===0
-    ){
-
-        spawnSwarm();
-
-    }
-
-    if(
-        elapsed>30000 &&
-        swarmCountThisWave===1
-    ){
-
-        spawnSwarm();
-
-    }
-
-    if(
-        elapsed>45000 &&
-        swarmCountThisWave===2
-    ){
-
-        spawnSwarm();
-
-    }
-
-
-    /*
-     * Boss at exactly 50 kills.
-     */
-
-    if(
-        kills>=50 &&
-        !bossActive &&
-        !boss
-    ){
-
-        spawnBoss();
-
-    }
-
-}
-
-
-/* ============================================================
-   BOSS
-============================================================ */
-
-function spawnBoss(){
-
-    bossActive=true;
-
-    enemies=[];
-    swarms=[];
-
-    boss={
-
-        x:W/2,
-
-        y:-180,
-
-        w:210,
-
-        h:160,
-
-        hp:10000,
-
-        maxHp:10000,
-
-        vx:1.6,
-
-        vy:0,
-
-        fireTimer:90,
-
-        objectionTimer:20,
-
-        aiTimer:0,
-
-        targetX:W/2,
-
-        phase:1,
-
-        entrance:true,
-
-        rage:0,
-
-        side:1
-
-    };
-
-
-    document.getElementById("bossBar")
-        .style.display="block";
-
-
-    showMessage(
-        "👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ!<br>"+
-        "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
-        "#ff4545"
-    );
-
-}
-
-
-/* ============================================================
-   BOSS AI
-============================================================ */
-
-function bossAI(){
-
-    if(!boss)return;
-
-
-    const ratio=
-        boss.hp/boss.maxHp;
-
-
-    /*
-     * PHASES
-     */
-
-    if(ratio>.70){
-        boss.phase=1;
-    }
-    else if(ratio>.45){
-        boss.phase=2;
-    }
-    else if(ratio>.20){
-        boss.phase=3;
-    }
-    else{
-        boss.phase=4;
-    }
-
-
-    /*
-     * Predict player movement.
-     */
-
-    const predictedX=
-        player.x+
-        (
-            mouseX-player.x
-        )*.55;
-
-
-    boss.targetX=
-        predictedX;
-
-
-    /*
-     * Boss changes side.
-     */
-
-    if(
-        Math.random()<.006+
-        (4-boss.phase)*.002
-    ){
-
-        boss.side*=-1;
-
-    }
-
-
-    /*
-     * Movement speed depends on phase.
-     */
-
-    const speed=
-
-        boss.phase===1
-        ?1.6
-
-        :boss.phase===2
-        ?2.1
-
-        :boss.phase===3
-        ?2.7
-
-        :3.4;
-
-
-    /*
-     * Instead of simply following,
-     * AI tries to intercept the player's
-     * predicted location.
-     */
-
-    const dx=
-        boss.targetX-boss.x;
-
-
-    boss.vx+=
-        Math.sign(dx)*
-        .075*
-        speed;
-
-
-    boss.vx*=.94;
-
-
-    /*
-     * Rage makes lateral movement
-     * increasingly aggressive.
-     */
-
-    if(boss.phase>=3){
-
-        boss.vx+=
-            Math.sin(frame*.035)*
-            .08*
-            boss.phase;
-
-    }
-
-
-    boss.x+=boss.vx;
-
-
-    /*
-     * Boundaries.
-     */
-
-    if(
-        boss.x<
-        boss.w/2+25
-    ){
-
-        boss.x=
-            boss.w/2+25;
-
-        boss.vx=
-            Math.abs(boss.vx);
-
-    }
-
-
-    if(
-        boss.x>
-        W-boss.w/2-25
-    ){
-
-        boss.x=
-            W-boss.w/2-25;
-
-        boss.vx=
-            -Math.abs(boss.vx);
-
-    }
-
-}
-
-
-/* ============================================================
-   BOSS OBJECTIONS
-============================================================ */
-
-const bossLines={
-
-    1:[
-        "ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
-        "ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ, ΔΕΝ ΜΟΥ ΧΡΕΙΑΖΕΤΑΙ!",
-        "ΕΧΩ ΗΔΗ ΠΑΡΟΧΟ!",
-        "ΘΑ ΤΟ ΣΚΕΦΤΩ!",
-        "ΔΕΝ ΑΓΟΡΑΖΩ!"
-    ],
-
-    2:[
-        "ΣΟΥ ΕΙΠΑ ΟΤΙ ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!",
-        "ΕΙΝΑΙ ΠΟΛΥ ΑΚΡΙΒΟ!",
-        "ΔΕΝ ΒΛΕΠΩ ΤΟ ΟΦΕΛΟΣ!",
-        "ΔΕΝ ΘΕΛΩ ΑΛΛΑΓΗ!",
-        "ΜΗΝ ΕΠΙΜΕΝΕΙΣ!"
-    ],
-
-    3:[
-        "ΠΟΣΕΣ ΦΟΡΕΣ ΘΑ ΤΟ ΠΟΥΜΕ;",
-        "ΜΕ ΕΧΕΙΣ ΚΟΥΡΑΣΕΙ!",
-        "ΑΡΚΕΤΑ!",
-        "ΦΥΓΕ ΑΠΟ ΕΔΩ!",
-        "ΔΕΝ ΘΕΛΩ ΝΑ ΜΕ ΞΑΝΑΕΝΟΧΛΗΣΕΙΣ!"
-    ],
-
-    4:[
-        "ΤΕΛΟΣ Η ΠΩΛΗΣΗ!",
-        "ΔΕΝ ΘΑ ΠΕΡΑΣΕΙΣ!",
-        "ΑΠΟΡΡΙΨΗ!",
-        "ΜΗΝ ΞΑΝΑΕΡΘΕΙΣ!",
-        "ΦΥΓΕ!"
-    ]
-
-};
-
-
-function bossObjection(){
-
-    if(!boss)return;
-
-
-    const arr=
-        bossLines[
-            boss.phase
-        ];
-
-
-    let text;
-
-
-    do{
-
-        text=
-            arr[
-                Math.floor(
-                    Math.random()*arr.length
-                )
-            ];
-
-    }while(
-        text===lastBossObjection &&
-        arr.length>1
-    );
-
-
-    lastBossObjection=text;
-
-
-    let color=
-
-        boss.phase===1
-        ? "#bbbbbb"
-
-        :boss.phase===2
-        ? "#ffd84d"
-
-        :boss.phase===3
-        ? "#ff7138"
-
-        : "#ff1744";
-
-
-    floatingTexts.push({
-
-        x:
-            boss.x+
-            (
-                Math.random()*150-
-                75
-            ),
-
-        y:
-            boss.y-75,
-
-        text,
-
-        life:
-            boss.phase===4
-            ?150
-            :175,
-
-        color,
-
-        size:
-            boss.phase===4
-            ?20
-            :17
-
-    });
-
-}
-
-
-/* ============================================================
-   BOSS ATTACK
-============================================================ */
-
-function bossAttack(){
-
-    if(!boss)return;
-
-
-    const phase=
-        boss.phase;
-
-
-    /*
-     * Number of projectiles grows
-     * with rage.
-     */
-
-    let count=
-        phase===1
-        ?5
-
-        :phase===2
-        ?7
-
-        :phase===3
-        ?10
-
-        :14;
-
-
-    let spread=
-        phase===1
-        ?.11
-
-        :phase===2
-        ?.15
-
-        :phase===3
-        ?.19
-
-        :.23;
-
-
-    let speed=
-        phase===1
-        ?3.0
-
-        :phase===2
-        ?3.5
-
-        :phase===3
-        ?4.1
-
-        :4.8;
-
-
-    /*
-     * Main fire fan.
-     */
-
-    for(
-        let i=0;
-        i<count;
-        i++
-    ){
-
-        const angle=
-            Math.PI/2+
-            (
-                i-
-                (count-1)/2
-            )*
-            spread;
-
-
-        enemyBullets.push({
-
-            x:boss.x,
-
-            y:boss.y+60,
-
-            vx:
-                Math.cos(angle)*
-                speed,
-
-            vy:
-                Math.sin(angle)*
-                speed,
-
-            r:
-                phase>=3
-                ?10
-                :8,
-
-            fire:true
-
-        });
-
-    }
-
-
-    /*
-     * Phase 3+:
-     * targeted projectile.
-     */
-
-    if(phase>=3){
-
-        const dx=
-            player.x-boss.x;
-
-        const dy=
-            player.y-boss.y;
-
-        const len=
-            Math.hypot(dx,dy)||1;
-
-
-        enemyBullets.push({
-
-            x:boss.x,
-
-            y:boss.y+60,
-
-            vx:
-                dx/len*
-                (speed+1),
-
-            vy:
-                dy/len*
-                (speed+1),
-
-            r:11,
-
-            fire:true,
-
-            homing:
-                phase===4
-
-        });
-
-    }
-
-}
-
-
-/* ============================================================
-   HOMING BULLETS
-============================================================ */
-
-function updateEnemyBullets(){
-
-    for(
-        let i=enemyBullets.length-1;
-        i>=0;
-        i--
-    ){
-
-        const b=
-            enemyBullets[i];
-
-
-        /*
-         * Lethal Boss projectiles
-         * gently adjust toward player.
-         */
-
-        if(
-            b.homing
-        ){
-
-            const dx=
-                player.x-b.x;
-
-            const dy=
-                player.y-b.y;
-
-            const len=
-                Math.hypot(dx,dy)||1;
-
-
-            const targetSpeed=
-                Math.max(
-                    3,
-                    Math.hypot(
-                        b.vx,
-                        b.vy
-                    )
-                );
-
-
-            b.vx+=
-                (
-                    dx/len*
-                    targetSpeed-
-                    b.vx
-                )*.025;
-
-
-            b.vy+=
-                (
-                    dy/len*
-                    targetSpeed-
-                    b.vy
-                )*.025;
-
-        }
-
-
-        b.x+=b.vx;
-        b.y+=b.vy;
-
-
-        if(
-            b.x<-80 ||
-            b.x>W+80 ||
-            b.y<-80 ||
-            b.y>H+80
-        ){
+            createExplosion(player.x,player.y,10);
 
             enemyBullets.splice(i,1);
 
-            continue;
+            if(internet<=0) loseGame("Ο πελάτης άντεξε την πώληση.");
+        }
+    }
+}
 
+function drawEnemyBullets() {
+
+    for(const b of enemyBullets) {
+
+        ctx.save();
+
+        ctx.fillStyle=b.heavy ? "#ff3131" : "#ff9b55";
+        ctx.shadowBlur=14;
+        ctx.shadowColor=ctx.fillStyle;
+
+        ctx.beginPath();
+        ctx.arc(b.x,b.y,b.heavy?6:4,0,Math.PI*2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+// --------------------------------------------------
+// ENEMY UPDATE
+// --------------------------------------------------
+
+function updateEnemies(dt) {
+
+    for(let i=enemies.length-1;i>=0;i--) {
+
+        const e=enemies[i];
+
+        e.quoteTimer -= dt*16;
+
+        if(e.quoteTimer<=0) {
+
+            showFloatingText(e.x,e.y-35,e.quote);
+
+            e.quoteTimer =
+                240 + Math.random()*360;
         }
 
+        // normal movement
+        e.y += e.speed*dt;
+
+        e.x += Math.sin(Date.now()/700 + e.phase)*0.35*dt;
+
+        // limited AI
+        if(e.ai) {
+
+            const direction =
+                player.x > e.x ? 1 : -1;
+
+            e.x += direction*.38*dt;
+
+            // slight avoidance
+            if(Math.abs(player.x-e.x)<100) {
+                e.x -= direction*.7*dt;
+            }
+        }
+
+        // shooting
+        e.shootTimer -= dt*16;
+
+        if(
+            e.shootTimer<=0 &&
+            e.y>50 &&
+            e.y<H*.7
+        ) {
+
+            if(
+                e.type.startsWith("hard") ||
+                e.type.startsWith("ai") ||
+                e.type.startsWith("elite")
+            ) {
+                fireEnemyBullet(
+                    e.x,
+                    e.y+15,
+                    player.x,
+                    player.y,
+                    e.ai && Math.random()<.35
+                );
+            }
+
+            e.shootTimer =
+                250+Math.random()*450;
+        }
+
+        // reached player
+        if(e.y>H+50) {
+
+            internet -= 4;
+
+            createExplosion(e.x,H-40,8);
+
+            enemies.splice(i,1);
+
+            if(internet<=0) {
+                loseGame("Οι πελάτες διέφυγαν!");
+            }
+        }
+    }
+}
+
+// --------------------------------------------------
+// SWARM
+// --------------------------------------------------
+
+function createSwarm() {
+
+    if(!running || bossActive) return;
+
+    const data=waveData[wave];
+
+    const horizontal=Math.random()<.5;
+
+    showMessage(
+        horizontal
+        ? "⚠️ ΕΜΦΑΝΙΣΤΗΚΕ ΣΜΗΝΟΣ — ΟΡΙΖΟΝΤΙΑ!"
+        : "⚠️ ΕΜΦΑΝΙΣΤΗΚΕ ΣΜΗΝΟΣ — ΚΑΘΕΤΑ!"
+    );
+
+    if(horizontal) {
+
+        for(let i=0;i<8;i++) {
+
+            const e=createEnemy(
+                data.enemyTypes[
+                    Math.floor(Math.random()*data.enemyTypes.length)
+                ],
+                -40-i*70,
+                130+Math.random()*100,
+                data
+            );
+
+            e.speed*=.8;
+            enemies.push(e);
+        }
+
+    } else {
+
+        for(let i=0;i<7;i++) {
+
+            const e=createEnemy(
+                data.enemyTypes[
+                    Math.floor(Math.random()*data.enemyTypes.length)
+                ],
+                100+Math.random()*(W-200),
+                -80-i*60,
+                data
+            );
+
+            e.speed*=.9;
+            enemies.push(e);
+        }
+    }
+}
+
+// --------------------------------------------------
+// BONUS
+// --------------------------------------------------
+
+function createBonus(x,y) {
+
+    let type;
+
+    const r=Math.random();
+
+    if(r<.55) {
+        type={
+            name:"500 Mbps",
+            damage:17.9,
+            color:"#6ee7ff"
+        };
+    }
+    else if(r<.85) {
+        type={
+            name:"1000 Mbps",
+            damage:19.9,
+            color:"#a68cff"
+        };
+    }
+    else {
+        type={
+            name:"2.5 Gbps",
+            damage:52.9,
+            color:"#ffd34f"
+        };
+    }
+
+    bonuses.push({
+        x,y,
+        vy:.65,
+        type,
+        life:900,
+        angle:0
+    });
+}
+
+function updateBonuses(dt) {
+
+    for(let i=bonuses.length-1;i>=0;i--) {
+
+        const b=bonuses[i];
+
+        b.y += b.vy*dt;
+        b.angle += .05*dt;
+        b.life -= dt*16;
 
         if(
             Math.hypot(
                 b.x-player.x,
                 b.y-player.y
-            )<
-            30+(b.r||5)
-        ){
+            )<35
+        ) {
 
-            enemyBullets.splice(i,1);
+            damage=b.type.damage;
 
-            playerHit();
+            showMessage(
+                "⚡ BONUS! " +
+                b.type.name +
+                " — DMG " +
+                b.type.damage
+            );
 
+            bonuses.splice(i,1);
+            continue;
         }
 
+        if(b.life<=0 || b.y>H+40) {
+            bonuses.splice(i,1);
+        }
     }
-
 }
 
+function drawBonuses() {
 
-/* ============================================================
-   BOSS UPDATE
-============================================================ */
+    for(const b of bonuses) {
 
-function updateBoss(){
+        ctx.save();
 
-    if(!boss)return;
+        ctx.translate(b.x,b.y);
+        ctx.rotate(b.angle);
 
+        ctx.shadowBlur=20;
+        ctx.shadowColor=b.type.color;
 
-    /*
-     * Entrance
-     */
+        ctx.fillStyle=b.type.color;
 
-    if(boss.entrance){
+        ctx.beginPath();
 
-        boss.y+=1.7;
+        for(let i=0;i<6;i++) {
 
-        if(boss.y>=145){
+            const a=i*Math.PI/3;
+            const r=i%2===0?24:12;
 
-            boss.y=145;
-
-            boss.entrance=false;
-
-            bossObjection();
-
+            if(i===0)
+                ctx.moveTo(Math.cos(a)*r,Math.sin(a)*r);
+            else
+                ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r);
         }
 
-        return;
+        ctx.closePath();
+        ctx.fill();
 
+        ctx.restore();
+
+        ctx.fillStyle="#fff";
+        ctx.font="bold 13px Arial";
+        ctx.textAlign="center";
+        ctx.fillText(
+            b.type.name,
+            b.x,
+            b.y+38
+        );
+    }
+}
+
+// --------------------------------------------------
+// KILLS
+// --------------------------------------------------
+
+function killEnemy(e,index) {
+
+    createExplosion(e.x,e.y,16);
+
+    enemies.splice(index,1);
+
+    kills++;
+    score+=100;
+
+    if(kills===10) createBonus(e.x,e.y);
+    if(kills===20) createBonus(e.x,e.y);
+    if(kills===30) createBonus(e.x,e.y);
+    if(kills===40) createBonus(e.x,e.y);
+
+    if(kills>=50 && !bossActive) {
+
+        startBoss();
+    }
+}
+
+// --------------------------------------------------
+// BOSS
+// --------------------------------------------------
+
+function startBoss() {
+
+    bossActive=true;
+    enemies=[];
+    enemyBullets=[];
+    bonuses=[];
+
+    document.getElementById("bossBarWrap")
+        .style.display="block";
+
+    document.getElementById("waveTitle")
+        .textContent="👹 ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ";
+
+    document.getElementById("waveSub")
+        .textContent=
+        "Η ΑΝΤΙΣΤΑΣΗ ΕΙΝΑΙ ΤΕΡΑΣΤΙΑ — ΚΛΕΙΣΕ ΤΗΝ ΠΩΛΗΣΗ!";
+
+    boss={
+        x:W/2,
+        y:-150,
+        targetX:W/2,
+        hp:5000,
+        maxHp:5000,
+        radius:70,
+        phase:0,
+        attackTimer:150,
+        quoteTimer:70,
+        rage:0
+    };
+
+    showMessage(
+        "🚨 50 KILLS! ΕΜΦΑΝΙΣΤΗΚΕ Ο ΤΕΛΙΚΟΣ ΠΕΛΑΤΗΣ!"
+    );
+}
+
+function updateBoss(dt) {
+
+    if(!boss) return;
+
+    if(boss.y<150) {
+        boss.y += .5*dt;
+        return;
     }
 
+    boss.phase += .025*dt;
 
-    bossAI();
+    boss.x =
+        W/2 +
+        Math.sin(boss.phase*.7)*Math.min(W*.32,260);
 
+    boss.quoteTimer -= dt*16;
+    boss.attackTimer -= dt*16;
 
-    /*
-     * Fire timing becomes lethal.
-     */
+    const hpRatio=boss.hp/boss.maxHp;
 
-    boss.fireTimer--;
+    boss.rage=1-hpRatio;
 
-    const fireDelay=
+    if(boss.quoteTimer<=0) {
 
-        boss.phase===1
-        ?90
+        const q=
+            bossQuotes[
+                Math.floor(Math.random()*bossQuotes.length)
+            ];
 
-        :boss.phase===2
-        ?70
+        showFloatingText(
+            boss.x,
+            boss.y-90,
+            q.text,
+            true
+        );
 
-        :boss.phase===3
-        ?50
+        boss.quoteTimer =
+            Math.max(
+                130,
+                310-boss.rage*150
+            );
+    }
 
-        :34;
-
-
-    if(boss.fireTimer<=0){
-
-        boss.fireTimer=fireDelay;
+    if(boss.attackTimer<=0) {
 
         bossAttack();
 
-    }
-
-
-    /*
-     * Objection timing.
-     */
-
-    boss.objectionTimer--;
-
-
-    const objectionDelay=
-
-        boss.phase===1
-        ?145
-
-        :boss.phase===2
-        ?110
-
-        :boss.phase===3
-        ?80
-
-        :55;
-
-
-    if(boss.objectionTimer<=0){
-
-        boss.objectionTimer=
-            objectionDelay;
-
-        bossObjection();
-
-    }
-
-
-    updateHUD();
-
-}
-
-
-/* ============================================================
-   BOSS DEATH
-============================================================ */
-
-function destroyBoss(){
-
-    if(!boss)return;
-
-
-    for(let i=0;i<130;i++){
-
-        createExplosion(
-
-            boss.x+
-            Math.random()*260-130,
-
-            boss.y+
-            Math.random()*200-100
-
-        );
-
-    }
-
-
-    score+=10000;
-
-    combo+=50;
-
-    boss=null;
-
-    bossActive=false;
-
-
-    document.getElementById("bossBar")
-        .style.display="none";
-
-
-    powerLevel=2;
-
-    damage=52.9;
-
-
-    showMessage(
-
-        "🎉🎉🎉 ΕΓΙΝΕ ΠΕΛΑΤΗΣ! 🎉🎉🎉"+
-        "<br>Η ΠΩΛΗΣΗ ΕΚΛΕΙΣΕ!",
-        "#5dff9b"
-
-    );
-
-
-    updateHUD();
-
-}
-
-
-/* ============================================================
-   BULLETS
-============================================================ */
-
-function updateBullets(){
-
-    for(
-        let i=bullets.length-1;
-        i>=0;
-        i--
-    ){
-
-        const b=bullets[i];
-
-        b.x+=b.vx;
-        b.y+=b.vy;
-
-
-        if(b.y<-70){
-
-            bullets.splice(i,1);
-            continue;
-
-        }
-
-
-        /*
-         * Boss hit.
-         */
-
-        if(
-            boss &&
-            b.x>boss.x-boss.w/2 &&
-            b.x<boss.x+boss.w/2 &&
-            b.y>boss.y-boss.h/2 &&
-            b.y<boss.y+boss.h/2
-        ){
-
-            boss.hp-=b.damage;
-
-            createHitParticles(
-                b.x,
-                b.y,
-                "#ffe052"
+        boss.attackTimer =
+            Math.max(
+                70,
+                190-boss.rage*100
             );
+    }
 
-            bullets.splice(i,1);
+    document.getElementById("bossFill")
+        .style.width =
+        Math.max(0,boss.hp/boss.maxHp*100)+"%";
+}
 
-            shake=2.5;
+function bossAttack() {
 
-            if(boss.hp<=0){
+    const pattern=Math.floor(Math.random()*4);
 
-                destroyBoss();
+    if(pattern===0) {
 
-            }
+        showMessage("🔥 «ΔΕΝ ΕΝΔΙΑΦΕΡΟΜΑΙ!»");
 
-            continue;
+        for(let i=-2;i<=2;i++) {
 
+            fireEnemyBullet(
+                boss.x+i*25,
+                boss.y+50,
+                player.x+i*80,
+                player.y,
+                boss.rage>.55
+            );
         }
+    }
 
+    else if(pattern===1) {
 
-        /*
-         * Enemy hit.
-         */
+        showMessage("🛡️ «ΕΧΩ ΚΑΛΗ ΤΑΧΥΤΗΤΑ!»");
 
-        for(
-            let j=enemies.length-1;
-            j>=0;
-            j--
-        ){
+        for(let i=0;i<7;i++) {
 
-            const e=enemies[j];
+            setTimeout(()=>{
 
+                if(!bossActive) return;
 
-            if(
-                b.x>e.x-e.w/2 &&
-                b.x<e.x+e.w/2 &&
-                b.y>e.y-e.h/2 &&
-                b.y<e.y+e.h/2
-            ){
-
-                let dmg=b.damage;
-
-
-                /*
-                 * Shield AI:
-                 * reduces incoming damage.
-                 */
-
-                if(
-                    e.shield
-                ){
-
-                    dmg*=.45;
-
-                    createHitParticles(
-                        b.x,
-                        b.y,
-                        "#59d8ff"
-                    );
-
-                }
-
-
-                e.hp-=dmg;
-
-                createHitParticles(
-                    b.x,
-                    b.y,
-                    "#6cf"
+                fireEnemyBullet(
+                    boss.x,
+                    boss.y+30,
+                    player.x + (i-3)*90,
+                    player.y,
+                    false
                 );
 
-                bullets.splice(i,1);
-
-
-                if(e.hp<=0){
-
-                    destroyEnemy(j);
-
-                }
-
-                break;
-
-            }
-
+            },i*100);
         }
-
     }
 
-}
+    else if(pattern===2) {
 
+        showMessage("😡 «ΦΥΓΕ ΑΠΟ ΕΔΩ!»");
 
-/* ============================================================
-   PLAYER HIT
-============================================================ */
+        for(let i=0;i<12;i++) {
 
-function playerHit(){
+            const a=
+                Math.PI*2*i/12;
 
-    shake=14;
-
-    createExplosion(
-        player.x,
-        player.y
-    );
-
-    combo=0;
-
-    powerLevel=0;
-    damage=17.9;
-
-    player.strikes++;
-
-    score=Math.max(
-        0,
-        score-100
-    );
-
-    player.x=W/2;
-    player.y=H-120;
-
-    updateHUD();
-
-
-    if(player.strikes>=3){
-
-        endGame(
-            "Το μαχητικό σου καταστράφηκε!"
-        );
-
-    }else{
-
-        showMessage(
-            "💥 ΧΤΥΠΗΜΑ!<br>"+
-            "ΑΝΤΟΧΗ "+
-            player.strikes+
-            "/3",
-            "#ff4d4d"
-        );
-
+            enemyBullets.push({
+                x:boss.x,
+                y:boss.y,
+                vx:Math.cos(a)*(2.2+boss.rage*1.4),
+                vy:Math.sin(a)*(2.2+boss.rage*1.4),
+                damage:4+boss.rage*5,
+                life:400,
+                heavy:boss.rage>.65
+            });
+        }
     }
 
+    else {
+
+        showMessage("🚨 «ΔΕΝ ΑΓΟΡΑΖΩ!»");
+
+        // Targeted attack
+        for(let i=0;i<3;i++) {
+
+            setTimeout(()=>{
+
+                if(!bossActive) return;
+
+                fireEnemyBullet(
+                    boss.x,
+                    boss.y+40,
+                    player.x,
+                    player.y,
+                    true
+                );
+
+            },i*220);
+        }
+    }
 }
 
+function drawBoss() {
 
-/* ============================================================
-   PARTICLES
-============================================================ */
+    if(!boss) return;
 
-function createHitParticles(x,y,color){
+    ctx.save();
 
-    for(let i=0;i<6;i++){
+    ctx.translate(boss.x,boss.y);
+
+    ctx.rotate(Math.sin(boss.phase)*.08);
+
+    ctx.shadowBlur=35;
+    ctx.shadowColor="#ff2929";
+
+    // wings
+    ctx.fillStyle="#8b1e2d";
+
+    ctx.beginPath();
+    ctx.moveTo(-30,0);
+    ctx.lineTo(-100,35);
+    ctx.lineTo(-72,-15);
+    ctx.lineTo(-30,-20);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(30,0);
+    ctx.lineTo(100,35);
+    ctx.lineTo(72,-15);
+    ctx.lineTo(30,-20);
+    ctx.closePath();
+    ctx.fill();
+
+    // main body
+    ctx.fillStyle="#d9323e";
+
+    ctx.beginPath();
+    ctx.moveTo(0,-75);
+    ctx.lineTo(35,35);
+    ctx.lineTo(0,65);
+    ctx.lineTo(-35,35);
+    ctx.closePath();
+    ctx.fill();
+
+    // cockpit
+    ctx.fillStyle="#13070a";
+
+    ctx.beginPath();
+    ctx.arc(0,-25,22,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle="#ff8d8d";
+    ctx.lineWidth=3;
+    ctx.stroke();
+
+    // horns
+    ctx.fillStyle="#ffb03b";
+
+    ctx.beginPath();
+    ctx.moveTo(-18,-60);
+    ctx.lineTo(-42,-90);
+    ctx.lineTo(-30,-52);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(18,-60);
+    ctx.lineTo(42,-90);
+    ctx.lineTo(30,-52);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
+}
+
+// --------------------------------------------------
+// PARTICLES
+// --------------------------------------------------
+
+function createExplosion(x,y,count=10) {
+
+    for(let i=0;i<count;i++) {
 
         particles.push({
-
-            x,
-            y,
-
+            x,y,
             vx:(Math.random()-.5)*5,
             vy:(Math.random()-.5)*5,
-
-            life:25,
-
-            color,
-
-            size:2+Math.random()*3
-
+            life:30+Math.random()*35,
+            size:2+Math.random()*4
         });
-
     }
-
 }
 
+function updateParticles(dt) {
 
-function createExplosion(x,y){
-
-    for(let i=0;i<25;i++){
-
-        const a=
-            Math.random()*Math.PI*2;
-
-        const s=
-            1+Math.random()*6;
-
-
-        particles.push({
-
-            x,
-            y,
-
-            vx:Math.cos(a)*s,
-            vy:Math.sin(a)*s,
-
-            life:
-                35+
-                Math.random()*35,
-
-            color:
-                Math.random()<.5
-                ? "#ff9d00"
-                : "#ffef62",
-
-            size:
-                2+
-                Math.random()*5
-
-        });
-
-    }
-
-}
-
-
-function updateParticles(){
-
-    for(
-        let i=particles.length-1;
-        i>=0;
-        i--
-    ){
+    for(let i=particles.length-1;i>=0;i--) {
 
         const p=particles[i];
 
-        p.x+=p.vx;
-        p.y+=p.vy;
+        p.x+=p.vx*dt;
+        p.y+=p.vy*dt;
+        p.vx*=.97;
+        p.vy*=.97;
+        p.life-=dt;
 
-        p.vx*=.98;
-        p.vy*=.98;
-
-        p.life--;
-
-        if(p.life<=0){
-
+        if(p.life<=0)
             particles.splice(i,1);
+    }
+}
 
-        }
+function drawParticles() {
 
+    for(const p of particles) {
+
+        ctx.globalAlpha=Math.max(0,p.life/50);
+
+        ctx.fillStyle="#ffd166";
+
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.size,0,Math.PI*2);
+        ctx.fill();
     }
 
+    ctx.globalAlpha=1;
 }
 
+// --------------------------------------------------
+// FLOATING TEXT
+// --------------------------------------------------
 
-/* ============================================================
-   FLOATING TEXT
-============================================================ */
+function showFloatingText(x,y,text,bossText=false) {
 
-function updateFloatingTexts(){
+    texts.push({
+        x,y,
+        text,
+        life:bossText?150:110,
+        vy:-.25,
+        bossText
+    });
+}
 
-    for(
-        let i=floatingTexts.length-1;
-        i>=0;
-        i--
-    ){
+function updateTexts(dt) {
 
-        const t=floatingTexts[i];
+    for(let i=texts.length-1;i>=0;i--) {
 
-        t.y-=.35;
+        const t=texts[i];
 
-        t.life--;
+        t.y+=t.vy*dt;
+        t.life-=dt;
 
-        if(t.life<=0){
+        if(t.life<=0)
+            texts.splice(i,1);
+    }
+}
 
-            floatingTexts.splice(i,1);
+function drawTexts() {
 
-        }
+    ctx.textAlign="center";
 
+    for(const t of texts) {
+
+        ctx.globalAlpha=
+            Math.min(1,t.life/30);
+
+        ctx.font=
+            t.bossText
+            ? "bold 19px Arial"
+            : "bold 13px Arial";
+
+        const width=
+            ctx.measureText(t.text).width+20;
+
+        ctx.fillStyle=
+            t.bossText
+            ? "rgba(120,0,0,.8)"
+            : "rgba(0,0,0,.72)";
+
+        ctx.fillRect(
+            t.x-width/2,
+            t.y-17,
+            width,
+            25
+        );
+
+        ctx.fillStyle="#fff";
+
+        ctx.fillText(
+            t.text,
+            t.x,
+            t.y
+        );
     }
 
+    ctx.globalAlpha=1;
 }
 
+// --------------------------------------------------
+// BACKGROUND
+// --------------------------------------------------
 
-/* ============================================================
-   MESSAGE
-============================================================ */
+let stars=[];
 
-function showMessage(text,color="#fff"){
+for(let i=0;i<180;i++) {
 
-    const el=
-        document.getElementById("message");
-
-    el.innerHTML=text;
-
-    el.style.color=color;
-
-    el.style.opacity="1";
-
-    messageTimer=120;
-
+    stars.push({
+        x:Math.random()*innerWidth,
+        y:Math.random()*innerHeight,
+        s:.5+Math.random()*2
+    });
 }
 
+function drawBackground(dt) {
 
-/* ============================================================
-   HUD
-============================================================ */
+    ctx.fillStyle="#020611";
+    ctx.fillRect(0,0,W,H);
 
-function updateHUD(){
+    for(const s of stars) {
+
+        s.y+=s.s*dt;
+
+        if(s.y>H)
+            s.y=0;
+
+        ctx.fillStyle=
+            `rgba(130,190,255,${.2+s.s/3})`;
+
+        ctx.fillRect(
+            s.x,
+            s.y,
+            s.s,
+            s.s
+        );
+    }
+
+    // subtle horizon
+    const g=ctx.createLinearGradient(0,H*.5,0,H);
+    g.addColorStop(0,"rgba(0,70,120,0)");
+    g.addColorStop(1,"rgba(0,90,150,.08)");
+
+    ctx.fillStyle=g;
+    ctx.fillRect(0,0,W,H);
+}
+
+// --------------------------------------------------
+// WAVE CONTROL
+// --------------------------------------------------
+
+function nextWave() {
+
+    if(bossActive) return;
+
+    wave++;
+
+    if(wave>=waveData.length) {
+        startBoss();
+        return;
+    }
+
+    waveStartTime=performance.now();
+    swarmTimer=0;
+
+    const data=waveData[wave];
+
+    document.getElementById("waveTitle")
+        .textContent=data.name;
+
+    document.getElementById("waveSub")
+        .textContent=data.subtitle;
+
+    showMessage(data.name);
+
+    spawnWave();
+}
+
+function updateWave(dt) {
+
+    if(bossActive) return;
+
+    waveTimer =
+        performance.now()-waveStartTime;
+
+    swarmTimer += dt*16;
+
+    const data=waveData[wave];
+
+    if(
+        swarmTimer >
+        data.swarmAfter
+    ) {
+
+        createSwarm();
+
+        swarmTimer=-9000;
+    }
+
+    // advance when wave cleared
+    if(
+        enemies.length===0 &&
+        waveTimer>5000
+    ) {
+
+        if(wave<waveData.length-1) {
+
+            nextWave();
+
+        } else {
+
+            startBoss();
+        }
+    }
+}
+
+// --------------------------------------------------
+// MESSAGE
+// --------------------------------------------------
+
+let messageTimeout;
+
+function showMessage(text) {
+
+    const el=document.getElementById("message");
+
+    el.textContent=text;
+    el.classList.add("show");
+
+    clearTimeout(messageTimeout);
+
+    messageTimeout=setTimeout(()=>{
+        el.classList.remove("show");
+    },1700);
+}
+
+// --------------------------------------------------
+// HUD
+// --------------------------------------------------
+
+function updateHUD() {
+
+    document.getElementById("damage")
+        .textContent=damage.toFixed(1);
+
+    document.getElementById("internet")
+        .textContent=Math.max(0,Math.round(internet));
 
     document.getElementById("score")
         .textContent=score;
@@ -2990,1298 +1792,165 @@ function updateHUD(){
     document.getElementById("kills")
         .textContent=kills;
 
-    document.getElementById("combo")
-        .textContent=combo;
-
-    document.getElementById("wave")
+    document.getElementById("bonus")
         .textContent=
-            bossActive
-            ? "BOSS"
-            : wave;
+            damage>=52.9
+            ? "2.5 Gbps"
+            : damage>=19.9
+            ? "1000 Mbps"
+            : damage>=17.9
+            ? "500 Mbps"
+            : "100 Mbps";
 
-    document.getElementById("waveName")
+    document.getElementById("accuracy")
         .textContent=
-            bossActive
-            ? "👹 ΜΕΓΑΛΟΣ ΠΕΛΑΤΗΣ"
-            : waveData[
-                Math.min(wave,6)
-            ].name;
-
-    document.getElementById("powerText")
-        .textContent=
-            powers[
-                powerLevel
-            ].name;
-
-    document.getElementById("powerText")
-        .style.color=
-            powers[
-                powerLevel
-            ].color;
-
-    document.getElementById("damage")
-        .textContent=
-            damage.toFixed(1);
-
-
-    const ai=
-        bossActive
-        ? "🧠 BOSS AI: ΕΝΕΡΓΟ"
-        : wave>=5
-        ? "🧠 AI: ΕΝΕΡΓΟ"
-        : "";
-
-    document.getElementById("aiStatus")
-        .textContent=ai;
-
-
-    if(boss){
-
-        document.getElementById("bossHp")
-            .style.width=
-                Math.max(
-                    0,
-                    boss.hp/boss.maxHp*100
-                )+"%";
-
-    }
-
+            shots
+            ? Math.round(hits/shots*100)
+            : 100;
 }
 
+// --------------------------------------------------
+// GAME LOOP
+// --------------------------------------------------
 
-/* ============================================================
-   DRAW BACKGROUND
-============================================================ */
+function update(dt) {
 
-function drawBackground(){
+    if(!running) return;
 
-    ctx.fillStyle="#020611";
+    // slower player movement
+    if(mouse.active) {
 
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    const grd=
-        ctx.createRadialGradient(
-            W*.5,
-            H*.4,
-            20,
-            W*.5,
-            H*.4,
-            H*.8
-        );
-
-    grd.addColorStop(
-        0,
-        "rgba(0,80,150,.18)"
-    );
-
-    grd.addColorStop(
-        1,
-        "rgba(0,0,0,0)"
-    );
-
-    ctx.fillStyle=grd;
-
-    ctx.fillRect(
-        0,
-        0,
-        W,
-        H
-    );
-
-
-    for(const s of stars){
-
-        s.y+=s.speed;
-
-        if(s.y>H){
-
-            s.y=0;
-            s.x=Math.random()*W;
-
-        }
-
-        ctx.globalAlpha=
-            .25+
-            s.speed/6;
-
-        ctx.fillStyle="#fff";
-
-        ctx.fillRect(
-            s.x,
-            s.y,
-            s.size,
-            s.size*2
-        );
-
-    }
-
-    ctx.globalAlpha=1;
-
-}
-
-
-/* ============================================================
-   PLAYER DRAW
-============================================================ */
-
-function drawPlayer(){
-
-    ctx.save();
-
-    ctx.translate(
-        player.x,
-        player.y
-    );
-
-
-    ctx.shadowBlur=20;
-    ctx.shadowColor="#00d9ff";
-
-    ctx.fillStyle="#00bfff";
-
-    ctx.beginPath();
-
-    ctx.moveTo(-9,25);
-    ctx.lineTo(0,48);
-    ctx.lineTo(9,25);
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    ctx.fillStyle="#e8f6ff";
-
-    ctx.beginPath();
-
-    ctx.moveTo(0,-38);
-
-    ctx.lineTo(-12,5);
-    ctx.lineTo(-37,28);
-    ctx.lineTo(-14,25);
-
-    ctx.lineTo(0,14);
-
-    ctx.lineTo(14,25);
-    ctx.lineTo(37,28);
-    ctx.lineTo(12,5);
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    ctx.fillStyle="#0878b5";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        -15,
-        8,
-        15,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    ctx.shadowColor=
-        powers[
-            powerLevel
-        ].color;
-
-    ctx.strokeStyle=
-        powers[
-            powerLevel
-        ].color;
-
-    ctx.lineWidth=3;
-
-    ctx.beginPath();
-
-    ctx.moveTo(-8,-32);
-    ctx.lineTo(-8,-15);
-
-    ctx.moveTo(8,-32);
-    ctx.lineTo(8,-15);
-
-    ctx.stroke();
-
-
-    ctx.restore();
-
-}
-
-
-/* ============================================================
-   ENEMY DRAW
-============================================================ */
-
-function drawEnemy(e){
-
-    ctx.save();
-
-    ctx.translate(
-        e.x,
-        e.y
-    );
-
-
-    ctx.rotate(
-        Math.sin(e.angle)*.08
-    );
-
-
-    /*
-     * SWARM
-     */
-
-    if(e.type==="swarm"){
-
-        ctx.fillStyle="#ffd02e";
-
-        ctx.shadowBlur=18;
-        ctx.shadowColor="#ffbb00";
-
-        ctx.beginPath();
-
-        ctx.moveTo(0,-18);
-        ctx.lineTo(-14,12);
-        ctx.lineTo(0,7);
-        ctx.lineTo(14,12);
-
-        ctx.closePath();
-
-        ctx.fill();
-
-        ctx.restore();
-
-        return;
-
-    }
-
-
-    /*
-     * Different customer shapes.
-     */
-
-    let bodyColor="#777";
-    let wingColor="#444";
-
-
-    switch(e.type){
-
-        case"grandpa":
-            bodyColor="#8cc7a0";
-            wingColor="#4c8f67";
-            break;
-
-        case"grandma":
-            bodyColor="#e8a5d1";
-            wingColor="#a95791";
-            break;
-
-        case"walker":
-            bodyColor="#94a9a9";
-            wingColor="#516b6b";
-            break;
-
-        case"office":
-            bodyColor="#5dade2";
-            wingColor="#245c91";
-            break;
-
-        case"family":
-            bodyColor="#7ed6df";
-            wingColor="#318a92";
-            break;
-
-        case"smiler":
-            bodyColor="#82e0aa";
-            wingColor="#3a9861";
-            break;
-
-        case"skeptic":
-            bodyColor="#b084cc";
-            wingColor="#673d7f";
-            break;
-
-        case"business":
-            bodyColor="#4f78a8";
-            wingColor="#263c58";
-            break;
-
-        case"slowtank":
-            bodyColor="#8054a8";
-            wingColor="#3b2255";
-            break;
-
-        case"angry":
-            bodyColor="#e66a45";
-            wingColor="#7c2414";
-            break;
-
-        case"runner":
-            bodyColor="#ffbd45";
-            wingColor="#a66d13";
-            break;
-
-        case"shield":
-            bodyColor="#4dbbd5";
-            wingColor="#1d5d6e";
-            break;
-
-        case"ai":
-            bodyColor="#df55e8";
-            wingColor="#72217a";
-            break;
-
-        case"hunter":
-            bodyColor="#ff4dca";
-            wingColor="#7e1763";
-            break;
-
-        case"dodger":
-            bodyColor="#65e8ff";
-            wingColor="#17697a";
-            break;
-
-        case"tactician":
-            bodyColor="#c15cff";
-            wingColor="#5c2182";
-            break;
-
-        case"elite":
-            bodyColor="#ff4141";
-            wingColor="#720e0e";
-            break;
-
-        case"commander":
-            bodyColor="#ff8c2e";
-            wingColor="#7a2e0c";
-            break;
-
-    }
-
-
-    /*
-     * Shield bubble
-     */
-
-    if(e.shield){
-
-        ctx.globalAlpha=.28;
-
-        ctx.fillStyle="#50dcff";
-
-        ctx.beginPath();
-
-        ctx.arc(
-            0,
-            0,
-            34,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-        ctx.globalAlpha=1;
-
-        ctx.strokeStyle="#54eaff";
-
-        ctx.lineWidth=2;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            0,
-            0,
-            34,
-            0,
-            Math.PI*2
-        );
-
-        ctx.stroke();
-
-    }
-
-
-    /*
-     * AI halo
-     */
-
-    if(e.ai){
-
-        ctx.globalAlpha=.45;
-
-        ctx.strokeStyle=
-            "#ff4dff";
-
-        ctx.lineWidth=2;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            0,
-            0,
-            30+
-            Math.sin(frame*.1)*3,
-            0,
-            Math.PI*2
-        );
-
-        ctx.stroke();
-
-        ctx.globalAlpha=1;
-
-    }
-
-
-    /*
-     * Wings
-     */
-
-    ctx.shadowBlur=
-        e.ai
-        ? 18
-        : 10;
-
-    ctx.shadowColor=
-        bodyColor;
-
-    ctx.fillStyle=wingColor;
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(0,-28);
-
-    ctx.lineTo(
-        -e.w*.55,
-        10
-    );
-
-    ctx.lineTo(
-        -e.w*.18,
-        8
-    );
-
-    ctx.lineTo(
-        0,
-        24
-    );
-
-    ctx.lineTo(
-        e.w*.18,
-        8
-    );
-
-    ctx.lineTo(
-        e.w*.55,
-        10
-    );
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    /*
-     * Body
-     */
-
-    ctx.fillStyle=bodyColor;
-
-
-    ctx.beginPath();
-
-    if(
-        e.type==="commander" ||
-        e.type==="slowtank"
-    ){
-
-        ctx.roundRect(
-            -20,
-            -30,
-            40,
-            60,
-            10
-        );
-
-    }else{
-
-        ctx.ellipse(
-            0,
-            0,
-            14,
-            25,
-            0,
-            0,
-            Math.PI*2
-        );
-
-    }
-
-    ctx.fill();
-
-
-    /*
-     * Different heads / faces.
-     */
-
-    ctx.fillStyle=
-        e.ai
-        ? "#16051a"
-        : "#18202b";
-
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        -9,
-        9,
-        11,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Eyes
-     */
-
-    ctx.fillStyle=
-        e.ai
-        ? "#ff4dff"
-        : "#fff36a";
-
-
-    ctx.beginPath();
-
-    ctx.arc(
-        -3,
-        -9,
-        2.5,
-        0,
-        Math.PI*2
-    );
-
-    ctx.arc(
-        3,
-        -9,
-        2.5,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Commander symbol.
-     */
-
-    if(e.type==="commander"){
-
-        ctx.fillStyle="#fff";
-
-        ctx.font="bold 13px Arial";
-
-        ctx.textAlign="center";
-
-        ctx.fillText(
-            "!",
-            0,
-            16
-        );
-
-    }
-
-
-    /*
-     * HP
-     */
-
-    if(e.hp<e.maxHp){
-
-        ctx.fillStyle="#280000";
-
-        ctx.fillRect(
-            -22,
-            -39,
-            44,
-            4
-        );
-
-        ctx.fillStyle="#ff3838";
-
-        ctx.fillRect(
-            -22,
-            -39,
-            44*
-            (
-                e.hp/e.maxHp
-            ),
-            4
-        );
-
-    }
-
-
-    ctx.restore();
-
-}
-
-
-/* ============================================================
-   BOSS DRAW
-============================================================ */
-
-function drawBoss(){
-
-    if(!boss)return;
-
-
-    ctx.save();
-
-    ctx.translate(
-        boss.x,
-        boss.y
-    );
-
-
-    const ratio=
-        boss.hp/boss.maxHp;
-
-
-    ctx.shadowBlur=
-        boss.phase===4
-        ?60
-        :35;
-
-    ctx.shadowColor="#ff2020";
-
-
-    /*
-     * Massive wings
-     */
-
-    ctx.fillStyle=
-        boss.phase===4
-        ? "#750008"
-        : "#4d0b15";
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(0,-70);
-
-    ctx.lineTo(-100,15);
-    ctx.lineTo(-125,65);
-
-    ctx.lineTo(-55,47);
-
-    ctx.lineTo(0,78);
-
-    ctx.lineTo(55,47);
-
-    ctx.lineTo(125,65);
-
-    ctx.lineTo(100,15);
-
-    ctx.closePath();
-
-    ctx.fill();
-
-
-    /*
-     * Body
-     */
-
-    ctx.fillStyle=
-        boss.phase===4
-        ? "#e20e20"
-        : "#9b1720";
-
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        0,
-        68,
-        70,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Head
-     */
-
-    ctx.fillStyle="#d64242";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        -20,
-        38,
-        35,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Eyes
-     */
-
-    ctx.fillStyle=
-        boss.phase>=3
-        ? "#fff"
-        : "#ffff5b";
-
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        -14,
-        -21,
-        8,
-        12,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.ellipse(
-        14,
-        -21,
-        8,
-        12,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Mouth
-     */
-
-    ctx.fillStyle="#220308";
-
-    ctx.beginPath();
-
-    ctx.ellipse(
-        0,
-        7,
-        23,
-        12,
-        0,
-        0,
-        Math.PI*2
-    );
-
-    ctx.fill();
-
-
-    /*
-     * Rage horns
-     */
-
-    ctx.fillStyle=
-        boss.phase===4
-        ? "#fff000"
-        : "#ff9c43";
-
-
-    ctx.beginPath();
-
-    ctx.moveTo(-28,-43);
-    ctx.lineTo(-50,-76);
-    ctx.lineTo(-19,-51);
-
-    ctx.moveTo(28,-43);
-    ctx.lineTo(50,-76);
-    ctx.lineTo(19,-51);
-
-    ctx.fill();
-
-
-    /*
-     * Rage ring
-     */
-
-    if(boss.phase>=3){
-
-        ctx.globalAlpha=.4;
-
-        ctx.strokeStyle="#ff2020";
-
-        ctx.lineWidth=3;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            0,
-            0,
-            95+
-            Math.sin(frame*.08)*5,
-            0,
-            Math.PI*2
-        );
-
-        ctx.stroke();
-
-    }
-
-
-    ctx.restore();
-
-}
-
-
-/* ============================================================
-   BULLETS DRAW
-============================================================ */
-
-function drawBullets(){
-
-    for(const b of bullets){
-
-        ctx.save();
-
-        ctx.shadowBlur=20;
-
-        ctx.shadowColor=
-            powers[
-                powerLevel
-            ].color;
-
-        ctx.fillStyle=
-            powers[
-                powerLevel
-            ].color;
-
-        ctx.fillRect(
-            b.x-3,
-            b.y-12,
-            6,
-            24
-        );
-
-        ctx.restore();
-
-    }
-
-}
-
-
-/* ============================================================
-   ENEMY BULLETS DRAW
-============================================================ */
-
-function drawEnemyBullets(){
-
-    for(const b of enemyBullets){
-
-        ctx.save();
-
-        ctx.shadowBlur=
-            b.fire
-            ?24
-            :14;
-
-        ctx.shadowColor="#ff2020";
-
-        ctx.fillStyle=
-            b.fire
-            ? "#ff5a00"
-            : "#ff3030";
-
-
-        ctx.beginPath();
-
-        ctx.arc(
-            b.x,
-            b.y,
-            b.r||6,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-        ctx.restore();
-
-    }
-
-}
-
-
-/* ============================================================
-   POWERUP DRAW
-============================================================ */
-
-function drawPowerups(){
-
-    for(const p of powerups){
-
-        const power=
-            powers[
-                p.level
-            ];
-
-        ctx.save();
-
-        ctx.translate(
-            p.x,
-            p.y
-        );
-
-        ctx.rotate(
-            p.rotation
-        );
-
-        ctx.shadowBlur=25;
-
-        ctx.shadowColor=
-            power.color;
-
-        ctx.strokeStyle=
-            power.color;
-
-        ctx.lineWidth=4;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            0,
-            0,
-            p.r,
-            0,
-            Math.PI*2
-        );
-
-        ctx.stroke();
-
-        ctx.rotate(
-            -p.rotation
-        );
-
-        ctx.fillStyle=
-            power.color;
-
-        ctx.font=
-            "bold 10px Arial";
-
-        ctx.textAlign="center";
-
-        ctx.textBaseline="middle";
-
-        ctx.fillText(
-            power.name,
-            0,
-            0
-        );
-
-        ctx.restore();
-
-    }
-
-}
-
-
-/* ============================================================
-   SWARM DRAW
-============================================================ */
-
-function drawSwarms(){
-
-    for(const s of swarms){
-
-        ctx.save();
-
-        ctx.globalAlpha=.55;
-
-        ctx.strokeStyle="#ffd84d";
-
-        ctx.lineWidth=2;
-
-        ctx.setLineDash([8,8]);
-
-        ctx.beginPath();
-
-        if(s.horizontal){
-
-            ctx.moveTo(0,s.y);
-            ctx.lineTo(W,s.y);
-
-        }else{
-
-            ctx.moveTo(s.x,0);
-            ctx.lineTo(s.x,H);
-
-        }
-
-        ctx.stroke();
-
-        ctx.setLineDash([]);
-
-        ctx.restore();
-
-    }
-
-}
-
-
-/* ============================================================
-   PARTICLES DRAW
-============================================================ */
-
-function drawParticles(){
-
-    for(const p of particles){
-
-        ctx.globalAlpha=
+        player.targetX =
             Math.max(
-                0,
-                p.life/50
+                35,
+                Math.min(W-35,mouse.x)
             );
 
-        ctx.fillStyle=p.color;
-
-        ctx.beginPath();
-
-        ctx.arc(
-            p.x,
-            p.y,
-            p.size,
-            0,
-            Math.PI*2
-        );
-
-        ctx.fill();
-
-    }
-
-    ctx.globalAlpha=1;
-
-}
-
-
-/* ============================================================
-   TEXT DRAW
-============================================================ */
-
-function drawFloatingTexts(){
-
-    for(const t of floatingTexts){
-
-        ctx.save();
-
-        ctx.globalAlpha=
-            Math.min(
-                1,
-                t.life/40
+        player.targetY =
+            Math.max(
+                H*.45,
+                Math.min(H-55,mouse.y)
             );
-
-        ctx.fillStyle=t.color;
-
-        ctx.shadowBlur=8;
-
-        ctx.shadowColor="#000";
-
-        ctx.font=
-            "bold "+
-            t.size+
-            "px Arial";
-
-        ctx.textAlign="center";
-
-        ctx.fillText(
-            t.text,
-            t.x,
-            t.y
-        );
-
-        ctx.restore();
-
     }
 
+    player.x +=
+        (player.targetX-player.x)
+        *.045*dt;
+
+    player.y +=
+        (player.targetY-player.y)
+        *.045*dt;
+
+    player.cooldown-=dt;
+
+    // automatic firing
+    if(player.cooldown<=0) {
+
+        fire();
+
+        player.cooldown=22;
+    }
+
+    updateBullets(dt);
+    updateEnemyBullets(dt);
+    updateEnemies(dt);
+    updateBonuses(dt);
+    updateParticles(dt);
+    updateTexts(dt);
+
+    if(bossActive)
+        updateBoss(dt);
+    else
+        updateWave(dt);
+
+    updateHUD();
 }
 
+function draw() {
 
-/* ============================================================
-   UPDATE
-============================================================ */
-
-function update(){
-
-    frame++;
-
-    movePlayer();
-
-    if(player.fireCooldown>0){
-        player.fireCooldown--;
-    }
-
-    if(shootHeld){
-        shoot();
-    }
-
-    spawnLogic();
-
-    updateBullets();
-
-    updateEnemies();
-
-    updateEnemyBullets();
-
-    updatePowerups();
-
-    updateSwarms();
-
-    updateParticles();
-
-    updateFloatingTexts();
-
-    updateBoss();
-
-
-    /*
-     * Message fade.
-     */
-
-    if(messageTimer>0){
-
-        messageTimer--;
-
-        if(messageTimer<25){
-
-            document.getElementById("message")
-                .style.opacity=
-                    messageTimer/25;
-
-        }
-
-    }
-
-
-    if(shake>0){
-        shake*=.86;
-    }
-
-}
-
-
-/* ============================================================
-   DRAW
-============================================================ */
-
-function draw(){
-
-    ctx.save();
-
-
-    if(shake>0){
-
-        ctx.translate(
-
-            (
-                Math.random()-.5
-            )*shake,
-
-            (
-                Math.random()-.5
-            )*shake
-
-        );
-
-    }
-
-
-    drawBackground();
-
-    drawSwarms();
-
-    drawPowerups();
-
-    drawBullets();
-
-    drawEnemyBullets();
-
-
-    for(const e of enemies){
-        drawEnemy(e);
-    }
-
-
-    drawBoss();
-
-    drawPlayer();
+    drawBackground(1);
 
     drawParticles();
+    drawBullets();
+    drawEnemyBullets();
+    drawBonuses();
 
-    drawFloatingTexts();
+    for(const e of enemies)
+        drawEnemy(e);
 
+    if(bossActive)
+        drawBoss();
 
-    ctx.restore();
-
+    drawPlayer();
+    drawTexts();
 }
 
+function loop(timestamp) {
 
-/* ============================================================
-   LOOP
-============================================================ */
+    let dt=(timestamp-lastTime)/16.67;
 
-function gameLoop(){
+    if(dt>2) dt=2;
 
-    if(!running)return;
+    lastTime=timestamp;
 
-    update();
-
+    update(dt);
     draw();
 
-    requestAnimationFrame(gameLoop);
-
+    requestAnimationFrame(loop);
 }
 
+requestAnimationFrame(loop);
 
-/* ============================================================
-   GAME OVER
-============================================================ */
+// --------------------------------------------------
+// START
+// --------------------------------------------------
 
-function endGame(reason){
+function startGame() {
 
+    document.getElementById("startScreen")
+        .classList.add("hidden");
+
+    running=true;
+
+    player=createPlayer();
+
+    kills=0;
+    score=0;
+    damage=12;
+    internet=100;
+    shots=0;
+    hits=0;
+
+    wave=0;
+    waveStartTime=performance.now();
+
+    const data=waveData[0];
+
+    document.getElementById("waveTitle")
+        .textContent=data.name;
+
+    document.getElementById("waveSub")
+        .textContent=data.subtitle;
+
+    showMessage(
+        "👴 ΗΛΙΚΙΩΜΕΝΟΙ ΕΥΚΟΛΟΠΙΣΤΟΙ ΠΕΛΑΤΕΣ"
+    );
+
+    spawnWave();
+}
+
+// --------------------------------------------------
+// GAME OVER / WIN
+// --------------------------------------------------
+
+function loseGame(reason) {
+
+    if(gameOver || victory) return;
+
+    gameOver=true;
     running=false;
 
-    document.getElementById("finalReason")
+    document.getElementById("loseReason")
         .textContent=reason;
 
     document.getElementById("finalScore")
@@ -4290,34 +1959,59 @@ function endGame(reason){
     document.getElementById("finalKills")
         .textContent=kills;
 
-    document.getElementById("gameOver")
+    document.getElementById("gameOverScreen")
         .classList.remove("hidden");
-
 }
 
+function winGame() {
 
-/* ============================================================
-   BUTTONS
-============================================================ */
+    if(victory) return;
 
-document.getElementById("startBtn")
-    .addEventListener(
-        "click",
-        startGame
+    victory=true;
+    running=false;
+    bossActive=false;
+
+    document.getElementById("bossBarWrap")
+        .style.display="none";
+
+    createExplosion(
+        boss.x,
+        boss.y,
+        100
     );
 
-document.getElementById("restartBtn")
-    .addEventListener(
-        "click",
-        startGame
-    );
+    document.getElementById("winScore")
+        .textContent=score+5000;
 
+    document.getElementById("winDamage")
+        .textContent=damage.toFixed(1);
 
-/* ============================================================
-   INITIAL
-============================================================ */
+    setTimeout(()=>{
 
-updateHUD();
+        document.getElementById("winScreen")
+            .classList.remove("hidden");
+
+    },800);
+}
+
+// --------------------------------------------------
+// KEYBOARD
+// --------------------------------------------------
+
+window.addEventListener("keydown",e=>{
+
+    if(e.code==="Space") {
+
+        e.preventDefault();
+
+        if(running)
+            fire();
+    }
+
+    if(e.key==="r" && (gameOver || victory)) {
+        location.reload();
+    }
+});
 
 </script>
 
